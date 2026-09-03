@@ -31,6 +31,13 @@ function str(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+/** ISO day, `2026-08-21`, and a real calendar date rather than 2026-02-31. */
+function isIsoDay(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const parsed = new Date(`${value}T00:00:00.000Z`)
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
+}
+
 /** A list of strings, dropping anything that is not a non-empty string. */
 function strList(value: unknown): string[] {
   if (!Array.isArray(value)) return []
@@ -121,25 +128,57 @@ export function saveBriefTool(): ToolSpec {
       if (!trend) return { ok: false as const, reason: `selected trend no longer exists: ${app.selectedTrendId}` }
       if (!offering) return { ok: false as const, reason: `selected offering no longer exists: ${app.selectedOfferingId}` }
 
-      const title = str(input.title)
-      if (!title) return { ok: false as const, reason: 'title is required' }
+      // The schema marks these required, but nothing between an agent and this
+      // executor enforces a schema, so the executor does. An empty string is a
+      // missing field here — a brief with a blank hook is not a brief.
+      const fields = {
+        title: str(input.title),
+        hook: str(input.hook),
+        tone: str(input.tone),
+        cta: str(input.cta),
+        audience: str(input.audience),
+      }
+      const outline = strList(input.outline)
+      const hashtags = strList(input.hashtags)
 
-      // Platform comes from the input when valid, else the trend's platform.
+      const missing = Object.entries(fields)
+        .filter(([, value]) => !value)
+        .map(([key]) => key)
+      if (outline.length === 0) missing.push('outline')
+      if (!Array.isArray(input.hashtags)) missing.push('hashtags')
+      if (missing.length > 0) {
+        return {
+          ok: false as const,
+          reason: `missing required field${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}`,
+          required: ['title', 'hook', 'outline', 'tone', 'cta', 'hashtags', 'audience'],
+        }
+      }
+
+      // Platform comes from the input when given, else the trend's platform. A
+      // value that is present but not a platform is an error rather than a
+      // silent fallback — the caller meant something by it.
       // `status` in the input is deliberately never read — draft is structural.
+      if (input.platform !== undefined && !isPlatform(input.platform)) {
+        return {
+          ok: false as const,
+          reason: `not a platform: ${JSON.stringify(input.platform)}`,
+          known: [...PLATFORMS],
+        }
+      }
       const platform: Platform = isPlatform(input.platform) ? input.platform : trend.platform
 
       const brief = saveDraft(
         {
-          title,
+          title: fields.title,
           trendId: trend.id,
           offeringId: offering.id,
           platform,
-          hook: str(input.hook),
-          outline: strList(input.outline),
-          tone: str(input.tone),
-          cta: str(input.cta),
-          hashtags: strList(input.hashtags),
-          audience: str(input.audience),
+          hook: fields.hook,
+          outline,
+          tone: fields.tone,
+          cta: fields.cta,
+          hashtags,
+          audience: fields.audience,
         },
         'agent',
       )
@@ -341,12 +380,37 @@ export function searchBriefsTool(): ToolSpec {
     },
     annotations: { readOnlyHint: true, untrustedContentHint: true },
     execute: (input: Record<string, unknown>) => {
+      // A filter the executor cannot understand used to be dropped, which
+      // answered a question nobody asked: `status: "aproved"` returned every
+      // brief in the library and read as a successful search.
+      if (input.status !== undefined && !isBriefStatus(input.status)) {
+        return {
+          ok: false as const,
+          reason: `not a status: ${JSON.stringify(input.status)}`,
+          known: [...BRIEF_STATUSES],
+        }
+      }
+      if (input.platform !== undefined && !isPlatform(input.platform)) {
+        return {
+          ok: false as const,
+          reason: `not a platform: ${JSON.stringify(input.platform)}`,
+          known: [...PLATFORMS],
+        }
+      }
+      for (const key of ['from', 'to'] as const) {
+        if (input[key] !== undefined && !isIsoDay(input[key])) {
+          return { ok: false as const, reason: `${key} must be an ISO day, e.g. 2026-08-21` }
+        }
+      }
       const f = {
         query: str(input.query),
         status: isBriefStatus(input.status) ? input.status : '',
         platform: isPlatform(input.platform) ? input.platform : '',
         from: str(input.from),
         to: str(input.to),
+      }
+      if (f.from && f.to && f.from > f.to) {
+        return { ok: false as const, reason: `from ${f.from} is after to ${f.to}` }
       }
       const briefs = readBriefs()
         .filter((b) => matchesBrief(b, f))

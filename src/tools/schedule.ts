@@ -184,11 +184,39 @@ export function listScheduleTool(): ToolSpec {
       const unexpected = unexpectedField(input, LIST_FIELDS)
       if (unexpected) return { ok: false as const, reason: unexpected }
 
+      // An unreadable filter used to be dropped, so `status: "postd"` returned
+      // the whole calendar and looked like an answer. Say no instead.
+      for (const key of ['from', 'to'] as const) {
+        if (input[key] !== undefined && !isIsoDay(input[key])) {
+          return { ok: false as const, reason: `${key} must be an ISO day, e.g. 2026-08-21` }
+        }
+      }
+      if (input.status !== undefined && !isScheduleStatus(input.status)) {
+        return {
+          ok: false as const,
+          reason: `not a status: ${JSON.stringify(input.status)}`,
+          known: [...SCHEDULE_STATUSES],
+        }
+      }
+      if (input.platform !== undefined && !isPlatform(input.platform)) {
+        return {
+          ok: false as const,
+          reason: `not a platform: ${JSON.stringify(input.platform)}`,
+          known: [...PLATFORMS],
+        }
+      }
+      if (input.briefId !== undefined && typeof input.briefId !== 'string') {
+        return { ok: false as const, reason: 'briefId must be a string' }
+      }
+
       const from = isIsoDay(input.from) ? input.from : ''
       const to = isIsoDay(input.to) ? input.to : ''
       const status = isScheduleStatus(input.status) ? input.status : ''
       const platform = isPlatform(input.platform) ? input.platform : ''
       const briefId = typeof input.briefId === 'string' ? input.briefId.trim() : ''
+      if (from && to && from > to) {
+        return { ok: false as const, reason: `from ${from} is after to ${to}` }
+      }
 
       const entries = readSchedule()
         .filter((entry) => {

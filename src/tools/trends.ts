@@ -56,9 +56,15 @@ function isString(value: unknown): value is string {
   return typeof value === 'string'
 }
 
-/** ISO day, `2026-08-21`. Anything else is rejected rather than coerced. */
+/**
+ * ISO day, `2026-08-21`. Anything else is rejected rather than coerced, and the
+ * shape check is not enough on its own: `2026-02-31` matches the pattern and is
+ * not a day, so the round-trip through Date is what rejects it.
+ */
 function isIsoDay(value: unknown): value is string {
-  return isString(value) && /^\d{4}-\d{2}-\d{2}$/.test(value)
+  if (!isString(value) || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const parsed = new Date(`${value}T00:00:00.000Z`)
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
 }
 
 function stringArray(value: unknown, cap: number): string[] {
@@ -143,6 +149,12 @@ export function filterTrendsTool(): ToolSpec {
         if (typeof raw.minGrowthPct === 'number' && Number.isFinite(raw.minGrowthPct)) {
           next.minGrowthPct = raw.minGrowthPct
         } else rejected.push('minGrowthPct must be a number')
+      }
+
+      // An inverted range is impossible rather than merely empty, and saying so
+      // is more useful than handing back a table with nothing in it.
+      if (next.from && next.to && next.from > next.to) {
+        rejected.push(`from ${next.from} is after to ${next.to}`)
       }
 
       // Nothing is applied on a bad argument. A half-applied filter set is a

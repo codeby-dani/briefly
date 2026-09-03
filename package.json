@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "verify:brand": "node scripts/verify-brand.mjs",
     "verify:dashboard": "vite build --ssr scripts/verify-dashboard.mjs --outDir .verify-dashboard --emptyOutDir && node .verify-dashboard/verify-dashboard.js",
+    "verify:tools": "vite build --ssr scripts/verify-tool-validation.mjs --outDir node_modules/.verify --emptyOutDir --logLevel warn && node node_modules/.verify/verify-tool-validation.js",
     "lint": "oxlint",
     "preview": "vite preview"
   },
