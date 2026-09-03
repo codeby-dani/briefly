@@ -990,3 +990,11 @@ The Composer’s browser-native trend and offering selects are now compact,
 searchable pickers. Trend choices carry their platform icon, category, and
 title; offering choices carry their positioning. The menu has a bounded scroll
 area, so long lists no longer cover the entire page.
+
+### 2026-09-04 04:02 WITA — Collapsible sidebar
+
+The desktop sidebar now has a compact edge tab that hides and restores the
+navigation rail. The shell removes its reserved left gutter when hidden, so
+the active route gains the full workspace width. The toggle is intentionally
+absent on the existing tablet/mobile layout, where the sidebar is already a
+horizontal strip.

@@ -38,6 +38,7 @@ import {
  */
 export default function App() {
   const { route, selectedTrendId, selectedOfferingId } = useAppState()
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   useEffect(() => {
     installBridge()
@@ -54,9 +55,9 @@ export default function App() {
 
   return (
     <>
-      <Sidebar route={route} />
+      <Sidebar route={route} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((collapsed) => !collapsed)} />
 
-      <div className="shell">
+      <div className={`shell${sidebarCollapsed ? ' is-sidebar-collapsed' : ''}`}>
         <TopBar />
         <UnsupportedBrowserNotice />
         <main className="app-main" data-testid={`route-${route}`}>
@@ -85,13 +86,14 @@ const WORKSPACES = [
   { id: 'content', initials: 'CL', name: 'Content Lab', description: 'Brief experiments and publishing' },
 ]
 
-function Sidebar({ route }: { route: Route }) {
+function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: boolean; onToggle: () => void }) {
   const [workspaceOpen, setWorkspaceOpen] = useState(false)
   const [activeWorkspaceId, setActiveWorkspaceId] = useState(WORKSPACES[0].id)
   const activeWorkspace = WORKSPACES.find((workspace) => workspace.id === activeWorkspaceId) ?? WORKSPACES[0]
 
   return (
-    <aside className="sidebar" aria-label="Sections">
+    <>
+    <aside className={`sidebar${collapsed ? ' is-collapsed' : ''}`} aria-label="Sections">
       <div className="sidebar-top">
         <div className="sidebar-brand">
           <img className="brand-mark" src="/brand/briefly-logo.png" alt="" aria-hidden="true" />
@@ -171,6 +173,17 @@ function Sidebar({ route }: { route: Route }) {
         </button>
       </div>
     </aside>
+    <button
+      type="button"
+      className={`sidebar-toggle${collapsed ? ' is-collapsed' : ''}`}
+      aria-label={collapsed ? 'Show sidebar' : 'Hide sidebar'}
+      aria-expanded={!collapsed}
+      data-testid="sidebar-toggle"
+      onClick={onToggle}
+    >
+      <NavIcon name="chevron" size={16} />
+    </button>
+    </>
   )
 }
 
