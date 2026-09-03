@@ -683,6 +683,54 @@
   font-size: 18px;
 }
 
+@media (max-width: 1100px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-hero-actions,
+  .workspace-pulse,
+  .chart-foot {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pulse-separator {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-hero,
+  .workspace-pulse,
+  .dashboard-kpis,
+  .dashboard-growth-card,
+  .dashboard-grid {
+    animation: none;
+  }
+
+  .kpi,
+  .dashboard-trends-card .row {
+    transition: none;
+  }
+
+  .kpi:hover,
+  .dashboard-trends-card .row:hover {
+    transform: none;
+  }
+}
+
 @keyframes dashboard-in {
   from {
     opacity: 0;

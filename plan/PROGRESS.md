@@ -854,3 +854,19 @@ new live-state text makes no numerical claim beyond the actual registered tools.
 preview was opened in the ChatGPT in-app browser at `#/dashboard`; its console
 has zero errors, and the 7-day chart window changes its rendered series. This is
 local evidence only—no deployment status changed.
+
+### 2026-09-04 00:44 WITA — dashboard review corrections
+
+A focused implementation review removed misleading KPI micro-trends: only
+Followers gained now renders a seven-day sparkline sourced from the actual
+follower series. Reach, impressions and engagement retain their clearly labelled
+demo figures without implying a separate time series. The dashboard grid now
+collapses to one column at narrow and tablet layouts, its hero/status/chart
+footer wrap cleanly, and `prefers-reduced-motion` disables the new entrance and
+hover motion.
+
+`npm run verify:dashboard` now provides a repeatable Vite-SSR dashboard check
+for the key live-state hooks and responsive/reduced-motion CSS contracts. The
+production build passes, the in-app preview at `#/dashboard` was refreshed, and
+its console remains free of errors. `npm run lint` still reports only the four
+pre-existing `useTool.ts` warnings.

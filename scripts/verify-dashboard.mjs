@@ -1,6 +1,7 @@
 /** Dashboard regression check: the landing route exposes a live workspace pulse. */
 
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
@@ -25,5 +26,11 @@ const markup = renderToStaticMarkup(createElement(Dashboard))
 assert.match(markup, /data-testid="workspace-pulse"/)
 assert.match(markup, /data-testid="dashboard-workspace"/)
 assert.match(markup, /data-testid="dashboard-trend-list"/)
+assert.match(markup, /Followers gained, seven-day direction/)
+assert.doesNotMatch(markup, /Reach, seven-day direction/)
 
-console.log(JSON.stringify({ ok: true, dashboardPulse: true, dashboardWorkspace: true }))
+const css = readFileSync('src/App.css', 'utf8')
+assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.dashboard-grid/)
+assert.match(css, /prefers-reduced-motion: reduce/)
+
+console.log(JSON.stringify({ ok: true, dashboardPulse: true, dashboardWorkspace: true, responsive: true }))

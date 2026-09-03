@@ -45,13 +45,6 @@ export function Dashboard() {
   const top5 = [...trends].sort((a, b) => b.growthPct - a.growthPct).slice(0, 5)
   const recent = [...briefs].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 5)
   const selectedTrend = trends.find((trend) => trend.id === app.selectedTrendId)
-  const metricSparks = [
-    analytics.followerGrowth.slice(-7),
-    analytics.followerGrowth.slice(-14, -7),
-    [...analytics.followerGrowth.slice(-7)].reverse(),
-    analytics.followerGrowth.slice(-7).map((value, index) => value + index * 3),
-  ]
-
   return (
     <>
       <section className="dashboard-hero" data-testid="dashboard-workspace">
@@ -89,10 +82,10 @@ export function Dashboard() {
           <DemoBadge what="Every figure in this card" />
         </div>
         <div className="kpis">
-          <Kpi label="Reach" value={compact(analytics.reach)} note="Audience signals" icon="reach" spark={metricSparks[0]} />
-          <Kpi label="Impressions" value={compact(analytics.impressions)} note="Content discovery" icon="impressions" spark={metricSparks[1]} />
-          <Kpi label="Engagement rate" value={`${analytics.engagementRate}%`} note="Quality signal" icon="engagement" spark={metricSparks[2]} />
-          <Kpi label="Followers gained" value={compact(followersGained)} note="30-day movement" icon="followers" spark={metricSparks[3]} />
+          <Kpi label="Reach" value={compact(analytics.reach)} note="Audience signals" icon="reach" />
+          <Kpi label="Impressions" value={compact(analytics.impressions)} note="Content discovery" icon="impressions" />
+          <Kpi label="Engagement rate" value={`${analytics.engagementRate}%`} note="Quality signal" icon="engagement" />
+          <Kpi label="Followers gained" value={compact(followersGained)} note="30-day movement" icon="followers" spark={analytics.followerGrowth.slice(-7)} />
         </div>
       </section>
 
@@ -195,7 +188,7 @@ function Kpi({
   value: string
   note: string
   icon: keyof typeof ICONS
-  spark: number[]
+  spark?: number[]
 }) {
   return (
     <div className="kpi" data-testid={`kpi-${label.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -208,7 +201,7 @@ function Kpi({
       <span className="kpi-value">{value}</span>
       <div className="kpi-foot">
         <span>{note}</span>
-        <Sparkline points={spark} label={`${label}, seven-day direction`} />
+        {spark && <Sparkline points={spark} label={`${label}, seven-day direction`} />}
       </div>
     </div>
   )
