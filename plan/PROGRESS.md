@@ -2,8 +2,8 @@
 
 **This is the session entry point. Read this before anything else.**
 
-Last updated: 2026-09-03 22:40 WITA · by: Phase 2 build session, then a `todo.md` sweep
-Last updated: 2026-09-03 22:46 WITA · by: Phase 3 local implementation
+Last updated: 2026-09-03 23:05 WITA · by: cross-branch reconciliation — four phases
+were built in parallel and merged badly; this entry is the audit and the repair
 
 ---
 
@@ -11,25 +11,28 @@ Last updated: 2026-09-03 22:46 WITA · by: Phase 3 local implementation
 
 | | |
 |---|---|
-| **Current phase** | Phase 3 — locally complete by explicit prerequisite override; deployment and browser verification pending |
+| **Current phase** | Phases 1–4 are code-complete **on one tree for the first time**. Nothing new is deployed |
 | **Sprint start (T+0)** | 2026-09-03 17:51 WITA |
 | **Hard deadline** | 2026-09-04 04:00 WITA (13:00 PDT, 2026-09-03) |
-| **Time remaining at last update** | 5h 14m |
-| **Deployed URL** | https://trend-lake.vercel.app — static app and media return 200 |
-| **Tools registered** | 7 of 21 planned are written: 2 global plus 5 product tools; the product surface is locally verified, not deployed |
+| **Time remaining at last update** | 4h 55m |
+| **Deployed URL** | https://trend-lake.vercel.app — **serves a stale bundle**: Phases 0, 1 and 4 only |
+| **Tools registered** | 21 of 21 written and locally verified on one build. **6 of 21 are on the deployed origin** |
 
 ## Next Task
 
-**Commit the Phase 3 code and plan together, rename the branch to `phase-3`,
-push it, and deploy through `main`.** Then verify the Product Knowledge route on
-the deployed origin: five tools with no product open, seven when one is open,
-hand CRUD, and the guarded-delete refusal. Do not mark Phase 3 deployed until
-those checks pass.
+**Commit the merge repair, push, and re-verify on the deployed origin.** The
+repair is three edits and is already in the working tree, unstaged; `main` did
+not compile before them.
 
-The earlier Phase 0–2 gaps remain open by explicit instruction: confirm the
-response includes `Permissions-Policy: tools=(self)`, repair and call
-`/api/analyze`, perform the ChatGPT and flagged-Chrome checks, and complete the
-Trends phase before claiming the overall sprint is sequentially complete.
+The live origin is running a bundle from before Phase 2. Measured on it this
+session: `td:version` is `1`, trends carry no `cached` field, and `/trends`,
+`/products`, `/calendar` and `/performance` all render the Pending placeholder
+with the surface at 2. Only `/briefs` is real there. Every Phase 2 and Phase 3
+claim below is therefore a *local* claim, and the deploy is what converts it.
+
+After the push: confirm `Permissions-Policy: tools=(self)` on the response,
+re-drive the surface counts on the public origin, then the two required browser
+checks (ChatGPT in-app browser, flagged Chrome). `/api/analyze` still needs B6.
 
 ## Blockers
 
@@ -40,44 +43,57 @@ Trends phase before claiming the overall sprint is sequentially complete.
 | B3 | Stitch API key compromised (pasted in chat) — revoke before use | you | pre | **open** · no longer blocks design (MCP connector used, no key needed) but the key is still exposed |
 | B4 | Screen recorder not tested | you | 7 | open |
 | B5 | Repo still private | you | 7 | **closed** 2026-09-03 22:09 — GitHub API reports `visibility: public` |
-| B6 | `/api/analyze` does not return from the live origin; key/provider state needs Vercel inspection | you | 0 | **open** — branch adds a ten-second upstream timeout |
+| B6 | `/api/analyze` never responds on the live origin — GET and POST both hang | you | 0 | **open** — diagnosed below; not a key problem |
 | B8 | Vercel not confirmed on the hackathon's approved-hosting list | you | 0 | **closed** 2026-09-03 22:08 — official rules explicitly list Vercel |
 | B7 | Clip corpus not yet copied from ClipBrief into `public/media/` | — | 0 | **closed** 2026-09-03 21:10 |
-| B9 | No committed `cached` summaries for clip-backed trends — `02-data-model.md` asks for them but defines no `Trend` field to hold one | — | 2 | open |
-| B10 | Phase 3 code is locally verified but not deployed; browser surfaces were unavailable for visual/runtime confirmation | you | 3 | **open** — push/merge, then verify the public origin |
+| B9 | No committed `cached` summaries for clip-backed trends | — | 2 | **closed** 2026-09-03 22:35 — `CachedAnalysis` + `Trend.cached`, twelve summaries |
+| B10 | Parallel phases merged without reconciling — `main` did not compile | — | 2/3/4 | **repair written, uncommitted** — see the audit entry in the log |
+| B11 | Deployed origin is older than `main`: Phases 2 and 3 are not on it | you | 0 | **open** — clears on the next successful deploy |
 
-B6 is Phase 0 work, not pre-work, and is not fatal: without it `analyze_trend`
-serves the cached summary, which degrades rather than breaks — and as of Phase 2
-that path is built, committed and verified, so the degradation is a tested
-branch rather than a plan. B7 is closed — the
-12 clips and the generated `src/fixtures/clips.ts` are committed, and one poster
-and one mp4 were served locally (200 `image/jpeg`, 206 `video/mp4`).
+B6 is no longer believed to be a key or provider problem. Both `GET` and `POST`
+to `/api/analyze` were aborted at twelve seconds from the live origin with no
+response at all — and `GET` is supposed to return `405` immediately, doing no
+upstream work whatsoever. A handler that cannot even refuse a verb is a handler
+that never ran to completion. `api/analyze.ts` default-exports a web-standard
+`(request: Request) => Promise<Response>` and declares no
+`export const config = { runtime: 'edge' }`, so Vercel's Node runtime invokes it
+as `(req, res)`, drops the returned `Response`, and never ends the socket. That
+is a hypothesis with strong evidence, not a confirmed fix — it is untested until
+someone deploys either the `edge` runtime declaration or a `(req, res)` handler.
+B6 is still not fatal: `analyze_trend` degrades to the committed `cached`
+summary, and that degradation was exercised again this session.
 
 B1 and B3 are still entrant-owned blockers. B3 is a security issue, not a
 schedule issue: the key is exposed regardless of whether Stitch gets used.
 The live URL exists, but the two required WebMCP browser checks have not been
-performed in this session because neither browser surface was available.
+performed in any session yet, because neither browser surface has been
+available.
 
-B9 is closed. It was resolved document-first as prescribed: `02-data-model.md`
-gained a `CachedAnalysis` record and a `Trend.cached` field, then `src/types.ts`,
-then the fixture. One nested record rather than the two loose fields the last
-entry predicted — the summary, the angles, the model id and the date have to
-travel together, and splitting them is how a cached summary ends up on screen
-with no date beside it. `SCHEMA_VERSION` moved 1 → 2 so a warm `localStorage`
-reseeds instead of serving trends with no `cached` field.
+B9 was closed document-first as prescribed: `02-data-model.md` gained a
+`CachedAnalysis` record and a `Trend.cached` field, then `src/types.ts`, then the
+fixture. One nested record rather than two loose fields — the summary, the
+angles, the model id and the date have to travel together, and splitting them is
+how a cached summary ends up on screen with no date beside it. `SCHEMA_VERSION`
+moved 1 → 2 so a warm `localStorage` reseeds instead of serving trends with no
+`cached` field.
 
 ## Phase Completion
 
 | Phase | Title | Window | State | Exit criteria met |
 |-------|-------|--------|-------|-------------------|
-| 0 | Foundation | T+0:00 → T+1:15 | `[ ]` | 3 / 8 · rest blocked on deploy |
-| 1 | Shell and data layer | T+1:15 → T+2:45 | `[ ]` | 7 / 7 locally · 0 verified on a deployed origin |
-| 2 | Trends | T+2:45 → T+4:15 | `[ ]` | 0 / 10 |
-| 3 | Product Knowledge | T+4:15 → T+5:15 | `[ ]` | 5 / 5 locally · 0 verified on a deployed origin |
-| 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 0 / 7 |
+| 0 | Foundation | T+0:00 → T+1:15 | `[ ]` | 5 / 8 · build green again; 2 browser checks + B6 open |
+| 1 | Shell and data layer | T+1:15 → T+2:45 | `[ ]` | 7 / 7 locally · 6 / 7 on the deployed origin |
+| 2 | Trends | T+2:45 → T+4:15 | `[ ]` | 10 / 10 locally · **0 deployed** — not on the live bundle |
+| 3 | Product Knowledge | T+4:15 → T+5:15 | `[ ]` | 5 / 5 locally · **0 deployed** — not on the live bundle |
+| 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 6 / 7 locally · 6 / 7 **deployed and re-verified on the live origin** · criterion 2 needs a live agent |
 | 5 | Calendar and Performance | T+6:45 → T+7:45 | `[ ]` | 0 / 4 · **cuttable** |
 | 6 | Polish and manual E2E | T+7:45 → T+8:30 | `[ ]` | 0 / 6 |
 | 7 | Demo and submission | T+8:30 → T+10:00 | `[ ]` | 0 / 6 |
+
+Phase 4 is the only phase with any criterion met on a public origin, and that is
+an accident of merge order rather than a plan: it reached `main` before Phase 2
+did, so the last successful deploy contains it. Phases 2 and 3 are further along
+in code and further behind in evidence.
 
 ## Tool Surface Progress
 
@@ -85,27 +101,27 @@ The judged surface. 21 tools planned; see `01-architecture.md` for contracts.
 
 | # | Tool | Scope | Phase | State |
 |---|------|-------|-------|-------|
-| 1 | `get_app_state` | global | 1 | `[ ]` written, registered, locally verified — not deployed |
-| 2 | `navigate_to` | global | 1 | `[ ]` written, registered, locally verified — not deployed |
-| 3 | `search_trends` | trends | 2 | `[ ]` |
-| 4 | `filter_trends` | trends | 2 | `[ ]` |
-| 5 | `sort_trends` | trends | 2 | `[ ]` |
-| 6 | `list_visible_trends` | trends | 2 | `[ ]` |
-| 7 | `open_trend` | trends | 2 | `[ ]` |
-| 8 | `save_to_watchlist` | trends | 2 | `[ ]` |
-| 9 | `get_trend_detail` | trend open | 2 | `[ ]` |
-| 10 | `write_trend_summary` | trend open | 2 | `[ ]` |
-| 11 | `play_clip` | trend open | 2 | `[ ]` |
-| 12 | `analyze_trend` | trend open | 2 | `[ ]` cut first if Phase 2 slips |
-| 13 | `list_products` | products | 3 | `[ ]` written, registered, contract verified locally — not deployed |
-| 14 | `get_product` | products | 3 | `[ ]` written, registered, multiline return and annotation verified locally — not deployed |
-| 15 | `create_product` | products | 3 | `[ ]` written, registered, reactive store write verified locally — not deployed |
-| 16 | `update_product` | product open | 3 | `[ ]` written, conditional, partial/idempotent update verified locally — not deployed |
-| 17 | `delete_product` | product open | 3 | `[ ]` written, conditional, guarded refusal verified locally — not deployed |
-| 18 | `get_brief_context` | brief composer | 4 | `[ ]` |
-| 19 | `save_brief` | brief composer | 4 | `[ ]` |
-| 20 | `search_briefs` | briefs | 4 | `[ ]` |
-| 21 | `update_brief_status` | brief open | 4 | `[ ]` |
+| 1 | `get_app_state` | global | 1 | `[ ]` registered on every route; **verified on the deployed origin** |
+| 2 | `navigate_to` | global | 1 | `[ ]` registered on every route; **verified on the deployed origin** |
+| 3 | `search_trends` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 4 | `filter_trends` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 5 | `sort_trends` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 6 | `list_visible_trends` | trends | 2 | `[ ]` locally verified, 24 of 24 — **absent from the deployed bundle** |
+| 7 | `open_trend` | trends | 2 | `[ ]` locally verified, drawer renders — **absent from the deployed bundle** |
+| 8 | `save_to_watchlist` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 9 | `get_trend_detail` | trend open | 2 | `[ ]` locally verified, returns clip transcripts — **absent from the deployed bundle** |
+| 10 | `write_trend_summary` | trend open | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 11 | `play_clip` | trend open | 2 | `[ ]` locally verified at `seekS` 2 — **absent from the deployed bundle** |
+| 12 | `analyze_trend` | trend open | 2 | `[ ]` `cached` path re-verified locally (`claude-opus-5`); `model` path still never observed — see B6 |
+| 13 | `list_products` | products | 3 | `[ ]` locally verified, 4 seeded — **absent from the deployed bundle** |
+| 14 | `get_product` | products | 3 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 15 | `create_product` | products | 3 | `[ ]` locally verified; rejects unknown fields by name — **absent from the deployed bundle** |
+| 16 | `update_product` | product open | 3 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 17 | `delete_product` | product open | 3 | `[ ]` locally verified, round-trip 4 → 5 → 4 — **absent from the deployed bundle** |
+| 18 | `get_brief_context` | brief composer | 4 | `[ ]` **verified on the deployed origin** — full trend, product USP, 3-item do-not list |
+| 19 | `save_brief` | brief composer | 4 | `[ ]` locally re-verified: injected `status:'published'` still lands `draft` |
+| 20 | `search_briefs` | briefs | 4 | `[ ]` **registered on the deployed origin**; filters verified locally |
+| 21 | `update_brief_status` | brief open | 4 | `[ ]` locally re-verified: forward-only, refusals carry `currentStatus` |
 | 22 | `schedule_brief` | calendar | 5 | `[ ]` cuttable |
 | 23 | `list_schedule` | calendar | 5 | `[ ]` cuttable |
 
