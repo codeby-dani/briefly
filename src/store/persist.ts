@@ -7,8 +7,8 @@
  * that has never shipped, and a half-migrated store is worse than a fresh one.
  */
 
-// 3 — Phase 3 replaces products with one business profile and offerings.
-export const SCHEMA_VERSION = 3
+// 4 — briefs and the schedule ship with demo rows, so old empty stores reseed.
+export const SCHEMA_VERSION = 4
 
 export const KEYS = {
   version: 'td:version',
