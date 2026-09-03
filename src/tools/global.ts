@@ -14,8 +14,9 @@
 import type { ToolSpec } from '../webmcp'
 import { ROUTES, isRoute } from '../types'
 import type { Route } from '../types'
-import { navigate, readAppState } from '../store/router'
+import { dispatch, navigate, readAppState } from '../store/router'
 import { readBriefs } from '../store/briefs'
+import { readSchedule } from '../store/schedule'
 import { readBusinessProfile } from '../store/businessProfile'
 import { readTrends } from '../store/trends'
 import { activeFilters, visibleTrends } from '../store/trendView'
@@ -106,7 +107,147 @@ export function navigateToTool(): ToolSpec {
   })
 }
 
+/**
+ * The gap this closes: `open_trend` lets an agent pick the trend half of the
+ * composer's selection, and nothing let it pick the other half. So an agent
+ * asked to write a brief could navigate, filter, open a trend — and then had
+ * to stop and ask the human to choose an offering from a dropdown before
+ * `get_brief_context` and `save_brief` would even appear. One selection was
+ * agent-drivable and its pair was not, which is the kind of asymmetry that
+ * makes a tool surface look complete and behave broken.
+ */
+export function selectOfferingTool(): ToolSpec {
+  return traced({
+    name: 'select_offering',
+    description:
+      'Use to pick which of the business offerings a brief is for. This is the second half ' +
+      'of the brief composer selection — with a trend open (see open_trend) it puts ' +
+      'get_brief_context, save_brief and generate_brief on this surface. Call ' +
+      'get_business_profile first to see the offerings and their ids. Pass null to clear.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        offeringId: {
+          type: ['string', 'null'],
+          description: 'An offering id from get_business_profile, or null to clear the selection.',
+        },
+      },
+      required: ['offeringId'],
+      additionalProperties: false,
+    },
+    annotations: { idempotentHint: true },
+    execute: (input: { offeringId?: unknown }) => {
+      const offerings = readBusinessProfile().offerings
+
+      if (input?.offeringId === null) {
+        dispatch({ type: 'selectOffering', offeringId: null })
+        return { ok: true as const, offeringId: null }
+      }
+      if (typeof input?.offeringId !== 'string') {
+        return {
+          ok: false as const,
+          reason: 'offeringId must be a string, or null to clear',
+          known: offerings.map((o) => ({ id: o.id, name: o.name })),
+        }
+      }
+      const offering = offerings.find((o) => o.id === input.offeringId)
+      if (!offering) {
+        return {
+          ok: false as const,
+          reason: `no such offering: ${input.offeringId}`,
+          known: offerings.map((o) => ({ id: o.id, name: o.name })),
+        }
+      }
+      dispatch({ type: 'selectOffering', offeringId: offering.id })
+      return { ok: true as const, offeringId: offering.id, name: offering.name }
+    },
+  })
+}
+
+/**
+ * The dashboard is where an agent lands, and until now landing there gave it
+ * three tools, none of which say what is going on — `get_app_state` returns
+ * counts, and counts do not tell you which trend is worth opening or which
+ * brief is waiting on a human. So the route gets the overview the page itself
+ * shows: what is climbing, what is drafted, what is scheduled next.
+ *
+ * One call rather than three, because the point is orientation. An agent that
+ * has to make three round trips to find out where to start will guess instead.
+ */
+export function getOverviewTool(): ToolSpec {
+  return traced({
+    name: 'get_overview',
+    description:
+      'Call this on arrival to see the state of the workspace in one read: the fastest ' +
+      'rising trends, the most recent briefs and their statuses, and what is scheduled ' +
+      'next. Read-only. Use it to decide where to start; every id it returns is accepted ' +
+      'by open_trend, search_briefs or schedule_brief. ' +
+      'Trend volume and growth are demo data. ' +
+      'After this: open_trend to dig into a trend, or navigate_to to reach the tools for ' +
+      'whatever you decided to do.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    annotations: { readOnlyHint: true },
+    execute: () => {
+      const today = new Date().toISOString().slice(0, 10)
+      const briefs = readBriefs()
+
+      return {
+        demo: true as const,
+        topTrends: readTrends()
+          .slice()
+          .sort((a, b) => b.growthPct - a.growthPct)
+          .slice(0, 5)
+          .map((t) => ({
+            id: t.id,
+            keyword: t.keyword,
+            platform: t.platform,
+            category: t.category,
+            growthPct: t.growthPct,
+            volume: t.volume,
+            hasClips: t.clipIds.length > 0,
+            analysed: Boolean(t.aiSummary),
+          })),
+        recentBriefs: briefs
+          .slice()
+          .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+          .slice(0, 5)
+          .map((b) => ({
+            id: b.id,
+            title: b.title,
+            status: b.status,
+            platform: b.platform,
+            authoredBy: b.authoredBy,
+            updatedAt: b.updatedAt,
+          })),
+        briefCounts: {
+          draft: briefs.filter((b) => b.status === 'draft').length,
+          approved: briefs.filter((b) => b.status === 'approved').length,
+          published: briefs.filter((b) => b.status === 'published').length,
+        },
+        upcoming: readSchedule()
+          .filter((entry) => entry.date >= today)
+          .sort((a, b) => a.date.localeCompare(b.date))
+          .slice(0, 5)
+          .map((entry) => ({
+            id: entry.id,
+            date: entry.date,
+            briefId: entry.briefId,
+            briefTitle: briefs.find((b) => b.id === entry.briefId)?.title ?? null,
+            platform: entry.platform,
+            pic: entry.pic,
+            status: entry.status,
+          })),
+      }
+    },
+  })
+}
+
+/** Registered on the dashboard route. */
+export function dashboardRouteTools(): ToolSpec[] {
+  return [getOverviewTool()]
+}
+
 /** Registered unconditionally at the app root. */
 export function globalTools(): ToolSpec[] {
-  return [getAppStateTool(), navigateToTool()]
+  return [getAppStateTool(), navigateToTool(), selectOfferingTool()]
 }

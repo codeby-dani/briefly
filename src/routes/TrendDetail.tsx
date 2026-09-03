@@ -18,6 +18,7 @@ import { DemoBadge, MeasuredBadge } from '../components/Badge'
 import { LineChart } from '../components/LineChart'
 import { PlatformIcon } from '../components/PlatformIcon'
 import { clipsForIds } from '../fixtures/clips'
+import { getTrendThumb } from '../fixtures/trendThumbs'
 import { dispatch } from '../store/router'
 import { selectClip, usePlayer } from '../store/player'
 import { clearTrendSummary, writeTrendSummary } from '../store/trends'
@@ -38,6 +39,7 @@ const SOURCE_LABEL: Record<Exclude<SummarySource, null>, string> = {
 
 export function TrendDetail({ trend }: { trend: Trend }) {
   const clips = clipsForIds(trend.clipIds)
+  const stock = clips.length === 0 ? getTrendThumb(trend.id) : undefined
   const ref = useRef<HTMLElement>(null)
 
   // An agent calling `open_trend` should put the trend in front of the human,
@@ -80,13 +82,24 @@ export function TrendDetail({ trend }: { trend: Trend }) {
           ) : (
             <section className="panel">
               <div className="panel-head">
-                <h3>Clip</h3>
+                <h3>Cover</h3>
+                {stock && <span className="badge badge-pending">{stock.license}</span>}
               </div>
+              {stock && (
+                <img className="cover-img" src={stock.src} alt={stock.title} loading="lazy" />
+              )}
               <p className="muted small" data-testid="no-clips">
-                No clips are attached to this trend. The corpus covers beauty, food, fitness
-                and tech; <em>fashion</em> and <em>finance</em> ship without video on purpose,
-                so this branch of the drawer is exercised before the demo rather than during
-                it. The samples are all there is to read here.
+                No clip is attached to this trend — <em>fashion</em> and <em>finance</em> ship
+                without video on purpose, so this branch is exercised before a demo rather
+                than during one.
+                {stock ? (
+                  <>
+                    {' '}The cover above is <a href={stock.sourceUrl} target="_blank" rel="noreferrer">
+                      {stock.title}
+                    </a>{' '}by {stock.creator}, {stock.license}, via {stock.provider}. It is a
+                    stock photograph, not something this trend was measured from.
+                  </>
+                ) : null}
               </p>
             </section>
           )}

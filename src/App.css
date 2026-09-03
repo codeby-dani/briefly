@@ -2125,6 +2125,34 @@
   display: block;
 }
 
+/* The keyword over a stock cover. A photo we did not shoot has no caption
+ * baked in, so it gets one — with a scrim, because the tones underneath are
+ * whatever Openverse returned and white on white is a blank card. */
+.cover-img {
+  width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  display: block;
+}
+
+.thumb-caption {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 34px 12px 40px;
+  font-family: var(--heading);
+  font-size: clamp(13px, 2.2cqw + 7px, 17px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-transform: lowercase;
+  color: #fff;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 0.55);
+  background: linear-gradient(to top, rgb(0 0 0 / 0.72), rgb(0 0 0 / 0.38) 55%, transparent);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
 .thumb-tag {
   position: absolute;
   right: 8px;

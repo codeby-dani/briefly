@@ -13,6 +13,7 @@
  */
 
 import { getClip } from '../fixtures/clips'
+import { getTrendThumb } from '../fixtures/trendThumbs'
 import { PlatformIcon } from './PlatformIcon'
 import type { Category, Platform } from '../types'
 
@@ -39,17 +40,23 @@ function clock(seconds: number): string {
 }
 
 export function TrendThumb({
+  trendId,
   clipId,
   keyword,
   platform,
   category,
 }: {
+  trendId: string
   clipId: string | undefined
   keyword: string
   platform: Platform
   category: Category
 }) {
   const clip = clipId ? getClip(clipId) : undefined
+  // Order matters: the clip's own first frame beats a stock cover, and a stock
+  // cover beats the generated plate. The plate is the last resort, not the
+  // default — it only shows if a trend has neither.
+  const stock = clip ? undefined : getTrendThumb(trendId)
 
   return (
     <div className="thumb" data-testid={`thumb-${platform}`}>
@@ -61,6 +68,20 @@ export function TrendThumb({
           loading="lazy"
           decoding="async"
         />
+      ) : stock ? (
+        <>
+          <img
+            className="thumb-img"
+            src={stock.src}
+            alt={`${stock.title} — ${stock.creator}, ${stock.license}`}
+            loading="lazy"
+            decoding="async"
+          />
+          {/* The stock photo carries no text of its own, so the keyword is set
+              over it the way a creator captions a cover. The scrim is what
+              keeps it readable over a photo we did not choose the tones of. */}
+          <span className="thumb-caption">{keyword}</span>
+        </>
       ) : (
         <div className="thumb-plate" style={{ background: PLATE[category] }} aria-hidden>
           <span className="thumb-plate-word">{keyword}</span>

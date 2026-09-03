@@ -223,9 +223,15 @@ export function openTrendTool(): ToolSpec {
   return traced({
     name: 'open_trend',
     description:
-      'Use to open one trend in front of the human, before analysing it. Opening a trend ' +
-      'puts four more tools on this surface: get_trend_detail, write_trend_summary, ' +
-      'play_clip and analyze_trend. Calling it for the trend already open is harmless.',
+      'Use to open one trend in front of the human, before analysing it or writing about ' +
+      'it. Opening a trend puts four more tools on this surface: get_trend_detail, ' +
+      'write_trend_summary, play_clip and analyze_trend. Calling it for the trend already ' +
+      'open is harmless. ' +
+      'BEFORE THIS: search_trends or list_visible_trends, for a real trendId. ' +
+      'AFTER THIS: get_trend_detail to read the clip transcripts, then analyze_trend or ' +
+      'write_trend_summary. To turn the trend into a brief, also call select_offering — ' +
+      'the two selections together put get_brief_context, save_brief and generate_brief on ' +
+      'the surface.',
     inputSchema: {
       type: 'object',
       properties: { trendId: { type: 'string' } },
