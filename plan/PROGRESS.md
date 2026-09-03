@@ -2,7 +2,7 @@
 
 **This is the session entry point. Read this before anything else.**
 
-Last updated: 2026-09-03 22:05 WITA · by: Phase 1 build session, then the design pass
+Last updated: 2026-09-03 22:40 WITA · by: Phase 4 build session (on branch `phase4`, out of order)
 
 ---
 
@@ -53,6 +53,7 @@ unbounded risk on the one requirement the submission cannot survive missing.
 | B8 | Vercel not confirmed on the hackathon's approved-hosting list — the plan recorded Netlify as approved | you | 0 | **open** |
 | B7 | Clip corpus not yet copied from ClipBrief into `public/media/` | — | 0 | **closed** 2026-09-03 21:10 |
 | B9 | No committed `cached` summaries for clip-backed trends — `02-data-model.md` asks for them but defines no `Trend` field to hold one | — | 2 | open |
+| B10 | Phase 4 built on branch `phase4` ahead of Phases 2 & 3 — Trends/Products routes still `Pending.tsx`, brief cross-links land on placeholders, full surface-count picture incomplete until 2–3 land. Reconcile at merge | you | 4 | **open** |
 
 B6 is Phase 0 work, not pre-work, and is not fatal: without it `analyze_trend`
 serves the cached summary, which degrades rather than breaks. B7 is closed — the
@@ -76,7 +77,7 @@ exactly that.
 | 1 | Shell and data layer | T+1:15 → T+2:45 | `[ ]` | 7 / 7 locally · 0 verified on a deployed origin |
 | 2 | Trends | T+2:45 → T+4:15 | `[ ]` | 0 / 10 |
 | 3 | Product Knowledge | T+4:15 → T+5:15 | `[ ]` | 0 / 5 |
-| 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 0 / 7 |
+| 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 6 / 7 locally on branch `phase4` · criterion 2 needs a live agent · 0 deployed |
 | 5 | Calendar and Performance | T+6:45 → T+7:45 | `[ ]` | 0 / 4 · **cuttable** |
 | 6 | Polish and manual E2E | T+7:45 → T+8:30 | `[ ]` | 0 / 6 |
 | 7 | Demo and submission | T+8:30 → T+10:00 | `[ ]` | 0 / 6 |
@@ -104,10 +105,10 @@ The judged surface. 21 tools planned; see `01-architecture.md` for contracts.
 | 15 | `create_product` | products | 3 | `[ ]` |
 | 16 | `update_product` | product open | 3 | `[ ]` |
 | 17 | `delete_product` | product open | 3 | `[ ]` |
-| 18 | `get_brief_context` | brief composer | 4 | `[ ]` |
-| 19 | `save_brief` | brief composer | 4 | `[ ]` |
-| 20 | `search_briefs` | briefs | 4 | `[ ]` |
-| 21 | `update_brief_status` | brief open | 4 | `[ ]` |
+| 18 | `get_brief_context` | brief composer | 4 | `[ ]` written, registered on selection, locally verified — not deployed |
+| 19 | `save_brief` | brief composer | 4 | `[ ]` written, registered on selection, always lands `draft`, locally verified — not deployed |
+| 20 | `search_briefs` | briefs | 4 | `[ ]` written, registered on briefs route, locally verified — not deployed |
+| 21 | `update_brief_status` | briefs | 4 | `[ ]` written, registered on briefs route, status machine enforced, locally verified — not deployed |
 | 22 | `schedule_brief` | calendar | 5 | `[ ]` cuttable |
 | 23 | `list_schedule` | calendar | 5 | `[ ]` cuttable |
 
@@ -406,3 +407,64 @@ still register and answer, surface count still 2. `npm run build` exits 0.
 
 README gained a Design section recording the provenance, alongside the existing
 one for the media corpus. Its status line moved to Phase 1.
+
+### 2026-09-03 22:40 WITA — Phase 4 build, out of order on branch `phase4`
+
+Ran Phase 4 in full on branch `phase4` (cut from the `phase 1` commit) on the
+user's instruction to build everything Phase 4 can do now and reconcile at
+merge, rather than run Phases 2 and 3 first. Phases 2 and 3 are still 0/n and
+their routes are still `Pending.tsx`. This is logged as **B10** and it is a real
+gap, not a papered-over one — the surface-count story is only complete once
+2–3 register their own tools, and the brief cross-links currently land on the
+placeholders. Nothing here is deployed, so no box is `[x]`.
+
+**Why it stands alone.** The composer reads the trend and product *stores*
+directly — both seeded in Phase 1 — not the Trends or Products routes. So it
+needed nothing from the missing phases: two `<select>` pickers over the stores,
+and the same `useTool` plumbing Phase 0/1 already ship. No new runtime
+dependency; `npm run build` and `npx oxlint` unchanged (build exits 0, oxlint
+0 errors with the same four pre-existing `src/webmcp/` warnings, none in new
+files).
+
+**Built.** Four tools in `src/tools/briefs.ts`, in two scopes that answer to two
+different pieces of state exactly as `02-data-model.md` § Tool surface draws it:
+`get_brief_context` + `save_brief` guarded on *selection* (registered at the App
+root so they survive navigating to Products mid-composition), `search_briefs` +
+`update_brief_status` guarded on the briefs *route*. The status machine and the
+draft-only write live in `src/store/briefs.ts`, shared by the tool executors and
+the UI so the human control and the agent tool cannot disagree about a legal
+transition. `src/routes/Briefs.tsx` is the composer (two pickers, a fully
+hand-editable form, human Save) and the library (search/status/platform filters,
+status control, `authoredBy` chip). Added `PLATFORMS`/`isPlatform` and
+`BRIEF_STATUSES`/`isBriefStatus` to `types.ts`, mirroring the existing `ROUTES`
+pattern.
+
+**Contract note resolved.** `02-data-model.md` § Tool surface reads
+`route=briefs → 2 tools + 2 global (+1 when a brief is open)`, but the document
+defines only four brief tools and no fifth for an open brief. Rather than invent
+a tool with no contract, both library tools register on the route (surface 4 on
+briefs with nothing selected), and the status control is a plain human control
+that needs no open-gated tool. Flagged here so a later pass either adds the
+missing contract or strikes the `+1`.
+
+**Verified on `localhost:5173` through `window.__td`.** Surface 4 on the briefs
+route with no selection; 6 the instant both pickers are set (adds
+`get_brief_context`, `save_brief`); still 6 after `navigate_to products`
+mid-composition; back to 4 the instant either is deselected. `get_brief_context`
+returns the full trend, the full product (USP and a 3-item do-not list),
+`platform`, and `existingBriefs` for the pair. `save_brief` with
+`status:'published'` injected landed a `draft`. The status machine passed every
+legal move including `approved→draft` revise, and rejected `published→draft`
+with `{ ok:false, currentStatus:'published' }` and an unknown id with a `known`
+list. A human filled every field with no agent and saved a `human`/`draft`
+brief that appeared in the library without a reload, its `authoredBy` chip
+visibly distinct from the agent-written one. Every tool result carried its
+`_trace`. Screenshots came back blank (a Browser-pane capture quirk — viewport
+0×0, no console errors), so the run was verified with `get_page_text` and the
+bridge, which is the text-first path the tooling prefers anyway.
+
+**The one criterion not machine-checkable here:** exit criterion 2 — "an agent
+given only *write me a brief for this* produces a brief that references the
+product's USP and respects its do-not list." The page's half is verified
+(`get_brief_context` hands over `usp` and `donts`); the agent's half needs a
+real connected agent and is a manual check for the demo pass.

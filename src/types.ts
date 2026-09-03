@@ -6,7 +6,13 @@
  * Brief and Analytics arrive with the stores in Phase 1.
  */
 
-export type Platform = 'tiktok' | 'instagram' | 'youtube' | 'x'
+export const PLATFORMS = ['tiktok', 'instagram', 'youtube', 'x'] as const
+
+export type Platform = (typeof PLATFORMS)[number]
+
+export function isPlatform(value: unknown): value is Platform {
+  return typeof value === 'string' && (PLATFORMS as readonly string[]).includes(value)
+}
 
 export type Category = 'beauty' | 'food' | 'fashion' | 'tech' | 'fitness' | 'finance'
 
@@ -117,7 +123,13 @@ export interface Product {
   updatedAt: string
 }
 
-export type BriefStatus = 'draft' | 'approved' | 'published'
+export const BRIEF_STATUSES = ['draft', 'approved', 'published'] as const
+
+export type BriefStatus = (typeof BRIEF_STATUSES)[number]
+
+export function isBriefStatus(value: unknown): value is BriefStatus {
+  return typeof value === 'string' && (BRIEF_STATUSES as readonly string[]).includes(value)
+}
 
 export interface Brief {
   id: string

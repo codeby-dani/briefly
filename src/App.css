@@ -429,6 +429,195 @@
   }
 }
 
+/* ---------------------------------------------------------------------- *
+ * Briefs — composer and library.
+ * ---------------------------------------------------------------------- */
+
+.composer-picks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field-label {
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.brief-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* One shared look for every text control on the route, so the composer and the
+   library search read as the same surface. */
+.field input,
+.field select,
+.field textarea,
+.library-controls input,
+.library-controls select {
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-h);
+  background: var(--surface-high);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 8px 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.field textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible,
+.library-controls input:focus-visible,
+.library-controls select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--text);
+  opacity: 0.45;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  font: inherit;
+  font-size: 14px;
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(1.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.library-controls {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 10px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.brief-row {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.brief-row.is-new {
+  animation: brief-in 1.1s ease-out;
+}
+
+@keyframes brief-in {
+  from {
+    background: var(--accent-bg);
+  }
+  to {
+    background: transparent;
+  }
+}
+
+/* A button that reads as an inline link — the trend and product cross-links on a
+   brief card. */
+.link {
+  font: inherit;
+  font-size: inherit;
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: var(--text-h);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+/* Who wrote the brief — agent or human — visibly distinct so the two are never
+   confused on a card. */
+.authored {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border-strong);
+}
+
+.authored-agent {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.authored-human {
+  color: var(--text);
+  background: var(--surface-high);
+}
+
+.status-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 /* The inspector panel is `position: fixed` against the right edge of the
  * viewport, so on any screen narrower than the content column plus the panel it
  * sits on top of the cards. The Stitch brief asked for a clear right-hand

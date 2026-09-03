@@ -3,9 +3,11 @@ import './App.css'
 import { ROUTES } from './types'
 import type { Route } from './types'
 import { globalTools } from './tools/global'
+import { composerTools } from './tools/briefs'
 import { bindHashListener, navigate, useAppState } from './store/router'
 import { Dashboard } from './routes/Dashboard'
 import { CorpusCheck } from './routes/CorpusCheck'
+import { Briefs } from './routes/Briefs'
 import { PendingRoute } from './routes/Pending'
 import { ToolSurfacePanel, UnsupportedBrowserNotice, installBridge, useTools } from './webmcp'
 
@@ -20,7 +22,7 @@ import { ToolSurfacePanel, UnsupportedBrowserNotice, installBridge, useTools } f
  * inside those routes, never here.
  */
 export default function App() {
-  const { route } = useAppState()
+  const { route, selectedTrendId, selectedProductId } = useAppState()
 
   useEffect(() => {
     installBridge()
@@ -28,6 +30,12 @@ export default function App() {
   }, [])
 
   useTools(globalTools())
+
+  // The composer pair is scoped to *selection*, not route, so it is registered
+  // here at the root — where it survives the human navigating between Trends,
+  // Products and Briefs mid-composition — rather than inside the Briefs route,
+  // which unmounts on navigation. See plan/02-data-model.md § Tool surface.
+  useTools(composerTools(Boolean(selectedTrendId && selectedProductId)))
 
   return (
     <>
@@ -83,6 +91,9 @@ function RouteView({ route }: { route: Route }) {
         <CorpusCheck />
       </>
     )
+  }
+  if (route === 'briefs') {
+    return <Briefs />
   }
   return <PendingRoute route={route} />
 }
