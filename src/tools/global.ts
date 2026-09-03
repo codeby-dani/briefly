@@ -1,9 +1,19 @@
 /**
  * Tools that are on the surface everywhere, on every route.
  *
- * Two of them, and Phase 1 exit criterion 6 is that the count is exactly two on
- * every route — a third tool appearing here would mean a route guard elsewhere
- * has leaked, which is the failure this project exists to argue against.
+ * Phase 1 exit criterion 6 reads "exactly two on every route", and the point of
+ * it is sound — a tool appearing here that was meant to be route-scoped means a
+ * guard elsewhere has leaked, which is the failure this project exists to argue
+ * against. The number in it is stale twice over: `select_offering` made it
+ * three before Phase 4, and `get_tool_trace` makes it four now. Both are here
+ * on purpose and neither leaked from a route.
+ *
+ * `get_tool_trace` is global for a reason worth stating, because "it seemed
+ * useful everywhere" is exactly the argument that erodes a rule like this one.
+ * A tool call fails on the route it was made on. A log that could only be read
+ * by navigating somewhere else would change the surface out from under the
+ * agent trying to work out why the surface lacked what it expected — the tool
+ * would destroy the evidence it exists to show.
  *
  * Neither executor takes state as an argument. They read the stores directly,
  * because an agent can call a tool between a render and its commit and a
@@ -21,6 +31,7 @@ import { readBusinessProfile } from '../store/businessProfile'
 import { readTrends } from '../store/trends'
 import { activeFilters, visibleTrends } from '../store/trendView'
 import { readWatchlist } from '../store/watchlist'
+import { getToolTraceTool } from './observability'
 import { traced } from './trace'
 
 export interface AppStateSnapshot {
@@ -249,5 +260,5 @@ export function dashboardRouteTools(): ToolSpec[] {
 
 /** Registered unconditionally at the app root. */
 export function globalTools(): ToolSpec[] {
-  return [getAppStateTool(), navigateToTool(), selectOfferingTool()]
+  return [getAppStateTool(), navigateToTool(), selectOfferingTool(), getToolTraceTool()]
 }

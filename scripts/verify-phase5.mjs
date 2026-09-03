@@ -53,24 +53,57 @@ const { Calendar } = await import('../src/routes/Calendar.tsx')
 const { Briefs } = await import('../src/routes/Briefs.tsx')
 const { Performance } = await import('../src/routes/Performance.tsx')
 const { toCsv } = await import('../src/csv.ts')
-const { calendarRouteTools, listScheduleTool, scheduleBriefTool } = await import('../src/tools/schedule.ts')
+const {
+  calendarRouteTools,
+  listScheduleTool,
+  scheduleBriefTool,
+  setScheduleStatusTool,
+  unscheduleBriefTool,
+} = await import('../src/tools/schedule.ts')
 const { globalTools } = await import('../src/tools/global.ts')
+const { performanceRouteTools } = await import('../src/tools/analytics.ts')
 
 const context = { signal: new AbortController().signal }
 const execute = async (tool, input) => await tool.execute(input, context)
 const assertTraced = (result) => assert.match(String(result._trace), /^t_[a-z0-9]+_[a-z0-9]{4}$/)
 
-/* --- Exit criterion 2: surface counts ---------------------------------- */
+/* --- Exit criterion 2: surface counts ----------------------------------
+ *
+ * These numbers are not the ones Phase 5 was written against, and the drift is
+ * recorded rather than papered over. The criterion said 2 global and 4 on the
+ * Calendar. Three things moved it since:
+ *
+ *   1. `select_offering` became global in Phase 4, making it 3.
+ *   2. `search_briefs` was registered on the Calendar as well as the Briefs
+ *      route, because scheduling needs a brief id and nothing here produced one.
+ *   3. The read/write asymmetries were closed: `get_tool_trace` global, and
+ *      `set_schedule_status` and `unschedule_brief` here — the status chips and
+ *      the remove button, which had no tool at all.
+ *
+ * What the criterion was actually protecting is that the counts are *exact* and
+ * that route tools do not leak into the global set. Both still hold, so the
+ * assertions keep their shape and take the current numbers.
+ */
 
 const GLOBAL = globalTools().length
-assert.equal(GLOBAL, 2)
-assert.equal(GLOBAL + calendarRouteTools().length, 4)
-// Performance registers nothing of its own — see the header comment in
-// src/routes/Performance.tsx for why that is a decision, not an omission.
-assert.equal(GLOBAL, 2)
-assert.deepEqual(calendarRouteTools().map((tool) => tool.name), ['schedule_brief', 'list_schedule'])
+assert.equal(GLOBAL, 4)
+assert.equal(GLOBAL + calendarRouteTools().length, 9)
+// Performance now registers two of its own: the read and the CSV export the
+// button on that page writes. See the header comment in src/tools/analytics.ts.
+assert.equal(GLOBAL + performanceRouteTools().length, 6)
+assert.deepEqual(calendarRouteTools().map((tool) => tool.name), [
+  'schedule_brief',
+  'list_schedule',
+  'set_schedule_status',
+  'unschedule_brief',
+  'search_briefs',
+])
 assert.equal(scheduleBriefTool().annotations?.idempotentHint, true)
 assert.equal(listScheduleTool().annotations?.readOnlyHint, true)
+assert.equal(setScheduleStatusTool().annotations?.idempotentHint, true)
+// The one destructive tool on this route says so, because the annotation is
+// what an agent reads before deciding whether to confirm with the human first.
+assert.equal(unscheduleBriefTool().annotations?.destructiveHint, true)
 
 /* --- Brief Library: visual catalog stays separate from stored briefs ------ */
 
@@ -162,7 +195,10 @@ assert.equal(readSchedule().length, 2)
 
 const unknownBrief = await execute(scheduleBriefTool(), { briefId: 'brf_nope', date: today })
 assert.equal(unknownBrief.ok, false)
-assert.deepEqual(unknownBrief.known, [brief.id])
+// `known` carries the title and status beside each id, not bare ids: see the
+// comment on that refusal in src/tools/schedule.ts — an agent given ids alone
+// had to guess which brief it meant. This assertion trailed that change.
+assert.deepEqual(unknownBrief.known, [{ id: brief.id, title: brief.title, status: brief.status }])
 assertTraced(unknownBrief)
 
 const badDate = await execute(scheduleBriefTool(), { briefId: brief.id, date: '2026-02-31' })
@@ -237,7 +273,13 @@ assert.equal(setStatus(brief.id, 'draft').ok, false)
 
 console.log(JSON.stringify({
   ok: true,
-  surface: { calendar: 4, performance: 2 },
+  // Derived, not typed in. The literals here said 4 and 2 long after the
+  // assertions above had been corrected to 9 and 6, which is how a summary line
+  // ends up disagreeing with the checks it is summarising.
+  surface: {
+    calendar: GLOBAL + calendarRouteTools().length,
+    performance: GLOBAL + performanceRouteTools().length,
+  },
   scheduledByAgentRendersWithoutReload: true,
   idempotentByBriefIdAndDate: true,
   refusalsNameKnownValues: true,

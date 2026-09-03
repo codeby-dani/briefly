@@ -34,10 +34,15 @@ reused material is the author's own cc0 clip corpus described under
 
 > **Status: Phases 1–5 of 7 are built; the live URL is behind them.** Trends,
 > Product Knowledge, the brief composer and library, and now the Calendar and
-> Performance routes all exist, and all 23 tools are written and driven. The
+> Performance routes all exist, and all 37 tools are written and driven. The
 > deployed bundle currently predates Trends and Products, so several routes show
 > older content on the live URL until the next deploy. Phase 5 was
-> pre-designated as cuttable and was not cut.
+> pre-designated as cuttable and was not cut. The last ten tools are a parity
+> pass rather than new features: every one of them is a control the human
+> already had on screen and the agent could not reach — taking a trend off the
+> watchlist, reading the watchlist at all, the watchlist-only chip, the view
+> reset, clearing a summary, stopping a clip, the calendar's status chips and
+> its remove button, the CSV export, and the tool log the inspector panel shows.
 > Progress and what is actually done live in
 > [plan/PROGRESS.md](plan/PROGRESS.md) — that file, not this one, is the
 > authority on state.

@@ -1,18 +1,20 @@
 /**
  * The Trends route: controls, table, and the detail drawer.
  *
- * The controls and the six route tools write the same view state
+ * The controls and the ten route tools write the same view state
  * (`store/trendView.ts`), which is Phase 2 exit criterion 2 in one sentence: an
  * agent filtering and a human filtering are one operation. There is no shadow
- * copy of the table for the agent to drive.
+ * copy of the table for the agent to drive. Every control on this page is now
+ * reachable from both sides: the watchlist star, the watchlist chip and the
+ * reset are tools as well as buttons.
  *
- * Registration is split deliberately. The six route tools go through one
- * `useTools`, and the four detail tools are four separate `useTool(open ? spec
+ * Registration is split deliberately. The ten route tools go through one
+ * `useTools`, and the six detail tools are six separate `useTool(open ? spec
  * : null)` calls — the shape plan/01-architecture.md gives for the lifecycle.
- * Bundling all ten into one call would tear down and re-register the whole set
- * every time the drawer opens, and the inspector would show ten tools churning
- * where the truth is four arriving. That churn is the demo's most valuable
- * shot, so it has to be honest.
+ * Bundling all sixteen into one call would tear down and re-register the whole
+ * set every time the drawer opens, and the inspector would show sixteen tools
+ * churning where the truth is six arriving. That churn is the demo's most
+ * valuable shot, so it has to be honest.
  */
 
 import { useEffect, useRef } from 'react'
@@ -37,8 +39,10 @@ import type { SortField } from '../store/trendView'
 import { addToWatchlist, removeFromWatchlist, watchlistStore } from '../store/watchlist'
 import {
   analyzeTrendTool,
+  clearTrendSummaryTool,
   getTrendDetailTool,
   playClipTool,
+  stopClipTool,
   trendRouteTools,
   writeTrendSummaryTool,
 } from '../tools/trends'
@@ -70,14 +74,16 @@ export function Trends() {
   const rows = visibleTrends()
   const open = selectedTrendId ? readTrend(selectedTrendId) : undefined
 
-  // Six on the route.
+  // Ten on the route.
   useTools(trendRouteTools())
 
-  // Four more while a trend is open, and exactly four removed when it closes.
+  // Six more while a trend is open, and exactly six removed when it closes.
   const isOpen = Boolean(open)
   useTool(isOpen ? getTrendDetailTool() : null)
   useTool(isOpen ? writeTrendSummaryTool() : null)
+  useTool(isOpen ? clearTrendSummaryTool() : null)
   useTool(isOpen ? playClipTool() : null)
+  useTool(isOpen ? stopClipTool() : null)
   useTool(isOpen ? analyzeTrendTool() : null)
 
   // The player follows the drawer: opening a trend loads its first clip

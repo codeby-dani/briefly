@@ -1,8 +1,17 @@
 /**
- * Calendar tools. Two of them, registered on the Calendar route only, which is
- * what makes Phase 5 exit criterion 2 checkable: the surface is exactly 4 there
- * — these two plus the two globals — and 2 on Performance, which has no tools
- * of its own.
+ * Calendar tools. Four of them, registered on the Calendar route only, plus the
+ * `search_briefs` lookup borrowed from the Briefs route for the reason given at
+ * the bottom of this file.
+ *
+ * It was two, and two was a calendar an agent could write to and never correct:
+ * `schedule_brief` put an entry on a day, and the two controls beside it on
+ * screen — the status chips and the remove button — had no tool at all. An
+ * agent could fill a calendar and not empty it. `set_schedule_status` and
+ * `unschedule_brief` are those two controls, and nothing more.
+ *
+ * The Phase 5 exit-criterion arithmetic moved with them: the surface here is no
+ * longer 4. Whatever recount that criterion needs belongs in the phase file,
+ * not in a comment that quietly keeps saying 4.
  *
  * **A contract note, recorded rather than assumed.** plan/01-architecture.md
  * lists `schedule_brief` as `idempotent` and `list_schedule` as `readOnly`, and
@@ -29,7 +38,13 @@ import { PLATFORMS, SCHEDULE_STATUSES, isPlatform, isScheduleStatus } from '../t
 import type { Platform, ScheduleStatus } from '../types'
 import { readBrief, readBriefs } from '../store/briefs'
 import { searchBriefsTool } from './briefs'
-import { readSchedule, scheduleBrief } from '../store/schedule'
+import {
+  readSchedule,
+  readScheduleEntry,
+  scheduleBrief,
+  setScheduleStatus,
+  unschedule,
+} from '../store/schedule'
 import { traced } from './trace'
 
 /** ISO day, `YYYY-MM-DD`, and a real calendar date rather than 2026-02-31. */
@@ -52,6 +67,8 @@ function unexpectedField(input: Record<string, unknown>, allowed: readonly strin
 
 const SCHEDULE_FIELDS = ['briefId', 'date', 'platform', 'pic', 'status'] as const
 const LIST_FIELDS = ['from', 'to', 'status', 'platform', 'briefId'] as const
+const STATUS_FIELDS = ['entryId', 'status'] as const
+const UNSCHEDULE_FIELDS = ['entryId'] as const
 
 /** The default owner when nobody is named. Rendered as-is on the chip. */
 export const UNASSIGNED_PIC = 'Unassigned'
@@ -245,7 +262,122 @@ export function listScheduleTool(): ToolSpec {
   })
 }
 
-/** Registered on the Calendar route. Surface there is these two plus the two globals. */
+export function setScheduleStatusTool(): ToolSpec {
+  return traced({
+    name: 'set_schedule_status',
+    description:
+      'Use to move a calendar entry along: planned to in_progress when someone picks it ' +
+      'up, in_progress to published when the post actually goes out. These are the status ' +
+      'chips on the entry. Unlike update_brief_status this moves freely in both ' +
+      'directions — a slot is a plan, and a plan gets dragged back when a post comes down. ' +
+      'It changes the schedule entry and never the brief; the brief keeps its own status. ' +
+      'BEFORE THIS: list_schedule, for a real entryId.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        entryId: { type: 'string' },
+        status: { type: 'string', enum: [...SCHEDULE_STATUSES] },
+      },
+      required: ['entryId', 'status'],
+      additionalProperties: false,
+    },
+    annotations: { idempotentHint: true },
+    execute: (input: unknown) => {
+      if (!isRecord(input)) return { ok: false as const, reason: 'input must be an object' }
+      const unexpected = unexpectedField(input, STATUS_FIELDS)
+      if (unexpected) return { ok: false as const, reason: unexpected }
+
+      const entryId = typeof input.entryId === 'string' ? input.entryId.trim() : ''
+      if (!entryId) return { ok: false as const, reason: 'entryId is required' }
+      if (!isScheduleStatus(input.status)) {
+        return {
+          ok: false as const,
+          reason: `not a schedule status: ${JSON.stringify(input.status ?? null)}`,
+          known: [...SCHEDULE_STATUSES],
+        }
+      }
+
+      // Read first: `from` is the half of the answer the store cannot give
+      // back once it has been overwritten, and it is what makes the move
+      // reportable to the human as a move rather than as a new value.
+      const before = readScheduleEntry(entryId)
+      const result = setScheduleStatus(entryId, input.status)
+      if (!result.ok) {
+        return { ...result, hint: 'Call list_schedule to get a real entry id.' }
+      }
+
+      return {
+        ok: true as const,
+        entryId,
+        from: before?.status ?? null,
+        to: result.entry.status,
+        changed: before?.status !== result.entry.status,
+        entry: result.entry,
+      }
+    },
+  })
+}
+
+export function unscheduleBriefTool(): ToolSpec {
+  return traced({
+    name: 'unschedule_brief',
+    description:
+      'Use to take one entry off the calendar — the remove button on the entry. It removes ' +
+      'the slot, not the brief: the brief stays in the library at whatever status it had ' +
+      'and can be scheduled again on another day. Read the row back to the human before ' +
+      'calling this; nothing here puts it back. ' +
+      'BEFORE THIS: list_schedule, for a real entryId. ' +
+      'If you only want to move a brief to a different day, call schedule_brief with the ' +
+      'new date instead — it is idempotent by brief and date and does not need this first.',
+    inputSchema: {
+      type: 'object',
+      properties: { entryId: { type: 'string' } },
+      required: ['entryId'],
+      additionalProperties: false,
+    },
+    annotations: { destructiveHint: true },
+    execute: (input: unknown) => {
+      if (!isRecord(input)) return { ok: false as const, reason: 'input must be an object' }
+      const unexpected = unexpectedField(input, UNSCHEDULE_FIELDS)
+      if (unexpected) return { ok: false as const, reason: unexpected }
+
+      const entryId = typeof input.entryId === 'string' ? input.entryId.trim() : ''
+      if (!entryId) return { ok: false as const, reason: 'entryId is required' }
+
+      const entry = readScheduleEntry(entryId)
+      if (!entry) {
+        // Not silently ok. A destructive tool that reports success for an id it
+        // never found is a tool that will one day report success for the id you
+        // typed wrong, on the entry you meant to keep.
+        return {
+          ok: false as const,
+          reason: `no such schedule entry: ${entryId}`,
+          hint: 'Call list_schedule to get a real entry id.',
+          known: readSchedule().map((e) => ({ id: e.id, date: e.date, briefId: e.briefId })),
+        }
+      }
+
+      unschedule(entryId)
+      return {
+        ok: true as const,
+        removed: {
+          id: entry.id,
+          briefId: entry.briefId,
+          title: readBrief(entry.briefId)?.title ?? null,
+          date: entry.date,
+          platform: entry.platform,
+          status: entry.status,
+        },
+        // Said out loud, because "unschedule" is a word an agent could report
+        // to a human as "deleted the brief".
+        briefKept: readBrief(entry.briefId)?.status ?? null,
+        remaining: readSchedule().length,
+      }
+    },
+  })
+}
+
+/** Registered on the Calendar route, with the two globals alongside. */
 /**
  * `search_briefs` is registered here as well as on the Briefs route, and that
  * duplication is the point. `schedule_brief` needs a brief id and nothing on
@@ -256,5 +388,11 @@ export function listScheduleTool(): ToolSpec {
  * asking every agent to work that out.
  */
 export function calendarRouteTools(): ToolSpec[] {
-  return [scheduleBriefTool(), listScheduleTool(), searchBriefsTool()]
+  return [
+    scheduleBriefTool(),
+    listScheduleTool(),
+    setScheduleStatusTool(),
+    unscheduleBriefTool(),
+    searchBriefsTool(),
+  ]
 }

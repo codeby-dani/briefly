@@ -1,5 +1,12 @@
 /**
- * The Trends surface: six tools on the route, four more while a trend is open.
+ * The Trends surface: ten tools on the route, six more while a trend is open.
+ *
+ * It was six and four. The additions are all one half of a control the human
+ * already had: the watchlist could be added to and never read or emptied, the
+ * watchlist chip moved the table an agent could see and not set, and a summary
+ * could be written and never retracted. A surface that can only push a control
+ * one way is not the same surface the human is using, which is the claim this
+ * whole app is making.
  *
  * Contracts are `plan/02-data-model.md` § Tool Contracts, verbatim — input
  * shapes, output shapes and annotations. Where this file adds anything beyond
@@ -17,18 +24,21 @@
 
 import { clipsForIds, getClip } from '../fixtures/clips'
 import { dispatch, readAppState } from '../store/router'
-import { requestPlay } from '../store/player'
-import { readTrend, readTrends, writeTrendSummary } from '../store/trends'
+import { readPlayer, requestPlay, resetPlayer } from '../store/player'
+import { clearTrendSummary, readTrend, readTrends, writeTrendSummary } from '../store/trends'
 import {
   EMPTY_FILTERS,
   activeFilters,
+  readTrendView,
+  resetTrendView,
   setFilters,
   setQuery,
   setSort,
+  setWatchlistOnly,
   visibleTrends,
 } from '../store/trendView'
 import type { SortDirection, SortField, TrendFilters } from '../store/trendView'
-import { addToWatchlist } from '../store/watchlist'
+import { addToWatchlist, readWatchlist, removeFromWatchlist } from '../store/watchlist'
 import { CATEGORIES, PLATFORMS } from '../types'
 import type { Category, Clip, Platform, Trend } from '../types'
 import type { ToolSpec } from '../webmcp'
@@ -227,6 +237,118 @@ export function listVisibleTrendsTool(): ToolSpec {
         trends: rows.slice(0, limit).map(row),
         demo: true as const,
       }
+    },
+  })
+}
+
+export function removeFromWatchlistTool(): ToolSpec {
+  return traced({
+    name: 'remove_from_watchlist',
+    description:
+      'Use when the human is done with a trend they saved, or to undo a save_to_watchlist ' +
+      'you called on the wrong one. Safe to retry: removing a trend that is not on the ' +
+      'list reports wasPresent false and changes nothing. ' +
+      'BEFORE THIS: list_watchlist, for the ids that are actually on it.',
+    inputSchema: {
+      type: 'object',
+      properties: { trendId: { type: 'string' } },
+      required: ['trendId'],
+      additionalProperties: false,
+    },
+    annotations: { idempotentHint: true },
+    execute: (input: { trendId?: unknown }) => {
+      if (!isString(input?.trendId)) {
+        return { ok: false as const, reason: 'trendId must be a string' }
+      }
+      const wasPresent = readWatchlist().includes(input.trendId)
+      // Deliberately not gated on readTrend, unlike save_to_watchlist. The
+      // watchlist is persisted and the trend corpus reseeds on a schema bump,
+      // so an id on the list can outlive the trend it named. Refusing to remove
+      // one of those would leave it stuck there with no way to clear it.
+      const watchlistSize = removeFromWatchlist(input.trendId)
+      return { ok: true as const, trendId: input.trendId, watchlistSize, wasPresent }
+    },
+  })
+}
+
+export function listWatchlistTool(): ToolSpec {
+  return traced({
+    name: 'list_watchlist',
+    description:
+      'Use to read what the human has saved for later. This is the list itself, in the ' +
+      'order it was saved — the search, filters and sort on screen do not touch it, so it ' +
+      'answers "what did we save" rather than "what is on screen". `unresolved` holds ids ' +
+      'that are still saved but no longer name a trend in the corpus; pass one to ' +
+      'remove_from_watchlist to clear it. ' +
+      'AFTER THIS: open_trend on a row, or set_watchlist_only to narrow the table to these.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    annotations: { readOnlyHint: true, untrustedContentHint: true },
+    execute: () => {
+      const saved = readWatchlist().map((id) => ({ id, trend: readTrend(id) }))
+      const found = saved.filter((entry): entry is { id: string; trend: Trend } => Boolean(entry.trend))
+      return {
+        count: saved.length,
+        // Reported so an agent that narrows the table and gets nothing can tell
+        // an empty watchlist from a filter that happens to exclude everything.
+        watchlistOnly: readTrendView().watchlistOnly,
+        trends: found.map((entry) => row(entry.trend)),
+        unresolved: saved.filter((entry) => !entry.trend).map((entry) => entry.id),
+        demo: true as const,
+      }
+    },
+  })
+}
+
+export function setWatchlistOnlyTool(): ToolSpec {
+  return traced({
+    name: 'set_watchlist_only',
+    description:
+      'Use to narrow the table to saved trends only, or to widen it back to everything. ' +
+      'This is the chip on screen, and it is the one control filter_trends does not own: ' +
+      'filter_trends({}) clears the five field filters and leaves this alone. It shows up ' +
+      'in activeFilters either way, so a short table always has a stated reason. ' +
+      'BEFORE THIS: list_watchlist, if you want to know what narrowing will leave.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        watchlistOnly: { type: 'boolean', description: 'true narrows to the watchlist.' },
+      },
+      required: ['watchlistOnly'],
+      additionalProperties: false,
+    },
+    annotations: { idempotentHint: true },
+    execute: (input: { watchlistOnly?: unknown }) => {
+      if (typeof input?.watchlistOnly !== 'boolean') {
+        return { ok: false as const, reason: 'watchlistOnly must be a boolean' }
+      }
+      setWatchlistOnly(input.watchlistOnly)
+      return {
+        ok: true as const,
+        watchlistOnly: input.watchlistOnly,
+        count: visibleTrends().length,
+        // An empty table under this filter is an empty watchlist, not a bug,
+        // and this is the number that says which.
+        watchlistSize: readWatchlist().length,
+        activeFilters: activeFilters(),
+      }
+    },
+  })
+}
+
+export function resetTrendViewTool(): ToolSpec {
+  return traced({
+    name: 'reset_trend_view',
+    description:
+      'Use to put the table back the way the human found it: no search, no filters, the ' +
+      'watchlist chip off, sorted by growth descending. One call instead of the three it ' +
+      'takes to undo each control separately, and it clears the one thing filter_trends ' +
+      'cannot. ' +
+      'AFTER THIS: list_visible_trends, to read the full table back.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    annotations: { idempotentHint: true },
+    execute: () => {
+      resetTrendView()
+      return { ok: true as const, count: visibleTrends().length, activeFilters: activeFilters() }
     },
   })
 }
@@ -431,6 +553,68 @@ export function writeTrendSummaryTool(): ToolSpec {
         trendId: trend.id,
         truncated: isString(input.summary) && input.summary.trim().length > SUMMARY_MAX,
       }
+    },
+  })
+}
+
+export function clearTrendSummaryTool(): ToolSpec {
+  return traced({
+    name: 'clear_trend_summary',
+    description:
+      'Use to take a summary back off the open trend — one you wrote, one the model wrote, ' +
+      'or the cached one — when it turned out to be wrong about the trend. It empties the ' +
+      'panel the human is reading, along with the suggested angles under it. Do not call ' +
+      'it to make room before write_trend_summary: that tool overwrites on its own, and ' +
+      'clearing first only leaves the page blank in between. Refuses when nothing is ' +
+      'written, rather than reporting a clear that cleared nothing.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        trendId: { type: 'string', description: 'Defaults to the trend already open.' },
+      },
+      additionalProperties: false,
+    },
+    annotations: { destructiveHint: true },
+    execute: (input: { trendId?: unknown }) => {
+      const resolved = resolveOpenTrend(input?.trendId)
+      if ('error' in resolved) return resolved.error
+      const { trend } = resolved
+
+      if (!trend.aiSummary) {
+        return {
+          ok: false as const,
+          reason: 'nothing is written on this trend',
+          trendId: trend.id,
+          hint: 'write_trend_summary or analyze_trend put a summary there first.',
+        }
+      }
+
+      // Read before the write, so the agent can tell the human what it removed
+      // rather than only that something is gone.
+      const cleared = {
+        source: trend.aiSummarySource,
+        chars: trend.aiSummary.length,
+        angles: trend.suggestedAngles.length,
+      }
+      clearTrendSummary(trend.id)
+      return { ok: true as const, trendId: trend.id, cleared }
+    },
+  })
+}
+
+export function stopClipTool(): ToolSpec {
+  return traced({
+    name: 'stop_clip',
+    description:
+      'Use to stop the clip play_clip started — once you have said what the clip was there ' +
+      'to show, or before moving the human on to another trend. It stops and unloads the ' +
+      'player; there is no pause. Safe to call when nothing is playing.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    annotations: { idempotentHint: true },
+    execute: () => {
+      const before = readPlayer()
+      resetPlayer()
+      return { ok: true as const, wasLoaded: before.clipId !== null, clipId: before.clipId }
     },
   })
 }
@@ -677,7 +861,7 @@ function fallback(
  * Surface assembly. The state machine in plan/02-data-model.md, as code.
  * ------------------------------------------------------------------------- */
 
-/** Six, on the Trends route. */
+/** Ten, on the Trends route. */
 export function trendRouteTools(): ToolSpec[] {
   return [
     searchTrendsTool(),
@@ -686,11 +870,22 @@ export function trendRouteTools(): ToolSpec[] {
     listVisibleTrendsTool(),
     openTrendTool(),
     saveToWatchlistTool(),
+    removeFromWatchlistTool(),
+    listWatchlistTool(),
+    setWatchlistOnlyTool(),
+    resetTrendViewTool(),
   ]
 }
 
-/** Four more, only while a trend is open. `[]` closes the drawer's surface. */
+/** Six more, only while a trend is open. `[]` closes the drawer's surface. */
 export function trendDetailTools(isOpen: boolean): ToolSpec[] {
   if (!isOpen) return []
-  return [getTrendDetailTool(), writeTrendSummaryTool(), playClipTool(), analyzeTrendTool()]
+  return [
+    getTrendDetailTool(),
+    writeTrendSummaryTool(),
+    clearTrendSummaryTool(),
+    playClipTool(),
+    stopClipTool(),
+    analyzeTrendTool(),
+  ]
 }

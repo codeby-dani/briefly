@@ -34,8 +34,8 @@ import { readTrend, readTrends } from '../store/trends'
 import { visibleTrends } from '../store/trendView'
 import { getClip } from '../fixtures/clips'
 import { canTransition } from '../store/briefs'
-import { BRIEF_STATUSES } from '../types'
-import type { Brief, BriefStatus } from '../types'
+import { BRIEF_STATUSES, SCHEDULE_STATUSES } from '../types'
+import type { Brief, BriefStatus, ScheduleStatus } from '../types'
 
 /* ----------------------------------------------------------------------- *
  * Picking the subject of an example.
@@ -89,6 +89,19 @@ function nextStatus(brief: Brief | null): BriefStatus {
   return BRIEF_STATUSES.find((to) => to !== brief.status && canTransition(brief.status, to)) ?? 'draft'
 }
 
+/**
+ * A schedule status the entry is not already on.
+ *
+ * `set_schedule_status` moves freely in both directions, so unlike the brief
+ * machine there is no "next" — any of the three is legal. What there is no
+ * point demonstrating is setting an entry to the status it already has: the
+ * example would run, report `changed: false`, and move nothing on screen.
+ */
+function nextScheduleStatus(): ScheduleStatus {
+  const current = readSchedule()[0]?.status
+  return SCHEDULE_STATUSES.find((status) => status !== current) ?? 'in_progress'
+}
+
 /** Day precision, a week out — far enough that the slot is plausibly free. */
 function exampleDate(): string {
   const date = new Date()
@@ -121,7 +134,14 @@ export function liveValue(toolName: string, field: string): unknown {
     case 'date':
       return exampleDate()
     case 'status':
-      return toolName === 'update_brief_status' ? nextStatus(exampleBrief()) : undefined
+      if (toolName === 'update_brief_status') return nextStatus(exampleBrief())
+      if (toolName === 'set_schedule_status') return nextScheduleStatus()
+      return undefined
+    case 'watchlistOnly':
+      // `true` rather than the value that would toggle: the interesting thing
+      // to show a reader is the table narrowing, and `reset_trend_view` is one
+      // row down in the panel to widen it again.
+      return true
     case 'query':
     case 'keyword':
       // A query that matches nothing teaches nothing. Use a word from a row

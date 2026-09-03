@@ -15,7 +15,7 @@ Last updated: 2026-09-04 00:29 WITA · by: dashboard interaction pass
 | **Hard deadline** | 2026-09-04 04:00 WITA (13:00 PDT, 2026-09-03) |
 | **Time remaining at last update** | 3h 31m |
 | **Deployed URL** | https://trend-lake.vercel.app — **serves a stale bundle**: Phases 0, 1 and 4 only |
-| **Tools registered** | 23 of 23 written and locally verified on one build. **6 of 23 are on the deployed origin** |
+| **Tools registered** | 37 of 37 written and locally verified on one build. **6 of 37 are on the deployed origin** |
 
 ## Next Task
 
@@ -95,35 +95,73 @@ in code and further behind in evidence.
 
 ## Tool Surface Progress
 
-The judged surface. 23 tools planned — 21 plus the two Phase 5 adds, which the
-architecture catalog counts separately as "21 tools, plus 2 more if Phase 5
-survives". It survived. See `01-architecture.md` for contracts.
+The judged surface. **37 tools registered.** The catalog in `01-architecture.md`
+planned 21 plus 2 more if Phase 5 survived, and this table tracked that plan
+rather than the code for long enough to drift twice:
+
+- **Names.** Rows 13–17 tracked `list_products` / `get_product` /
+  `create_product` / `update_product` / `delete_product`. Those tools do not
+  exist and never shipped under those names; what shipped is the business
+  profile and its offerings. The rows below carry the names in `src/tools/`.
+- **Count.** Four tools were built and never added here — `get_overview`,
+  `select_offering`, `generate_brief`, `get_performance` — so "23 of 23" was
+  under-reporting the surface by four before the parity pass added ten more.
+
+Counted from `src/tools/` rather than from the plan. See `01-architecture.md`
+for contracts, and the note under the table for what the parity pass was.
 
 | # | Tool | Scope | Phase | State |
 |---|------|-------|-------|-------|
 | 1 | `get_app_state` | global | 1 | `[ ]` registered on every route; **verified on the deployed origin** |
 | 2 | `navigate_to` | global | 1 | `[ ]` registered on every route; **verified on the deployed origin** |
-| 3 | `search_trends` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
-| 4 | `filter_trends` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
-| 5 | `sort_trends` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
-| 6 | `list_visible_trends` | trends | 2 | `[ ]` locally verified, 24 of 24 — **absent from the deployed bundle** |
-| 7 | `open_trend` | trends | 2 | `[ ]` locally verified, drawer renders — **absent from the deployed bundle** |
-| 8 | `save_to_watchlist` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
-| 9 | `get_trend_detail` | trend open | 2 | `[ ]` locally verified, returns clip transcripts — **absent from the deployed bundle** |
-| 10 | `write_trend_summary` | trend open | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
-| 11 | `play_clip` | trend open | 2 | `[ ]` locally verified at `seekS` 2 — **absent from the deployed bundle** |
-| 12 | `analyze_trend` | trend open | 2 | `[ ]` `cached` path re-verified locally (`claude-opus-5`); `model` path still never observed — see B6 |
-| 13 | `list_products` | products | 3 | `[ ]` locally verified, 4 seeded; agent description polished — **absent from the deployed bundle** |
-| 14 | `get_product` | products | 3 | `[ ]` locally verified; agent description polished — **absent from the deployed bundle** |
-| 15 | `create_product` | products | 3 | `[ ]` locally verified; returns new id and rejects unknown fields by name; agent description polished — **absent from the deployed bundle** |
-| 16 | `update_product` | product open | 3 | `[ ]` locally verified; idempotent partial update description polished — **absent from the deployed bundle** |
-| 17 | `delete_product` | product open | 3 | `[ ]` locally verified, round-trip 4 → 5 → 4; irreversible open-id guard description polished — **absent from the deployed bundle** |
-| 18 | `get_brief_context` | brief composer | 4 | `[ ]` **verified on the deployed origin** — full trend, product USP, 3-item do-not list |
-| 19 | `save_brief` | brief composer | 4 | `[ ]` locally re-verified: injected `status:'published'` still lands `draft` |
-| 20 | `search_briefs` | briefs | 4 | `[ ]` locally annotated `readOnly` + `untrustedContent`; filters verified locally, deployed bundle still needs this update |
-| 21 | `update_brief_status` | brief open | 4 | `[ ]` locally re-verified: forward-only, refusals carry `currentStatus` |
-| 22 | `schedule_brief` | calendar | 5 | `[ ]` locally verified, idempotent by briefId+date — **absent from the deployed bundle** |
-| 23 | `list_schedule` | calendar | 5 | `[ ]` locally verified, filters + resolved titles — **absent from the deployed bundle** |
+| 3 | `select_offering` | global | 4 | `[ ]` locally verified; arms the composer with `open_trend` — **was missing from this table** |
+| 4 | `get_tool_trace` | global | parity | `[ ]` locally verified by `verify:tools` — **absent from the deployed bundle** |
+| 5 | `get_overview` | dashboard | 4 | `[ ]` locally verified — **was missing from this table** |
+| 6 | `search_trends` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 7 | `filter_trends` | trends | 2 | `[ ]` locally verified; impossible and inverted dates refused — **absent from the deployed bundle** |
+| 8 | `sort_trends` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 9 | `list_visible_trends` | trends | 2 | `[ ]` locally verified, 24 of 24 — **absent from the deployed bundle** |
+| 10 | `open_trend` | trends | 2 | `[ ]` locally verified, drawer renders — **absent from the deployed bundle** |
+| 11 | `save_to_watchlist` | trends | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 12 | `remove_from_watchlist` | trends | parity | `[ ]` locally verified, including ids whose trend no longer exists — **absent from the deployed bundle** |
+| 13 | `list_watchlist` | trends | parity | `[ ]` locally verified, resolved rows separated from dangling ids — **absent from the deployed bundle** |
+| 14 | `set_watchlist_only` | trends | parity | `[ ]` locally verified; `filter_trends({})` leaves it alone, by contract — **absent from the deployed bundle** |
+| 15 | `reset_trend_view` | trends | parity | `[ ]` locally verified; clears the chip `filter_trends` cannot — **absent from the deployed bundle** |
+| 16 | `get_trend_detail` | trend open | 2 | `[ ]` locally verified, returns clip transcripts — **absent from the deployed bundle** |
+| 17 | `write_trend_summary` | trend open | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
+| 18 | `clear_trend_summary` | trend open | parity | `[ ]` locally verified; refuses when nothing is written — **absent from the deployed bundle** |
+| 19 | `play_clip` | trend open | 2 | `[ ]` locally verified at `seekS` 2 — **absent from the deployed bundle** |
+| 20 | `stop_clip` | trend open | parity | `[ ]` locally verified; safe with nothing playing — **absent from the deployed bundle** |
+| 21 | `analyze_trend` | trend open | 2 | `[ ]` `cached` path re-verified locally (`claude-opus-5`); `model` path still never observed — see B6 |
+| 22 | `get_business_profile` | products | 3 | `[ ]` locally verified; agent description polished — **absent from the deployed bundle**. Tracked here as `list_products`/`get_product` until 2026-09-04 |
+| 23 | `update_business_profile` | profile editor | 3 | `[ ]` locally verified, editor-gated — **absent from the deployed bundle** |
+| 24 | `add_business_offering` | profile editor | 3 | `[ ]` locally verified; returns the new id and rejects unknown fields by name — **absent from the deployed bundle**. Tracked here as `create_product` until 2026-09-04 |
+| 25 | `update_business_offering` | profile editor | 3 | `[ ]` locally verified; idempotent partial update — **absent from the deployed bundle**. Tracked here as `update_product` until 2026-09-04 |
+| 26 | `remove_business_offering` | profile editor | 3 | `[ ]` locally verified, round-trip 4 → 5 → 4 — **absent from the deployed bundle**. Tracked here as `delete_product` until 2026-09-04 |
+| 27 | `get_brief_context` | brief composer | 4 | `[ ]` **verified on the deployed origin** — full trend, product USP, 3-item do-not list |
+| 28 | `save_brief` | brief composer | 4 | `[ ]` locally re-verified: injected `status:'published'` still lands `draft`; every required field refused when missing |
+| 29 | `generate_brief` | brief composer | 4 | `[ ]` locally verified — **was missing from this table** |
+| 30 | `search_briefs` | briefs, calendar | 4 | `[ ]` locally annotated `readOnly` + `untrustedContent`; filters verified locally. Registered on both routes on purpose — see the note in `src/tools/schedule.ts` |
+| 31 | `update_brief_status` | brief open | 4 | `[ ]` locally re-verified: forward-only, refusals carry `currentStatus` |
+| 32 | `schedule_brief` | calendar | 5 | `[ ]` locally verified, idempotent by briefId+date — **absent from the deployed bundle** |
+| 33 | `list_schedule` | calendar | 5 | `[ ]` locally verified, filters + resolved titles — **absent from the deployed bundle** |
+| 34 | `set_schedule_status` | calendar | parity | `[ ]` locally verified; moves in both directions and reports `from`/`to` — **absent from the deployed bundle** |
+| 35 | `unschedule_brief` | calendar | parity | `[ ]` locally verified; removes the slot, keeps the brief, refuses an unknown id — **absent from the deployed bundle** |
+| 36 | `get_performance` | performance | 5 | `[ ]` locally verified — **was missing from this table**. An unreadable `platform` is now refused rather than dropped |
+| 37 | `export_performance` | performance | parity | `[ ]` locally verified; header + one line per row, BOM and CRLF — **absent from the deployed bundle** |
+
+**The parity pass**, marked `parity` above, added no features. Every one of the
+ten is one half of a control the human already had on screen and the agent could
+not reach: the watchlist could be added to but not read or emptied, the
+watchlist-only chip moved a table the agent could see and not set, a summary
+could be written and never retracted, a clip could be started and never stopped,
+the calendar could be filled and never corrected, the CSV export existed only as
+a button, and every call handed back a `_trace` id that nothing could resolve.
+The README's claim is that the agent works the same surface the human does;
+these are the places where that was not yet true.
+
+All ten, plus the `get_performance` filter fix, are covered by
+`npm run verify:tools` — 51 checks, 0 failing.
 
 ## Submission Checklist
 
@@ -142,6 +180,41 @@ The four required artifacts. All four, or the entry does not count.
 
 Append one entry per working session. Never rewrite an earlier entry — a wrong
 prediction that was later corrected is more useful than a tidy history.
+
+### 2026-09-04 03:30 WITA — tool surface parity pass
+
+Closed every place where the human had a control and the agent had nothing.
+Ten tools added, no features: `remove_from_watchlist`, `list_watchlist`,
+`set_watchlist_only`, `reset_trend_view`, `clear_trend_summary`, `stop_clip`,
+`set_schedule_status`, `unschedule_brief`, `export_performance`, and
+`get_tool_trace`. Each one is a button, chip or store function the routes
+already called and no executor could reach. The surface is 37 tools: 4 global,
+1 dashboard, 10 on Trends with 6 more while a trend is open, 1 on Products with
+4 more while the editor is open, 3 in the composer, 2 in the library, 5 on the
+Calendar (`search_briefs` re-registered), and 2 on Performance.
+
+One behaviour changed rather than being added: `get_performance` dropped an
+unreadable `platform` filter and returned every platform, which is the same
+silent-drop bug the other four filtering tools were fixed for after the external
+bridge pass. It refuses now, naming the platforms it knows.
+
+`verify-tool-validation.mjs` grew from 25 checks to 51 and passes. Two committed
+scripts were found already red at `HEAD`, before any of this, and one of them is
+now green:
+
+- `verify-phase5.mjs` asserted 2 global tools when `select_offering` had made it
+  3 in Phase 4, so it never ran past its first block. Its `known`-shape
+  assertion had also trailed the change that put titles beside ids in
+  `schedule_brief` refusals, and its summary line printed hard-coded surface
+  counts that disagreed with its own assertions. Corrected to the current
+  numbers, with the drift recorded in the file; it passes.
+- `verify-dashboard.mjs` fails on a missing `data-testid="sidebar-settings"` in
+  the sidebar markup. Pre-existing at `HEAD`, unrelated to tools, and left
+  alone — it belongs to whoever last moved that markup.
+
+This table's own drift is documented above it: five rows tracked tool names that
+never shipped, and four shipped tools were never listed. "23 of 23" was wrong in
+both directions before the ten were added.
 
 ### 2026-09-04 00:00 WITA — Phase 7 submission worksheet
 
