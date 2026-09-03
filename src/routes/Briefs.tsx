@@ -157,11 +157,6 @@ export function Briefs() {
             </p>
           ) : (
             <>
-              <p className="muted small" data-testid="composer-armed">
-                <code>get_brief_context</code> and <code>save_brief</code> are on the surface. Ask
-                an agent, or fill it in yourself — both land a draft.
-              </p>
-
               <div className="brief-form" data-testid="brief-form">
                 <div className="brief-fields">
                 <div className="field-row field-row-wide">
