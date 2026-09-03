@@ -2,7 +2,7 @@
 
 **This is the session entry point. Read this before anything else.**
 
-Last updated: 2026-09-03 22:13 WITA · by: compliance audit after remote sync
+Last updated: 2026-09-03 22:46 WITA · by: Phase 3 local implementation
 
 ---
 
@@ -10,24 +10,25 @@ Last updated: 2026-09-03 22:13 WITA · by: compliance audit after remote sync
 
 | | |
 |---|---|
-| **Current phase** | Phase 1 — deployed; required WebMCP browser checks and `/api/analyze` repair still open |
+| **Current phase** | Phase 3 — locally complete by explicit prerequisite override; deployment and browser verification pending |
 | **Sprint start (T+0)** | 2026-09-03 17:51 WITA |
 | **Hard deadline** | 2026-09-04 04:00 WITA (13:00 PDT, 2026-09-03) |
-| **Time remaining at last update** | 5h 47m |
+| **Time remaining at last update** | 5h 14m |
 | **Deployed URL** | https://trend-lake.vercel.app — static app and media return 200 |
-| **Tools registered** | 2 of 21 planned (`get_app_state`, `navigate_to`), present in the deployed bundle; WebMCP browser check pending |
+| **Tools registered** | 7 of 21 planned are written: 2 global plus 5 product tools; the product surface is locally verified, not deployed |
 
 ## Next Task
 
-**Merge and deploy `feat/hackathon-compliance`, then verify the required browser
-paths.** The public Phase 1 deployment and real media are reachable, and the
-repository is public. The deployed `/api/analyze` POST currently waits without
-returning JSON; the branch adds a ten-second provider timeout so that failure
-degrades predictably instead of hanging.
+**Commit the Phase 3 code and plan together, rename the branch to `phase-3`,
+push it, and deploy through `main`.** Then verify the Product Knowledge route on
+the deployed origin: five tools with no product open, seven when one is open,
+hand CRUD, and the guarded-delete refusal. Do not mark Phase 3 deployed until
+those checks pass.
 
-After the branch is merged to `main`, confirm the response includes
-`Permissions-Policy: tools=(self)`, call `/api/analyze`, and verify the tool
-surface in the ChatGPT in-app browser and flagged Chrome. Then begin Phase 2.
+The earlier Phase 0–2 gaps remain open by explicit instruction: confirm the
+response includes `Permissions-Policy: tools=(self)`, repair and call
+`/api/analyze`, perform the ChatGPT and flagged-Chrome checks, and complete the
+Trends phase before claiming the overall sprint is sequentially complete.
 
 ## Blockers
 
@@ -42,6 +43,7 @@ surface in the ChatGPT in-app browser and flagged Chrome. Then begin Phase 2.
 | B8 | Vercel not confirmed on the hackathon's approved-hosting list | you | 0 | **closed** 2026-09-03 22:08 — official rules explicitly list Vercel |
 | B7 | Clip corpus not yet copied from ClipBrief into `public/media/` | — | 0 | **closed** 2026-09-03 21:10 |
 | B9 | No committed `cached` summaries for clip-backed trends — `02-data-model.md` asks for them but defines no `Trend` field to hold one | — | 2 | open |
+| B10 | Phase 3 code is locally verified but not deployed; browser surfaces were unavailable for visual/runtime confirmation | you | 3 | **open** — push/merge, then verify the public origin |
 
 B6 is Phase 0 work, not pre-work, and is not fatal: without it `analyze_trend`
 serves the cached summary, which degrades rather than breaks. B7 is closed — the
@@ -66,7 +68,7 @@ exactly that.
 | 0 | Foundation | T+0:00 → T+1:15 | `[ ]` | 3 / 8 · rest blocked on deploy |
 | 1 | Shell and data layer | T+1:15 → T+2:45 | `[ ]` | 7 / 7 locally · 0 verified on a deployed origin |
 | 2 | Trends | T+2:45 → T+4:15 | `[ ]` | 0 / 10 |
-| 3 | Product Knowledge | T+4:15 → T+5:15 | `[ ]` | 0 / 5 |
+| 3 | Product Knowledge | T+4:15 → T+5:15 | `[ ]` | 5 / 5 locally · 0 verified on a deployed origin |
 | 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 0 / 7 |
 | 5 | Calendar and Performance | T+6:45 → T+7:45 | `[ ]` | 0 / 4 · **cuttable** |
 | 6 | Polish and manual E2E | T+7:45 → T+8:30 | `[ ]` | 0 / 6 |
@@ -90,11 +92,11 @@ The judged surface. 21 tools planned; see `01-architecture.md` for contracts.
 | 10 | `write_trend_summary` | trend open | 2 | `[ ]` |
 | 11 | `play_clip` | trend open | 2 | `[ ]` |
 | 12 | `analyze_trend` | trend open | 2 | `[ ]` cut first if Phase 2 slips |
-| 13 | `list_products` | products | 3 | `[ ]` |
-| 14 | `get_product` | products | 3 | `[ ]` |
-| 15 | `create_product` | products | 3 | `[ ]` |
-| 16 | `update_product` | product open | 3 | `[ ]` |
-| 17 | `delete_product` | product open | 3 | `[ ]` |
+| 13 | `list_products` | products | 3 | `[ ]` written, registered, contract verified locally — not deployed |
+| 14 | `get_product` | products | 3 | `[ ]` written, registered, multiline return and annotation verified locally — not deployed |
+| 15 | `create_product` | products | 3 | `[ ]` written, registered, reactive store write verified locally — not deployed |
+| 16 | `update_product` | product open | 3 | `[ ]` written, conditional, partial/idempotent update verified locally — not deployed |
+| 17 | `delete_product` | product open | 3 | `[ ]` written, conditional, guarded refusal verified locally — not deployed |
 | 18 | `get_brief_context` | brief composer | 4 | `[ ]` |
 | 19 | `save_brief` | brief composer | 4 | `[ ]` |
 | 20 | `search_briefs` | briefs | 4 | `[ ]` |
@@ -423,3 +425,35 @@ it needs a deployment and another curl before Phase 0 can close.
 documents creation-window provenance and the limited cc0 media reuse. The
 Vercel config declares `Permissions-Policy: tools=(self)`, and the compliance
 plan records evidence without checking any entrant-only or browser-only item.
+
+### 2026-09-03 22:46 WITA — Phase 3 local implementation
+
+Phase 3 was implemented after an explicit instruction to proceed despite the
+Phase 0–2 gate recorded above. The exception applies only to execution order;
+it does not close, skip or rewrite any earlier phase.
+
+**Product workspace.** The Products placeholder is replaced by a responsive
+Product Knowledge workspace with seeded product cards, one create/edit
+component, individual add/remove rows for USPs, dos and donts, and a confirmation
+before hand deletion. Every initial-build control has a `data-testid`. Seeded
+fixture prices carry `demo data`; an edited or user-created price does not.
+
+**Tool surface.** `list_products`, `get_product` and `create_product` register
+only on the Products route. Opening a product adds `update_product` and
+`delete_product`; closing it removes them. All five definitions go through
+`traced()`. `get_product` is read-only and untrusted-content annotated; update
+is destructive and idempotent; delete is destructive and refuses any id except
+the product currently open. Executors reject malformed and extra fields rather
+than relying on their schemas.
+
+**Verified locally.** `scripts/verify-phase3.mjs`, bundled as an isolated Vite
+SSR check, reports the 5/7 surface counts, reactive agent creation, a partial
+update that preserves omitted fields, idempotent repeat updates, exact guarded
+delete refusal, multiline description round-trip, rendered array controls and
+a trace id on every call. `npm run build` exits 0. `npm run lint` exits 0 with
+only the same four pre-existing warnings in `src/webmcp/useTool.ts`.
+
+**Not deployed.** No browser surface was available in this session, so there is
+no visual or deployed-origin claim. Phase 3 remains `[ ]`, all five tool rows
+remain `[ ]`, and B10 records the push/merge plus public-origin checks still
+owned by the entrant.

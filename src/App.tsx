@@ -7,6 +7,7 @@ import { bindHashListener, navigate, useAppState } from './store/router'
 import { Dashboard } from './routes/Dashboard'
 import { CorpusCheck } from './routes/CorpusCheck'
 import { PendingRoute } from './routes/Pending'
+import { Products } from './routes/Products'
 import { ToolSurfacePanel, UnsupportedBrowserNotice, installBridge, useTools } from './webmcp'
 
 /**
@@ -84,5 +85,6 @@ function RouteView({ route }: { route: Route }) {
       </>
     )
   }
+  if (route === 'products') return <Products />
   return <PendingRoute route={route} />
 }
