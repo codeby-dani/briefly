@@ -13,6 +13,7 @@
  */
 
 import { getClip } from '../fixtures/clips'
+import { getTrendCover } from '../fixtures/trendCovers'
 import { getTrendThumb } from '../fixtures/trendThumbs'
 import { PlatformIcon } from './PlatformIcon'
 import type { Category, Platform } from '../types'
@@ -53,14 +54,27 @@ export function TrendThumb({
   category: Category
 }) {
   const clip = clipId ? getClip(clipId) : undefined
-  // Order matters: the clip's own first frame beats a stock cover, and a stock
-  // cover beats the generated plate. The plate is the last resort, not the
-  // default — it only shows if a trend has neither.
-  const stock = clip ? undefined : getTrendThumb(trendId)
+  // Order matters: a captured cover frame beats the clip's generated poster,
+  // that beats a stock cover, and a stock cover beats the generated plate. The
+  // cover leads because a grid of gradient-and-headline posters reads as one
+  // card repeated; the plate is the last resort, not the default.
+  //
+  // Only the card reorders. The drawer still posters the player with
+  // `clip.poster`, which is the clip's actual first frame.
+  const cover = getTrendCover(trendId)
+  const stock = clip || cover ? undefined : getTrendThumb(trendId)
 
   return (
     <div className="thumb" data-testid={`thumb-${platform}`}>
-      {clip ? (
+      {cover ? (
+        <img
+          className="thumb-img"
+          src={cover.src}
+          alt={cover.alt}
+          loading="lazy"
+          decoding="async"
+        />
+      ) : clip ? (
         <img
           className="thumb-img"
           src={clip.poster}
