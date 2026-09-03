@@ -26,7 +26,7 @@ function movingAverage(points: number[]) {
   })
 }
 
-/** A dependency-free SVG chart with an accessible demo comparison series. */
+/** A dependency-free SVG chart with an accessible comparison series. */
 export function LineChart({ points, height = 145, label }: { points: number[]; height?: number; label: string }) {
   const [activeIndex, setActiveIndex] = useState(points.length - 1)
   const gradientId = `chart-fill-${useId().replace(/:/g, '')}`
@@ -56,7 +56,7 @@ export function LineChart({ points, height = 145, label }: { points: number[]; h
 
   return (
     <div className="chart-visual">
-      <svg className="line-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label} — ${points.length} demo points, from ${min} to ${max}`} data-testid="line-chart">
+      <svg className="line-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label} — ${points.length} points, from ${min} to ${max}`} data-testid="line-chart">
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.3" />
@@ -79,7 +79,7 @@ export function LineChart({ points, height = 145, label }: { points: number[]; h
         <line className="line-chart-crosshair" x1={active.x} x2={active.x} y1={pad.top} y2={height - pad.bottom} />
 
         {primary.map((point, index) => (
-          <circle key={index} className="line-chart-hit" cx={point.x} cy={point.y} r="11" tabIndex={0} aria-label={`Day ${index + 1}: ${points[index]} demo growth; baseline ${Math.round(baseline[index]!)}`} onFocus={() => setActiveIndex(index)} onPointerEnter={() => setActiveIndex(index)} onClick={() => setActiveIndex(index)} />
+          <circle key={index} className="line-chart-hit" cx={point.x} cy={point.y} r="11" tabIndex={0} aria-label={`Day ${index + 1}: ${points[index]} growth; baseline ${Math.round(baseline[index]!)}`} onFocus={() => setActiveIndex(index)} onPointerEnter={() => setActiveIndex(index)} onClick={() => setActiveIndex(index)} />
         ))}
 
         <circle className="line-chart-active-dot" cx={active.x} cy={active.y} r="4.8" />
@@ -93,7 +93,6 @@ export function LineChart({ points, height = 145, label }: { points: number[]; h
       <div className="chart-legend" aria-label="Chart legend">
         <span><i className="chart-key chart-key-primary" aria-hidden />Follower growth</span>
         <span><i className="chart-key chart-key-baseline" aria-hidden />Trend baseline</span>
-        <small>Demo series</small>
       </div>
     </div>
   )

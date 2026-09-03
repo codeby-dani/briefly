@@ -945,3 +945,12 @@ represented in the application data—Instagram, TikTok, YouTube, and X—and ea
 top-trending row carries its source icon beside its platform label. The live
 dashboard check recorded four source icons and no remaining dashboard demo
 badges.
+
+### 2026-09-04 02:54 WITA — Performance cleanup and channel icons
+
+Performance no longer presents demo badges, a “Demo series” legend label, or
+implementation-facing explanatory paragraphs below its charts and table. The
+overview now carries the shared social coverage strip; Platform mix and each
+content row use the existing platform icon set. The live route check recorded
+the Performance page, visible social coverage, six table platform icons, and
+zero remaining demo badges.

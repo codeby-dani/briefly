@@ -1078,6 +1078,30 @@
   text-transform: capitalize;
 }
 
+.performance-platform-icons {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.performance-platform-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-left: -4px;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  background: var(--surface-high);
+}
+
+.performance-platform {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: capitalize;
+}
+
 .row-title {
   font-size: 14px;
   font-weight: 600;

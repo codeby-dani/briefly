@@ -17,8 +17,8 @@
 import { useState } from 'react'
 import { BarChart, StackedBar } from '../components/BarChart'
 import { toCsv } from '../csv'
-import { DemoBadge } from '../components/Badge'
 import { LineChart } from '../components/LineChart'
+import { PlatformIcon } from '../components/PlatformIcon'
 import { analyticsStore } from '../store/analytics'
 import { briefStore } from '../store/briefs'
 import { dispatch, navigate } from '../store/router'
@@ -27,6 +27,7 @@ import { trendStore } from '../store/trends'
 import type { Brief, Platform, ScheduleEntry, Trend } from '../types'
 
 const ID = new Intl.NumberFormat('en-US')
+const SOCIAL_SOURCES: Platform[] = ['instagram', 'tiktok', 'youtube', 'x']
 
 function compact(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
@@ -104,7 +105,7 @@ export function Performance() {
       <section className="card" data-testid="performance-overview">
         <div className="card-head">
           <h2>Overview — last 30 days</h2>
-          <DemoBadge what="Every figure in this card" />
+          <ChannelCoverage />
         </div>
         <div className="kpis">
           <Kpi label="Reach" value={compact(analytics.reach)} />
@@ -118,7 +119,6 @@ export function Performance() {
       <section className="card" data-testid="best-posting-time">
         <div className="card-head">
           <h2>Best posting time</h2>
-          <DemoBadge what="The whole curve" />
           <span className="muted small" data-testid="peak-hour">
             peak at {String(peakHour).padStart(2, '0')}:00
           </span>
@@ -129,31 +129,21 @@ export function Performance() {
           formatX={(hour) => `${hour}`}
           highlight={peakHour}
         />
-        <p className="muted small">
-          24 hourly buckets, relative score. The y axis is deliberately unlabelled: the numbers
-          behind it are invented, and axis ticks over invented data claim a precision that does
-          not exist.
-        </p>
       </section>
 
       <section className="card" data-testid="platform-mix">
         <div className="card-head">
           <h2>Platform mix</h2>
-          <DemoBadge what="Every share in this bar" />
+          <div className="performance-platform-icons" data-testid="performance-platform-icons" aria-label="Platforms in the performance mix">
+            {mix.map(({ key }) => <span className="performance-platform-icon" key={key}><PlatformIcon platform={key} size={16} /></span>)}
+          </div>
         </div>
         <StackedBar segments={mix} label="Share of reach by platform" />
-        <p className="muted small">
-          plan/phases/phase-5 asks for a format breakdown. There is no <code>format</code> field
-          anywhere in <code>02-data-model.md</code>, so this splits by <code>platform</code> —
-          the closest dimension the data model actually has — rather than inventing a field to
-          justify a chart.
-        </p>
       </section>
 
       <section className="card" data-testid="per-content">
         <div className="card-head">
           <h2>Per content</h2>
-          <DemoBadge what="Reach and engagement on every row" />
           <button type="button" className="chip" data-testid="export-csv" onClick={downloadCsv}>
             Export CSV
           </button>
@@ -189,7 +179,7 @@ export function Performance() {
             {rows.map((row) => (
               <tr key={`${row.title}-${row.postedAt}`} data-testid={`content-row-${row.postedAt}`}>
                 <td>{row.title}</td>
-                <td>{row.platform}</td>
+                <td><span className="performance-platform"><PlatformIcon platform={row.platform} size={15} />{row.platform}</span></td>
                 <td>{row.postedAt}</td>
                 <td className="is-num">{ID.format(row.reach)}</td>
                 <td className="is-num">{ID.format(row.engagement)}</td>
@@ -215,16 +205,22 @@ export function Performance() {
           </tbody>
         </table>
 
-        <p className="muted small" data-testid="per-content-note">
-          Every <code>briefId</code> in the seeded rows is <code>null</code>, and it stays that
-          way: these six posts predate the brief library, and the analytics store is read-only by
-          contract in <code>02-data-model.md</code>. A row links back to a brief the moment one
-          honestly points at one, rather than being wired up to look like it does.
-        </p>
       </section>
 
       <TrendVersusResult briefs={briefs} trends={trends} entries={entries} />
     </>
+  )
+}
+
+function ChannelCoverage() {
+  return (
+    <div className="social-source-strip" data-testid="performance-social-coverage" aria-label="Social channels represented">
+      <span className="social-source-label">Social signal coverage</span>
+      <span className="social-source-icons">
+        {SOCIAL_SOURCES.map((platform) => <span className="social-source-icon" key={platform}><PlatformIcon platform={platform} size={16} /></span>)}
+      </span>
+      <span className="social-source-count">4 channels</span>
+    </div>
   )
 }
 
@@ -275,7 +271,6 @@ function TrendVersusResult({
     <section className="card" data-testid="trend-versus-result">
       <div className="card-head">
         <h2>Trend versus result</h2>
-        <span className="muted small">no badge — nothing here is invented</span>
       </div>
 
       {rows.length === 0 ? (
@@ -318,7 +313,6 @@ function TrendVersusResult({
                   <span className={`growth${row.trend.growthPct < 0 ? ' is-down' : ''}`}>
                     {row.trend.growthPct > 0 ? '+' : ''}
                     {row.trend.growthPct}%
-                    <DemoBadge what="Trend growth" />
                   </span>
                 )}
               </li>
