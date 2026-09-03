@@ -2,7 +2,7 @@
  * Shared domain types. Contracts live in plan/02-data-model.md; this file is
  * that document expressed in TypeScript, and the two must not drift.
  *
- * Phase 0 defines only what the shell and the clip corpus need. Trend, Product,
+ * Phase 0 defines only what the shell and the clip corpus need. Trend, profile,
  * Brief and Analytics arrive with the stores in Phase 1.
  */
 
@@ -14,6 +14,14 @@
 export const PLATFORMS = ['tiktok', 'instagram', 'youtube', 'x'] as const
 
 export type Platform = (typeof PLATFORMS)[number]
+
+/** The display spelling. `tiktok` in a schema, "TikTok" on screen. */
+export const PLATFORM_LABEL: Record<Platform, string> = {
+  tiktok: 'TikTok',
+  instagram: 'Instagram',
+  youtube: 'YouTube',
+  x: 'X',
+}
 
 export function isPlatform(value: unknown): value is Platform {
   return typeof value === 'string' && (PLATFORMS as readonly string[]).includes(value)
@@ -148,16 +156,26 @@ export interface Trend {
   demo: true
 }
 
-export interface Product {
+export interface BusinessOffering {
   id: string
   name: string
-  description: string
+  positioning: string
   usp: string[]
   priceIdr: number
-  /** Things the brand will say. */
-  dos: string[]
-  /** Things the brand will not say. */
-  donts: string[]
+  approvedClaims: string[]
+  prohibitedClaims: string[]
+}
+
+export interface BusinessProfile {
+  name: string
+  description: string
+  industry: string
+  targetAudiences: string[]
+  brandVoices: string[]
+  contentGoals: string[]
+  approvedClaims: string[]
+  prohibitedClaims: string[]
+  offerings: BusinessOffering[]
   updatedAt: string
 }
 
@@ -173,7 +191,7 @@ export interface Brief {
   id: string
   title: string
   trendId: string
-  productId: string
+  offeringId: string
   platform: Platform
   status: BriefStatus
   hook: string

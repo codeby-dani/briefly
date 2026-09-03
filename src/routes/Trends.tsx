@@ -18,6 +18,7 @@
 import { useEffect, useRef } from 'react'
 import { DemoBadge } from '../components/Badge'
 import { Sparkline } from '../components/Sparkline'
+import { TrendThumb } from '../components/TrendThumb'
 import { TrendDetail } from './TrendDetail'
 import { dispatch, useAppState } from '../store/router'
 import { resetPlayer, selectClip } from '../store/player'
@@ -230,26 +231,24 @@ export function Trends() {
         <div className="card-head">
           <h2>All trends</h2>
           {/* One badge for the card, not one per figure: a badge repeated on
-              every row stops being read, and the claim is about the whole
-              table. Clip signals are badged separately, in the drawer. */}
-          <DemoBadge what="Volume, growth and the 14-day spike on every row" />
+              every card stops being read, and the claim is about the whole
+              grid. Clip signals are badged separately, in the drawer. */}
+          <DemoBadge what="Volume, growth and the 14-day spike on every card" />
         </div>
 
-        <div className="trend-head" role="row">
-          <span className="th-keyword">Trend</span>
+        {/* The sort control lives on the card grid rather than in a column
+            header, because a grid has no columns to click. The same three
+            fields and the same `sort-{field}` hooks, so `sort_trends` and the
+            human still move one control. */}
+        <div className="grid-sort" role="group" aria-label="Sort trends">
+          <span className="grid-sort-label">Sort by</span>
           {SORT_COLUMNS.map(({ field, label }) => (
             <button
               key={field}
               type="button"
-              className={`th-sort${view.sort.field === field ? ' is-current' : ''}`}
+              className={`chip${view.sort.field === field ? ' is-current' : ''}`}
               data-testid={`sort-${field}`}
-              aria-sort={
-                view.sort.field === field
-                  ? view.sort.direction === 'asc'
-                    ? 'ascending'
-                    : 'descending'
-                  : 'none'
-              }
+              aria-pressed={view.sort.field === field}
               onClick={() =>
                 setSort(
                   field,
@@ -263,8 +262,6 @@ export function Trends() {
               </span>
             </button>
           ))}
-          <span className="th-spike">14 days</span>
-          <span className="th-star">Watch</span>
         </div>
 
         {rows.length === 0 ? (
@@ -273,9 +270,9 @@ export function Trends() {
             trends are still there.
           </p>
         ) : (
-          <ul className="trend-rows">
+          <ul className="trend-cards">
             {rows.map((trend) => (
-              <TrendRow
+              <TrendCard
                 key={trend.id}
                 trend={trend}
                 isOpen={trend.id === selectedTrendId}
@@ -289,7 +286,12 @@ export function Trends() {
   )
 }
 
-function TrendRow({
+/**
+ * One trend as a card: the frame it came from, the platform it came from, and
+ * then the numbers. The card is one button plus one star — the whole surface
+ * opens the drawer, so the click target is the card and not a link inside it.
+ */
+function TrendCard({
   trend,
   isOpen,
   watched,
@@ -303,7 +305,7 @@ function TrendRow({
   return (
     <li
       ref={ref}
-      className={`trend-row${isOpen ? ' is-open' : ''}`}
+      className={`trend-card${isOpen ? ' is-open' : ''}`}
       data-testid={`trend-row-${trend.id}`}
     >
       <button
@@ -315,18 +317,31 @@ function TrendRow({
           dispatch({ type: 'selectTrend', trendId: isOpen ? null : trend.id })
         }
       >
-        <span className="row-title">{trend.keyword}</span>
-        <span className="muted small">
-          {trend.platform} · {trend.category} · first seen {trend.firstSeen}
+        <TrendThumb
+          clipId={trend.clipIds[0]}
+          keyword={trend.keyword}
+          platform={trend.platform}
+          category={trend.category}
+        />
+
+        <span className="card-body">
+          <span className="card-top">
+            <span className={`growth-pill${trend.growthPct < 0 ? ' is-down' : ''}`}>
+              {growthLabel(trend.growthPct)}
+            </span>
+            <span className="muted small">{trend.category}</span>
+          </span>
+
+          <span className="row-title">{trend.keyword}</span>
+
+          <span className="card-foot">
+            <span className="td-volume">{NUM.format(trend.volume)}</span>
+            <Sparkline points={trend.spike} label={`${trend.keyword}, 14-day spike`} />
+          </span>
+
+          <span className="muted small">first seen {trend.firstSeen}</span>
         </span>
       </button>
-
-      <span className="td-volume">{NUM.format(trend.volume)}</span>
-      <span className={`td-growth growth${trend.growthPct < 0 ? ' is-down' : ''}`}>
-        {growthLabel(trend.growthPct)}
-      </span>
-      <span className="td-seen muted small">{trend.firstSeen}</span>
-      <Sparkline points={trend.spike} label={`${trend.keyword}, 14-day spike`} />
 
       <button
         type="button"

@@ -165,43 +165,6 @@
   flex-shrink: 0;
 }
 
-.sidebar-foot {
-  margin: 0 16px;
-  padding: 14px;
-  border-radius: var(--r);
-  background: var(--surface-high);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.foot-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.foot-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-h);
-}
-
-.foot-count {
-  font-family: var(--mono);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-}
-
-.foot-note {
-  font-size: 11px;
-  line-height: 16px;
-  color: var(--text);
-}
-
 /* ---------------------------------------------------------------------- *
  * Shell and top bar.
  * ---------------------------------------------------------------------- */
@@ -304,11 +267,14 @@
   background: var(--ok);
 }
 
+/* Bottom padding clears the floating status pill so the last card in a route is
+   never trapped under it. It was 112px for the old collapsed panel, which was a
+   full-width bar; the pill is a third of that height. */
 .app-main {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 24px 24px 112px;
+  padding: 24px 24px 72px;
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -1578,89 +1544,64 @@
   padding-bottom: 2px;
 }
 
-/* The table. A grid rather than a <table>, because the sparkline column is a
- * graphic and the star is a control — neither is tabular data, and a grid
- * keeps the row a single flex context for the open button to fill. */
-.trend-head,
-.trend-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 92px 78px 96px 72px 36px;
+/* The card grid.
+ *
+ * Phase 6 replaced the six-column table with cards, because a trend is a piece
+ * of video before it is a row of numbers: the frame it came from and the
+ * platform badge on it say in one glance what "tiktok · beauty" in 11px grey
+ * never said. The numbers did not leave — they sit under the frame, where the
+ * eye lands second. */
+
+.grid-sort {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
-.trend-head {
-  padding: 0 8px 8px;
-  border-bottom: 1px solid var(--border-strong);
+.grid-sort-label {
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text);
-
-  > span,
-  > button {
-    text-align: right;
-  }
-
-  > .th-keyword {
-    text-align: left;
-  }
 }
 
-.th-sort {
-  font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  background: none;
-  border: 0;
-  color: inherit;
-  cursor: pointer;
-  padding: 0;
-
-  &:hover {
-    color: var(--text-h);
-  }
-
-  &.is-current {
-    color: var(--accent);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-}
-
-.trend-rows {
+.trend-cards {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+  gap: 14px;
 }
 
-.trend-row {
-  padding: 9px 8px;
-  border-bottom: 1px solid var(--border);
-  border-radius: var(--r-sm);
+.trend-card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  overflow: hidden;
+  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 
   &:hover {
-    background: var(--surface-high);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
   }
 
   &.is-open {
-    background: var(--accent-bg);
-    box-shadow: inset 2px 0 0 var(--accent);
+    border-color: var(--accent-border);
+    box-shadow: 0 0 0 1px var(--accent-border), var(--shadow-md);
   }
 }
 
 .trend-open {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  align-items: flex-start;
+  align-items: stretch;
   text-align: left;
+  width: 100%;
   background: none;
   border: 0;
   color: inherit;
@@ -1671,17 +1612,150 @@
 
   &:focus-visible {
     outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline-offset: -2px;
   }
+}
+
+/* The thumbnail. 4:5 rather than the clip's own 9:16, so a wall of cards keeps
+ * a readable row height; the poster is cropped, never letterboxed. */
+.thumb {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: var(--surface-high);
+  overflow: hidden;
+}
+
+.thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumb-plate {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.thumb-plate-word {
+  font-family: var(--heading);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  color: #2c2c33;
+  text-wrap: balance;
+}
+
+/* The platform badge. White disc, brand-coloured mark: the same treatment the
+ * platforms use on their own surfaces, and the only thing on the card that
+ * carries a non-system colour. */
+.thumb-platform {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.28);
+}
+
+.platform-icon {
+  display: block;
+}
+
+.thumb-tag {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #fff;
+  background: rgb(0 0 0 / 0.6);
+  padding: 2px 7px;
+  border-radius: 999px;
+  backdrop-filter: blur(2px);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px 12px;
+  min-width: 0;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.growth-pill {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ok-deep);
+  background: var(--ok-bg);
+  border: 1px solid var(--ok-border);
+  border-radius: 999px;
+  padding: 1px 8px;
+
+  &.is-down {
+    color: var(--danger-deep);
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+  }
+}
+
+.trend-card .row-title {
+  font-family: var(--heading);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+  line-height: 1.3;
+}
+
+.card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
 }
 
 .td-volume,
 .td-growth,
 .td-seen {
-  text-align: right;
   font-family: var(--mono);
   font-size: 12.5px;
   font-variant-numeric: tabular-nums;
+}
+
+/* The star floats over the thumbnail rather than sitting in the body, so the
+ * card body stays one uninterrupted click target for the drawer. */
+.trend-card > .star {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.86);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  color: #55555f;
 }
 
 .star {
@@ -1703,13 +1777,24 @@
   }
 }
 
-/* The drawer. */
+/* The drawer.
+ *
+ * Two columns of stacked panels, not one long column and one short one. The
+ * Phase 2 layout put the chart and the player on the left and a two-line
+ * summary on the right, so the right half of the drawer was empty from the
+ * summary down — half a screen of nothing beside the thing a judge came to
+ * read. The blocks are now dealt into whichever column is shorter by hand:
+ * spike and clip left, summary, related and samples right. */
 .drawer {
   box-shadow: var(--shadow-md), inset 3px 0 0 var(--accent);
+  gap: 14px;
 
   h3 {
-    font-size: 15px;
-    margin: 4px 0 0;
+    font-family: var(--heading);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin: 0;
   }
 
   h4 {
@@ -1721,26 +1806,110 @@
   }
 }
 
+.drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-mark {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--surface-high);
+  border: 1px solid var(--border);
+}
+
+.drawer-title {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
 .drawer-close {
   margin-left: auto;
+  flex: none;
 }
 
 .drawer-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
 
   @media (max-width: 900px) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.drawer-main,
-.drawer-side {
+.drawer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Every block in the drawer is the same object: a tinted plate with one
+ * heading row. Before this they were bare headings floating on the card, which
+ * is why nothing in the drawer looked grouped with anything else. */
+.panel {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 14px 16px;
+  background: var(--surface-high);
+  border-radius: var(--r);
   min-width: 0;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.drawer-note {
+  margin: 0;
+  padding-top: 2px;
+  border-top: 1px solid var(--border);
+}
+
+/* Inside a drawer column the player has about half the width it had, so the
+ * video narrows and the signal tiles drop to two across rather than wrapping
+ * into a ragged three-and-one. */
+.drawer .clip {
+  gap: 14px;
+}
+
+.drawer .clip-player {
+  width: 156px;
+}
+
+.drawer .clip-meta {
+  flex: 1 1 180px;
+  gap: 8px;
+}
+
+.drawer .signals {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+
+  > div {
+    padding: 6px 8px;
+  }
 }
 
 .samples {
@@ -1796,13 +1965,7 @@
  * not look like a fresh one" is a Phase 2 task, not a nicety. */
 
 .summary {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
-  padding: 14px 16px;
-  background: var(--surface-high);
-  border: 0;
-  border-radius: var(--r);
 }
 
 .summary-text {
@@ -1893,14 +2056,11 @@
  * Narrow viewports.
  * ---------------------------------------------------------------------- */
 
-/* The inspector panel is `position: fixed` against the right edge. Below
- * 1680px it would sit on top of the content, so the main column reserves the
- * gutter the reference's design brief asked for. */
-@media (min-width: 901px) and (max-width: 1680px) {
-  .app-main {
-    padding-right: 328px;
-  }
-}
+/* No gutter is reserved for the inspector panel. It used to take 328px out of
+ * the main column between 901px and 1680px so that it never overlapped a card —
+ * which cost every window in that range a dead band as wide as the panel, empty
+ * whenever the panel was shut. The panel is a floating overlay now: it closes to
+ * a corner pill, and the route runs full-bleed underneath it either way. */
 
 /* The sidebar is the first thing to go: at tablet width a 256px rail costs
  * more than it earns, so it becomes a horizontal strip above the content. */
@@ -1926,10 +2086,6 @@
     display: inline;
   }
 
-  .sidebar-foot {
-    display: none;
-  }
-
   .shell {
     padding-left: 0;
   }
@@ -1943,40 +2099,38 @@
   }
 }
 
-/* The six-column trend grid needs about 700px before the keyword column starts
- * losing to the numbers, and below that a judge in a split window gets a
- * horizontally scrolling page — which reads as broken long before anyone
- * notices which column overflowed. So the row becomes two lines and the date,
- * already in the row's own subtitle, drops out. */
+/* The card grid reflows on its own down to one column, so the only thing the
+ * narrow breakpoint has to do is stop the cards from getting so wide that a
+ * 4:5 thumbnail eats the fold. */
 @media (max-width: 720px) {
-  .trend-head {
-    display: none;
+  .trend-cards {
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 10px;
   }
 
-  .trend-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 12px;
-  }
-
-  .trend-open {
-    flex: 1 1 100%;
-  }
-
-  .td-seen {
-    display: none;
-  }
-
-  .td-volume,
-  .td-growth {
-    text-align: left;
-  }
-
-  .star {
-    margin-left: auto;
+  .grid-sort {
+    gap: 6px;
   }
 }
+
+/* ---------------------------------------------------------------------- *
+ * Business profile.
+ * ---------------------------------------------------------------------- */
+.profile-workspace { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 22px; align-items: start; }
+.profile-sidebar { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 18px; }
+.profile-identity h2, .profile-main h1, .profile-main h2, .profile-main h3 { color: var(--text-h); }
+.profile-avatar { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: var(--accent); color: var(--bg); font-size: 24px; font-weight: 700; margin-bottom: 18px; }
+.profile-completeness { margin-top: 22px; display: grid; gap: 7px; font-size: 13px; }
+.profile-completeness span { height: 6px; background: var(--surface-high); border-radius: 8px; overflow: hidden; }
+.profile-completeness i { display: block; height: 100%; background: var(--accent); border-radius: inherit; }
+.profile-completeness small { color: var(--text); }
+.context-quality h3 { margin: 3px 0 8px; font-size: 16px; }.context-quality p:last-child { font-size: 13px; line-height: 1.5; margin: 0; }
+.profile-main { min-width: 0; display: flex; flex-direction: column; gap: 18px; }.profile-main .workspace-head { align-items: flex-end; }.profile-main h1 { margin: 2px 0 6px; font-size: clamp(28px, 4vw, 40px); }
+.profile-about { display: flex; flex-direction: column; gap: 17px; }.profile-about > p { margin: 0; line-height: 1.6; max-width: 74ch; }
+.profile-facts { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--border); padding-bottom: 15px; gap: 14px; }.profile-facts div { display: grid; gap: 4px; }.profile-facts small { color: var(--text); font-family: var(--mono); font-size: 10px; text-transform: uppercase; }.profile-facts strong { color: var(--text-h); font-size: 14px; }
+.profile-group h3 { font-size: 12px; font-weight: 550; margin: 0 0 8px; }.profile-chips { display: flex; flex-wrap: wrap; gap: 7px; }.profile-chips span { padding: 5px 8px; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 12px; background: var(--surface-high); }.prohibited .profile-chips span, .offering-claims > :last-child .profile-chips span { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, var(--border)); }
+.section-heading h2 { margin: 2px 0 0; font-size: 22px; }.offering-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }.offering-card { display: flex; flex-direction: column; gap: 14px; }.offering-card > div:first-child { display: flex; justify-content: space-between; gap: 12px; }.offering-card h3 { margin: 0; font-size: 17px; }.offering-card strong { color: var(--accent); font-family: var(--mono); font-size: 13px; }.offering-card p { margin: 0; font-size: 14px; line-height: 1.5; }.offering-claims { display: grid; gap: 10px; border-top: 1px solid var(--border); padding-top: 12px; }
+.claim-guardrails { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 18px; align-items: start; }.claim-guardrails h2 { font-size: 18px; margin: 2px 0 0; }.profile-editor { position: fixed; z-index: 3; top: 16px; right: 16px; bottom: 16px; width: min(560px, calc(100vw - 32px)); overflow: auto; box-shadow: -12px 0 35px rgb(0 0 0 / .25); }.editor-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }.offering-manager { border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: grid; gap: 8px; }.offering-manager legend { font-size: 13px; color: var(--text-h); }.offering-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-bottom: 1px solid var(--border); padding: 10px 0; }.offering-edit label { display: grid; gap: 4px; font-size: 11px; color: var(--text); }.offering-edit label:first-child, .offering-edit label:nth-child(2), .offering-edit > div { grid-column: 1 / -1; }.offering-edit .remove-offering { color: var(--danger); margin-left: 12px; }
 
 @media (max-width: 760px) {
   .workspace-head {
@@ -2002,6 +2156,8 @@
   .product-editor {
     position: static;
   }
+
+  .profile-workspace { grid-template-columns: 1fr; }.profile-sidebar { position: static; }.offering-grid, .claim-guardrails, .editor-lists { grid-template-columns: 1fr; }.profile-facts { grid-template-columns: 1fr; }.profile-editor { top: 8px; right: 8px; bottom: 8px; width: calc(100vw - 16px); }
 }
 
 /* ---------------------------------------------------------------------- *

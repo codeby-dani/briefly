@@ -18,7 +18,6 @@ import {
   UnsupportedBrowserNotice,
   installBridge,
   useSurfaceSource,
-  useToolSurface,
   useTools,
 } from './webmcp'
 
@@ -38,7 +37,7 @@ import {
  * no room for the inspector.
  */
 export default function App() {
-  const { route, selectedTrendId, selectedProductId } = useAppState()
+  const { route, selectedTrendId, selectedOfferingId } = useAppState()
 
   useEffect(() => {
     installBridge()
@@ -51,7 +50,7 @@ export default function App() {
   // here at the root — where it survives the human navigating between Trends,
   // Products and Briefs mid-composition — rather than inside the Briefs route,
   // which unmounts on navigation. See plan/02-data-model.md § Tool surface.
-  useTools(composerTools(Boolean(selectedTrendId && selectedProductId)))
+  useTools(composerTools(Boolean(selectedTrendId && selectedOfferingId)))
 
   return (
     <>
@@ -74,16 +73,13 @@ export default function App() {
 const NAV_LABEL: Record<Route, string> = {
   dashboard: 'Dashboard',
   trends: 'Trends Discovery',
-  products: 'Product Knowledge',
+  products: 'Profile',
   briefs: 'Content Briefs',
   calendar: 'Content Calendar',
   performance: 'Performance',
 }
 
 function Sidebar({ route }: { route: Route }) {
-  const tools = useToolSurface()
-  const source = useSurfaceSource()
-
   return (
     <aside className="sidebar" aria-label="Sections">
       <div className="sidebar-top">
@@ -124,21 +120,12 @@ function Sidebar({ route }: { route: Route }) {
         </nav>
       </div>
 
-      {/* The reference puts a plan-usage card here. There is no plan and no
-          quota, and inventing one would be a number on screen that nobody
-          observed. This is the same slot carrying something true: how many
-          tools the connected agent can see right now, and by which route. */}
-      <div className="sidebar-foot" data-testid="sidebar-surface">
-        <div className="foot-row">
-          <span className="foot-label">Agent surface</span>
-          <span className="foot-count">{tools.length}</span>
-        </div>
-        <p className="foot-note">
-          {source === 'webmcp'
-            ? 'Native WebMCP surface. Tools follow what you have open.'
-            : 'Served through the page bridge at window.__td. Tools follow what you have open.'}
-        </p>
-      </div>
+      {/* The reference puts a plan-usage card in the slot below the nav. It held
+          the agent surface count and its route, which the floating status pill
+          now reports from the corner on every viewport — two live counts of the
+          same thing, and a reader had to notice they always agreed. There is no
+          plan and no quota to put here instead, and inventing one would be a
+          number on screen that nobody observed, so the slot stays empty. */}
     </aside>
   )
 }

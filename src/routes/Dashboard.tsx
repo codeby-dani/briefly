@@ -71,7 +71,7 @@ export function Dashboard() {
         <span className="pulse-separator" aria-hidden>•</span>
         <span>{selectedTrend ? `Tracking “${selectedTrend.keyword}”` : 'Pick a trend to begin a brief'}</span>
         <span className="pulse-separator" aria-hidden>•</span>
-        <span>{app.selectedProductId ? 'Product context connected' : 'Add a product when you are ready'}</span>
+        <span>{app.selectedOfferingId ? 'Offering context connected' : 'Add an offering when you are ready'}</span>
       </section>
 
       <section className="card dashboard-kpis" data-testid="kpi-cards">

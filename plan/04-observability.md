@@ -62,7 +62,25 @@ executor that has to remember to log will eventually forget, and it will forget
 in the one that matters.
 
 Rendered as a collapsible tab in `ToolSurfacePanel`, next to the surface list.
-Two tabs, one panel: *what the agent can do* and *what the agent did*.
+Three tabs, one panel: *what the agent can do*, *what to ask it*, and *what the
+agent did*.
+
+The panel is a floating overlay, not a column of the layout: shut, it is a
+status pill in the corner and the route has the whole viewport; open, a sheet
+grows out of the pill's top edge and closes on its own `✕` or on Escape. It
+animates on `transform` and `opacity` only — 260ms in, 190ms out, and none at
+all under `prefers-reduced-motion` — and stays mounted so the exit animates
+too, held out of hit-testing and the accessibility tree while shut.
+
+Each row in the surface tab discloses a paste-ready `window.__td.callTool` line
+for that tool, with the required arguments filled in from its own schema —
+`const` first (which is how `update_product` and `delete_product` arrive with
+the real open-product id), then `enum`, then `minimum`, falling back to an empty
+literal of the right type. Optional properties are left out: including them
+would restate the schema in a form that has to be edited before it runs. This is
+the no-agent path made usable rather than merely available — the bridge has
+always been reachable from DevTools, but assembling a call by hand from JSON
+Schema is enough friction that nobody does it under time pressure.
 
 ## Console Convention
 

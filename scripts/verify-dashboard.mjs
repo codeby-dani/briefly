@@ -36,6 +36,7 @@ assert.match(markup, /data-testid="chart-tooltip"/)
 assert.match(markup, /Follower growth/)
 assert.match(markup, /Trend baseline/)
 assert.equal(safeChartIndex(29, 7), 6)
+assert.match(markup, /Add an offering when you are ready/)
 
 const css = readFileSync('src/App.css', 'utf8')
 assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.dashboard-grid/)

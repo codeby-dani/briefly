@@ -1,6 +1,6 @@
 # Anglebook
 
-A content-marketing workspace where trend research, product knowledge and brief
+A content-marketing workspace where trend research, a business profile and brief
 writing happen in one place — and where a connected AI agent works the same
 surface the human does, over [WebMCP](https://github.com/webmachinelearning/webmcp).
 
@@ -11,7 +11,7 @@ the brief lands in the library, not in a chat transcript.
 Built for [The WebMCP Challenge](https://webmcp.devpost.com).
 
 The name reflects the product's job: keep a durable book of content angles,
-grounded in both the trend a person is watching and the product knowledge their
+grounded in both the trend a person is watching and the business context their
 agent can read. The source icon and raster exports live in `public/brand/`.
 
 Live app: [trend-lake.vercel.app](https://trend-lake.vercel.app)
@@ -63,7 +63,10 @@ implementation and does not pretend to be one: a browser that has the real API
 uses the real API, and the bridge is what everyone else gets.
 
 That also makes the app inspectable with no agent at all. The panel in the
-corner renders whichever surface is live.
+corner renders whichever surface is live, and every tool row in it carries a
+paste-ready `callTool` line with a copy button — the required arguments are
+filled in from the tool's own schema, so driving the app from the DevTools
+console needs no hand-assembly from JSON Schema.
 
 ## Running it
 

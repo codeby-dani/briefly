@@ -16,7 +16,7 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { briefStore, saveDraft, setStatus } from '../store/briefs'
-import { productStore } from '../store/products'
+import { businessProfileStore } from '../store/businessProfile'
 import { trendStore } from '../store/trends'
 import { dispatch, navigate, useAppState } from '../store/router'
 import { libraryTools } from '../tools/briefs'
@@ -66,7 +66,7 @@ function toList(text: string, splitter: RegExp): string[] {
 export function Briefs() {
   const app = useAppState()
   const trends = trendStore.use()
-  const products = productStore.use()
+  const offerings = businessProfileStore.use().offerings
   const briefs = briefStore.use()
 
   // The library pair is route-scoped: on the surface while Briefs is mounted,
@@ -76,8 +76,8 @@ export function Briefs() {
   useTools(libraryTools())
 
   const trend = trends.find((t) => t.id === app.selectedTrendId) ?? null
-  const product = products.find((p) => p.id === app.selectedProductId) ?? null
-  const bothSelected = Boolean(trend && product)
+  const offering = offerings.find((item) => item.id === app.selectedOfferingId) ?? null
+  const bothSelected = Boolean(trend && offering)
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [savedId, setSavedId] = useState<string | null>(null)
@@ -85,12 +85,12 @@ export function Briefs() {
   const set = (patch: Partial<FormState>) => setForm((f) => ({ ...f, ...patch }))
 
   function handleSave() {
-    if (!trend || !product) return
+    if (!trend || !offering) return
     const brief = saveDraft(
       {
-        title: form.title.trim() || `${trend.keyword} × ${product.name}`,
+        title: form.title.trim() || `${trend.keyword} × ${offering.name}`,
         trendId: trend.id,
-        productId: product.id,
+        offeringId: offering.id,
         platform: form.platform || trend.platform,
         hook: form.hook.trim(),
         outline: toList(form.outline, /\n+/),
@@ -131,16 +131,16 @@ export function Briefs() {
           </label>
 
           <label className="field">
-            <span className="field-label">Product</span>
+            <span className="field-label">Offering</span>
             <select
-              data-testid="composer-product"
-              value={app.selectedProductId ?? ''}
-              onChange={(e) => dispatch({ type: 'selectProduct', productId: e.target.value || null })}
+              data-testid="composer-offering"
+              value={app.selectedOfferingId ?? ''}
+              onChange={(e) => dispatch({ type: 'selectOffering', offeringId: e.target.value || null })}
             >
-              <option value="">Select a product…</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
+              <option value="">Select an offering…</option>
+              {offerings.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
                 </option>
               ))}
             </select>
@@ -149,7 +149,7 @@ export function Briefs() {
 
         {!bothSelected ? (
           <p className="muted" data-testid="composer-empty">
-            Pick a trend and a product. The moment both are selected, two tools —{' '}
+            Pick a trend and an offering. The moment both are selected, two tools —{' '}
             <code>get_brief_context</code> and <code>save_brief</code> — appear on the surface for
             a connected agent, and you can watch them register in the inspector on the right. No
             agent connected? Every field below is yours to fill and save by hand; the brief lands in
@@ -167,7 +167,7 @@ export function Briefs() {
                 <input
                   data-testid="field-title"
                   value={form.title}
-                  placeholder={`${trend!.keyword} × ${product!.name}`}
+                  placeholder={`${trend!.keyword} × ${offering!.name}`}
                   onChange={(e) => set({ title: e.target.value })}
                 />
               </Field>
@@ -186,7 +186,7 @@ export function Briefs() {
                   data-testid="field-outline"
                   rows={4}
                   value={form.outline}
-                  placeholder={'Open on the problem\nShow the product in use\nClose on the CTA'}
+                  placeholder={'Open on the problem\nShow the offering in use\nClose on the CTA'}
                   onChange={(e) => set({ outline: e.target.value })}
                 />
               </Field>
@@ -278,7 +278,7 @@ function Field({ id, label, children }: { id: string; label: string; children: R
 
 function Library({ briefs, highlightId }: { briefs: Brief[]; highlightId: string | null }) {
   const trends = trendStore.use()
-  const products = productStore.use()
+  const offerings = businessProfileStore.use().offerings
 
   const [query, setQuery] = useState('')
   const [status, setStatusFilter] = useState<BriefStatus | ''>('')
@@ -350,7 +350,7 @@ function Library({ briefs, highlightId }: { briefs: Brief[]; highlightId: string
               key={brief.id}
               brief={brief}
               trendKeyword={trends.find((t) => t.id === brief.trendId)?.keyword ?? brief.trendId}
-              productName={products.find((p) => p.id === brief.productId)?.name ?? brief.productId}
+              productName={offerings.find((item) => item.id === brief.offeringId)?.name ?? brief.offeringId}
               highlight={brief.id === highlightId}
             />
           ))}
@@ -393,7 +393,7 @@ function BriefCard({
             className="link"
             data-testid={`brief-product-link-${brief.id}`}
             onClick={() => {
-              dispatch({ type: 'selectProduct', productId: brief.productId })
+              dispatch({ type: 'selectOffering', offeringId: brief.offeringId })
               navigate('products')
             }}
           >
