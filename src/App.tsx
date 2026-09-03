@@ -87,6 +87,9 @@ const WORKSPACES = [
 
 function Sidebar({ route }: { route: Route }) {
   const primaryRoutes = ROUTES.filter((name) => name !== 'products')
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState(WORKSPACES[0].id)
+  const [workspaceOpen, setWorkspaceOpen] = useState(false)
+  const activeWorkspace = WORKSPACES.find((workspace) => workspace.id === activeWorkspaceId) ?? WORKSPACES[0]
 
   return (
     <aside className="sidebar" aria-label="Sections">
