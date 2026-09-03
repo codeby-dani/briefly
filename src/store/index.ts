@@ -1,6 +1,14 @@
 export { analyticsStore, readAnalytics } from './analytics'
 export { briefStore, readBriefs } from './briefs'
-export { productStore, readProduct, readProducts } from './products'
+export {
+  createProduct,
+  deleteProduct,
+  productStore,
+  readProduct,
+  readProducts,
+  updateProduct,
+} from './products'
+export type { ProductDraft, ProductPatch } from './products'
 export { readTrend, readTrends, trendStore } from './trends'
 export { readWatchlist, watchlistStore } from './watchlist'
 export type { AppState, RouterAction } from './router'

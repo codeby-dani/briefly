@@ -6,11 +6,11 @@ The "real" half of the feature split, and the context that makes briefs good.
 
 ## Status
 
-- [ ] Product list and detail
-- [ ] Create, update, delete by hand
-- [ ] `list_products`, `get_product`, `create_product` on the route
-- [ ] `update_product`, `delete_product` when a product is open
-- [ ] Do-and-do-not lists are first-class, not a notes field
+- [ ] Product list and detail — implemented and locally verified; awaiting deployment
+- [ ] Create, update, delete by hand — implemented; deployed browser confirmation pending
+- [ ] `list_products`, `get_product`, `create_product` on the route — contract verified locally; awaiting deployment
+- [ ] `update_product`, `delete_product` when a product is open — 5/7 surface logic verified locally; awaiting deployment
+- [ ] Do-and-do-not lists are first-class, not a notes field — array row controls render locally; awaiting deployment
 
 ## Tasks
 

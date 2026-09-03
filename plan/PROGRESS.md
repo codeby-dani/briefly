@@ -3,6 +3,7 @@
 **This is the session entry point. Read this before anything else.**
 
 Last updated: 2026-09-03 22:40 WITA · by: Phase 2 build session, then a `todo.md` sweep
+Last updated: 2026-09-03 22:46 WITA · by: Phase 3 local implementation
 
 ---
 
@@ -10,39 +11,25 @@ Last updated: 2026-09-03 22:40 WITA · by: Phase 2 build session, then a `todo.m
 
 | | |
 |---|---|
-| **Current phase** | Phase 2 — code complete, **not deployed**. Phases 0 and 1 also still open on deploy |
+| **Current phase** | Phase 3 — locally complete by explicit prerequisite override; deployment and browser verification pending |
 | **Sprint start (T+0)** | 2026-09-03 17:51 WITA |
 | **Hard deadline** | 2026-09-04 04:00 WITA (13:00 PDT, 2026-09-03) |
-| **Time remaining at last update** | 5h 25m |
-| **Deployed URL** | none yet — BLOCKING |
-| **Tools registered** | 12 of 21 planned — the 2 global plus all 10 on Trends, locally verified |
+| **Time remaining at last update** | 5h 14m |
+| **Deployed URL** | https://trend-lake.vercel.app — static app and media return 200 |
+| **Tools registered** | 7 of 21 planned are written: 2 global plus 5 product tools; the product surface is locally verified, not deployed |
 
 ## Next Task
 
-**Deploy.** Unchanged, and now blocking three phases instead of two. Phases 0, 1
-and 2 are all code-complete and all verified on `localhost:4173`; none can close
-because nothing is on a public origin.
+**Commit the Phase 3 code and plan together, rename the branch to `phase-3`,
+push it, and deploy through `main`.** Then verify the Product Knowledge route on
+the deployed origin: five tools with no product open, seven when one is open,
+hand CRUD, and the guarded-delete refusal. Do not mark Phase 3 deployed until
+those checks pass.
 
-Hosting is **Vercel**, wired to GitHub, so the deploy is a push:
-
-```
-git push origin main
-```
-
-Then, on the deployed origin: open it in the ChatGPT in-app browser and in
-flagged Chrome, confirm the panel reads 2 on the dashboard and **12 with a trend
-open on `#/trends`**, `curl -X POST <url>/api/analyze -d '{}'` and confirm a 503
-JSON rather than a 404 or HTML, set `GEMINI_API_KEY` in Vercel's project
-environment variables, redeploy, and curl again for a 200. Open it once in a
-real private window. Record the URL in the table above and clear B2.
-
-Phase 0's sixth exit criterion — a poster and an mp4 loading from the deployed
-origin — is now checked by opening any clip-backed trend rather than by the
-dashboard panel that used to do it: Phase 2 replaced that panel with the real
-drawer, as its phase file instructs.
-
-Phase 3 (Product Knowledge CRUD) can be started against localhost without
-waiting. The deploy is still the highest-value ten minutes available.
+The earlier Phase 0–2 gaps remain open by explicit instruction: confirm the
+response includes `Permissions-Policy: tools=(self)`, repair and call
+`/api/analyze`, perform the ChatGPT and flagged-Chrome checks, and complete the
+Trends phase before claiming the overall sprint is sequentially complete.
 
 ## Blockers
 
@@ -56,7 +43,8 @@ waiting. The deploy is still the highest-value ten minutes available.
 | B6 | `/api/analyze` does not return from the live origin; key/provider state needs Vercel inspection | you | 0 | **open** — branch adds a ten-second upstream timeout |
 | B8 | Vercel not confirmed on the hackathon's approved-hosting list | you | 0 | **closed** 2026-09-03 22:08 — official rules explicitly list Vercel |
 | B7 | Clip corpus not yet copied from ClipBrief into `public/media/` | — | 0 | **closed** 2026-09-03 21:10 |
-| B9 | No committed `cached` summaries for clip-backed trends — `02-data-model.md` asks for them but defines no `Trend` field to hold one | — | 2 | **closed** 2026-09-03 22:35 |
+| B9 | No committed `cached` summaries for clip-backed trends — `02-data-model.md` asks for them but defines no `Trend` field to hold one | — | 2 | open |
+| B10 | Phase 3 code is locally verified but not deployed; browser surfaces were unavailable for visual/runtime confirmation | you | 3 | **open** — push/merge, then verify the public origin |
 
 B6 is Phase 0 work, not pre-work, and is not fatal: without it `analyze_trend`
 serves the cached summary, which degrades rather than breaks — and as of Phase 2
@@ -84,9 +72,9 @@ reseeds instead of serving trends with no `cached` field.
 |-------|-------|--------|-------|-------------------|
 | 0 | Foundation | T+0:00 → T+1:15 | `[ ]` | 3 / 8 · rest blocked on deploy |
 | 1 | Shell and data layer | T+1:15 → T+2:45 | `[ ]` | 7 / 7 locally · 0 verified on a deployed origin |
-| 2 | Trends | T+2:45 → T+4:15 | `[ ]` | 10 / 10 locally · 0 verified on a deployed origin |
-| 3 | Product Knowledge | T+4:15 → T+5:15 | `[ ]` | 0 / 5 |
-| 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 6 / 7 locally on branch `phase4` · criterion 2 needs a live agent · 0 deployed |
+| 2 | Trends | T+2:45 → T+4:15 | `[ ]` | 0 / 10 |
+| 3 | Product Knowledge | T+4:15 → T+5:15 | `[ ]` | 5 / 5 locally · 0 verified on a deployed origin |
+| 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 0 / 7 |
 | 5 | Calendar and Performance | T+6:45 → T+7:45 | `[ ]` | 0 / 4 · **cuttable** |
 | 6 | Polish and manual E2E | T+7:45 → T+8:30 | `[ ]` | 0 / 6 |
 | 7 | Demo and submission | T+8:30 → T+10:00 | `[ ]` | 0 / 6 |
@@ -99,25 +87,25 @@ The judged surface. 21 tools planned; see `01-architecture.md` for contracts.
 |---|------|-------|-------|-------|
 | 1 | `get_app_state` | global | 1 | `[ ]` written, registered, locally verified — not deployed |
 | 2 | `navigate_to` | global | 1 | `[ ]` written, registered, locally verified — not deployed |
-| 3 | `search_trends` | trends | 2 | `[ ]` written, registered, locally verified — not deployed |
-| 4 | `filter_trends` | trends | 2 | `[ ]` written, registered, locally verified — not deployed |
-| 5 | `sort_trends` | trends | 2 | `[ ]` written, registered, locally verified — not deployed |
-| 6 | `list_visible_trends` | trends | 2 | `[ ]` written, registered, locally verified — not deployed |
-| 7 | `open_trend` | trends | 2 | `[ ]` written, registered, locally verified — not deployed |
-| 8 | `save_to_watchlist` | trends | 2 | `[ ]` written, registered, locally verified — not deployed |
-| 9 | `get_trend_detail` | trend open | 2 | `[ ]` written, registered, locally verified — not deployed |
-| 10 | `write_trend_summary` | trend open | 2 | `[ ]` written, registered, locally verified — not deployed |
-| 11 | `play_clip` | trend open | 2 | `[ ]` written, registered, locally verified — not deployed |
-| 12 | `analyze_trend` | trend open | 2 | `[ ]` written, registered — `cached` path locally verified; `model` path needs the deployed function and B6 |
-| 13 | `list_products` | products | 3 | `[ ]` |
-| 14 | `get_product` | products | 3 | `[ ]` |
-| 15 | `create_product` | products | 3 | `[ ]` |
-| 16 | `update_product` | product open | 3 | `[ ]` |
-| 17 | `delete_product` | product open | 3 | `[ ]` |
-| 18 | `get_brief_context` | brief composer | 4 | `[ ]` written, registered on selection, locally verified — not deployed |
-| 19 | `save_brief` | brief composer | 4 | `[ ]` written, registered on selection, always lands `draft`, locally verified — not deployed |
-| 20 | `search_briefs` | briefs | 4 | `[ ]` written, registered on briefs route, locally verified — not deployed |
-| 21 | `update_brief_status` | briefs | 4 | `[ ]` written, registered on briefs route, status machine enforced, locally verified — not deployed |
+| 3 | `search_trends` | trends | 2 | `[ ]` |
+| 4 | `filter_trends` | trends | 2 | `[ ]` |
+| 5 | `sort_trends` | trends | 2 | `[ ]` |
+| 6 | `list_visible_trends` | trends | 2 | `[ ]` |
+| 7 | `open_trend` | trends | 2 | `[ ]` |
+| 8 | `save_to_watchlist` | trends | 2 | `[ ]` |
+| 9 | `get_trend_detail` | trend open | 2 | `[ ]` |
+| 10 | `write_trend_summary` | trend open | 2 | `[ ]` |
+| 11 | `play_clip` | trend open | 2 | `[ ]` |
+| 12 | `analyze_trend` | trend open | 2 | `[ ]` cut first if Phase 2 slips |
+| 13 | `list_products` | products | 3 | `[ ]` written, registered, contract verified locally — not deployed |
+| 14 | `get_product` | products | 3 | `[ ]` written, registered, multiline return and annotation verified locally — not deployed |
+| 15 | `create_product` | products | 3 | `[ ]` written, registered, reactive store write verified locally — not deployed |
+| 16 | `update_product` | product open | 3 | `[ ]` written, conditional, partial/idempotent update verified locally — not deployed |
+| 17 | `delete_product` | product open | 3 | `[ ]` written, conditional, guarded refusal verified locally — not deployed |
+| 18 | `get_brief_context` | brief composer | 4 | `[ ]` |
+| 19 | `save_brief` | brief composer | 4 | `[ ]` |
+| 20 | `search_briefs` | briefs | 4 | `[ ]` |
+| 21 | `update_brief_status` | brief open | 4 | `[ ]` |
 | 22 | `schedule_brief` | calendar | 5 | `[ ]` cuttable |
 | 23 | `list_schedule` | calendar | 5 | `[ ]` cuttable |
 
@@ -504,97 +492,34 @@ documents creation-window provenance and the limited cc0 media reuse. The
 Vercel config declares `Permissions-Policy: tools=(self)`, and the compliance
 plan records evidence without checking any entrant-only or browser-only item.
 
-### 2026-09-03 22:35 WITA — Phase 2 build
+### 2026-09-03 22:46 WITA — Phase 3 local implementation
 
-Ten tools, the table, the controls and the drawer. All ten exit criteria pass on
-`localhost:4173`. Nothing is deployed, so no box is `[x]` and the phase is not
-closed — the same wall Phases 0 and 1 are sitting against, now with three phases
-behind it.
+Phase 3 was implemented after an explicit instruction to proceed despite the
+Phase 0–2 gate recorded above. The exception applies only to execution order;
+it does not close, skip or rewrite any earlier phase.
 
-**B9 closed, document first.** `02-data-model.md` gained `CachedAnalysis` and
-`Trend.cached`, then `src/types.ts`, then the fixture — the order the last entry
-prescribed, and the reason for it held: writing the field into the code first
-would have put a shape in `types.ts` the data model does not describe. One
-nested record, not the two loose fields predicted: the summary, the angles, the
-model id and the date have to travel together, and splitting them is exactly how
-a cached summary reaches the screen with no date beside it. `SCHEMA_VERSION`
-moved 1 → 2 so a warm `localStorage` reseeds rather than serving trends with no
-`cached` field.
+**Product workspace.** The Products placeholder is replaced by a responsive
+Product Knowledge workspace with seeded product cards, one create/edit
+component, individual add/remove rows for USPs, dos and donts, and a confirmation
+before hand deletion. Every initial-build control has a `data-testid`. Seeded
+fixture prices carry `demo data`; an edited or user-created price does not.
 
-**The cached summaries are not Gemini's, and the fixture says so.** The document
-asked for them to be written by the same model the live path uses. B6 is open,
-so there was no key, and stamping a Gemini model id on text Gemini never wrote is
-precisely the dishonesty the `cached` label exists to prevent. They were written
-by `claude-opus-5` from the clip transcripts, `Trend.cached.model` carries that
-string, and the drawer renders it verbatim: a judge reads *"committed fallback —
-not generated just now · claude-opus-5, 2026-09-03"*. The document was amended to
-record this rather than left to disagree with the fixture. Twelve summaries for
-the twelve clip-backed trends; the other twelve have `cached: null` and
-`analyze_trend` reports the failure on them instead of inventing a paragraph.
+**Tool surface.** `list_products`, `get_product` and `create_product` register
+only on the Products route. Opening a product adds `update_product` and
+`delete_product`; closing it removes them. All five definitions go through
+`traced()`. `get_product` is read-only and untrusted-content annotated; update
+is destructive and idempotent; delete is destructive and refuses any id except
+the product currently open. Executors reject malformed and extra fields rather
+than relying on their schemas.
 
-**Registration is split on purpose.** The six route tools go through one
-`useTools`; the four detail tools are four separate `useTool(open ? spec : null)`
-calls. Bundling all ten into one call would tear the whole set down and rebuild
-it every time the drawer opens, and the inspector would show ten tools churning
-where the truth is four arriving. Exit criterion 5 is the most valuable shot in
-the video, so it has to be honest: measured, closing the drawer removes exactly
-`get_trend_detail`, `write_trend_summary`, `play_clip`, `analyze_trend` and adds
-nothing, and the console walks 12 → 8 one line at a time.
+**Verified locally.** `scripts/verify-phase3.mjs`, bundled as an isolated Vite
+SSR check, reports the 5/7 surface counts, reactive agent creation, a partial
+update that preserves omitted fields, idempotent repeat updates, exact guarded
+delete refusal, multiline description round-trip, rendered array controls and
+a trace id on every call. `npm run build` exits 0. `npm run lint` exits 0 with
+only the same four pre-existing warnings in `src/webmcp/useTool.ts`.
 
-**One selector, not two.** `visibleTrends()` in `store/trendView.ts` is what the
-table renders from *and* what `list_visible_trends`, `filter_trends`,
-`search_trends` and `get_app_state` answer with. If the tool and the table each
-computed the visible set, they would eventually disagree, and they would disagree
-on camera. View state is deliberately not persisted and has no `td:` key — the
-data model lists every key this app owns, and a filter surviving a reload is a
-judge opening the live URL to an inexplicably empty table.
-
-**`play_clip` writes an intent, not a DOM reference.** `store/player.ts` holds
-`{ clipId, seekS, playToken }`; the player component obeys it, and the human's
-click on a clip chip goes through the same store. `playToken` exists because
-"play the clip already selected" has to be a distinguishable event, or a second
-call from the agent changes nothing observable and the agent has correctly called
-a tool that did nothing.
-
-**The drawer is inline, not an overlay.** `ToolSurfacePanel` is fixed to the
-right edge, and the shot this phase exists for is four tools leaving that panel.
-A drawer sliding over the panel would cover the thing it is there to prove.
-Measured at 1280px: no card, row, field or the video intersects the panel
-rectangle.
-
-**Two departures worth recording.** The Phase 0 `CorpusCheck` panel is gone from
-the dashboard, as the phase file instructs — Phase 0's sixth exit criterion is now
-checked by opening any clip-backed trend, and all 24 media files behind the 12
-referenced clips return 200 locally (`video/mp4`, `image/jpeg`, and `text/vtt` on
-the six with captions). And `filter_trends({})` resets its own five fields but
-does not clear the search term or the watchlist toggle, because those belong to
-`search_trends` and to a UI control; both are reported in `activeFilters`
-regardless, so an agent looking at a short list can see why it is short.
-
-**Verified on `localhost:4173`, through `window.__td`.** Surface 8 / 12 / 2;
-exactly four removed on close with nothing re-registered; `filter_trends` +
-`sort_trends` moving the on-screen selects and producing a DOM row order
-identical to `list_visible_trends`, `count` 2 against `total` 24;
-`write_trend_summary` rendering without a reload and labelling itself `agent`;
-`save_to_watchlist` twice → `alreadyPresent: true`, one entry in `td:watchlist`;
-`play_clip` starting the right video at the second asked for, refusing a clip
-from another trend and an unknown id with named reasons and the known list, and
-clamping `seekS: 9999` to the measured 21.4s; `analyze_trend` degrading to
-`cached` with the provenance on screen; a clipless `fashion` trend opening,
-rendering, summarising and analysing with no player and no console error; every
-badge in its own section head, none carrying both. `npm run build` exits 0.
-`npx oxlint src api scripts` exits 0 with the same four pre-existing warnings in
-`src/webmcp/`, which the phase files say not to rewrite.
-
-**Fixed rather than deferred.** At 375px the six-column grid overflowed the
-viewport by 105px — a horizontally scrolling page reads as broken long before
-anyone works out which column did it. The row folds to two lines below 720px and
-the date column drops, since it is already in the row's own subtitle. Re-measured
-at 375, 860 and 1280: `scrollWidth === clientWidth` at all three.
-
-**Prediction to check later:** `analyze_trend`'s `model` path is the only thing
-in this phase that has never run. Locally there is no function, so every call
-takes the 404 → `cached` branch; the 503 → `cached` branch and the 200 → `model`
-branch are reasoned from the handler's code, not observed. The first real test is
-the deploy, and the honest expectation is that `cached` works on the live origin
-and `model` needs B6 cleared before anyone can say it works at all.
+**Not deployed.** No browser surface was available in this session, so there is
+no visual or deployed-origin claim. Phase 3 remains `[ ]`, all five tool rows
+remain `[ ]`, and B10 records the push/merge plus public-origin checks still
+owned by the entrant.
