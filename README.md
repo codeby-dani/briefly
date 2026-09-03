@@ -63,7 +63,10 @@ implementation and does not pretend to be one: a browser that has the real API
 uses the real API, and the bridge is what everyone else gets.
 
 That also makes the app inspectable with no agent at all. The panel in the
-corner renders whichever surface is live.
+corner renders whichever surface is live, and every tool row in it carries a
+paste-ready `callTool` line with a copy button — the required arguments are
+filled in from the tool's own schema, so driving the app from the DevTools
+console needs no hand-assembly from JSON Schema.
 
 ## Running it
 

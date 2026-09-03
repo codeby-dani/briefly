@@ -4,7 +4,7 @@ import type { ToolEvent } from '../tools/trace'
 import { bridgeTools, subscribeToBridge } from './bridge'
 import type { BridgeToolInfo } from './bridge'
 import { parseSchema } from './types'
-import type { ToolAnnotations } from './types'
+import type { JSONSchema, ToolAnnotations } from './types'
 import { useSurfaceSource, useToolSurface } from './useTool'
 
 const LOG_SHOWN = 40
@@ -202,13 +202,11 @@ function SurfaceTab({
                 <span style={S.chevron(isOpen)} aria-hidden>
                   ›
                 </span>
-                input schema
+                console command
               </button>
 
               {isOpen && (
-                <pre style={S.schema}>
-                  {JSON.stringify(parseSchema(tool.inputSchema), null, 2)}
-                </pre>
+                <ConsoleCommand name={tool.name} schema={parseSchema(tool.inputSchema)} />
               )}
             </li>
           )
@@ -216,6 +214,125 @@ function SurfaceTab({
       </ul>
     </>
   )
+}
+
+/**
+ * A paste-ready call for the browser console, plus the schema it came from.
+ *
+ * The bridge is reachable from DevTools on any browser (see bridge.ts), which
+ * makes the console the one way to drive this app's tools with no agent at all
+ * — useful for a viewer checking the claim, and for us when a call misbehaves.
+ * Knowing that and having to hand-assemble `callTool('save_brief', {...})` from
+ * a JSON schema are two different things, so the panel writes the line out.
+ *
+ * The example is built from the schema's *required* fields only, so the line
+ * stays short and every argument in it is one the tool will not refuse for
+ * being absent. Values come from the schema where the schema knows them —
+ * `const` (the pinned open-product id), then `enum`, then `minimum` — and fall
+ * back to an empty literal of the right type where it does not. Those blanks
+ * are the parts a human fills in.
+ */
+function ConsoleCommand({ name, schema }: { name: string; schema: JSONSchema }) {
+  const command = formatCall(name, exampleInput(schema))
+  return (
+    <>
+      <div style={S.commandRow}>
+        <pre style={S.command}>{command}</pre>
+        <CopyButton text={command} label={`Copy the console command for ${name}`} />
+      </div>
+      <p style={S.commandNote}>
+        Paste in the DevTools console. Quoted blanks are placeholders — fill them in.
+      </p>
+      <pre style={S.schema}>{JSON.stringify(schema, null, 2)}</pre>
+    </>
+  )
+}
+
+/**
+ * Copy to clipboard, with the outcome said out loud.
+ *
+ * `writeText` rejects on an insecure origin and in a document that is not
+ * focused, and a button that silently does nothing is worse than no button, so
+ * a failure changes the label to `select it` rather than staying quiet.
+ */
+function CopyButton({ text, label }: { text: string; label: string }) {
+  const [state, setState] = useState<'idle' | 'done' | 'failed'>('idle')
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setState('done')
+    } catch {
+      setState('failed')
+    }
+    setTimeout(() => setState('idle'), 1600)
+  }
+
+  return (
+    <button style={S.copy} onClick={copy} aria-label={label} title={label}>
+      {state === 'done' ? 'copied' : state === 'failed' ? 'select it' : 'copy'}
+    </button>
+  )
+}
+
+/** `await window.__td.callTool('name', { ... })`, or without the second argument when there is nothing to pass. */
+function formatCall(name: string, input: Record<string, unknown>): string {
+  const args = Object.keys(input).length ? `, ${literal(input)}` : ''
+  return `await window.__td.callTool('${name}'${args})`
+}
+
+/**
+ * An example input for a tool, from the required half of its schema.
+ *
+ * Optional properties are left out on purpose: including them would document
+ * the schema a second time in a form that has to be edited before it is useful.
+ */
+function exampleInput(schema: JSONSchema): Record<string, unknown> {
+  const properties = isRecord(schema.properties) ? schema.properties : {}
+  const required = Array.isArray(schema.required) ? schema.required : []
+  const out: Record<string, unknown> = {}
+  for (const key of required) {
+    if (typeof key !== 'string') continue
+    out[key] = exampleValue(properties[key])
+  }
+  return out
+}
+
+function exampleValue(property: unknown): unknown {
+  if (!isRecord(property)) return ''
+  if ('const' in property) return property.const
+  if (Array.isArray(property.enum) && property.enum.length) return property.enum[0]
+  switch (property.type) {
+    case 'number':
+    case 'integer':
+      return typeof property.minimum === 'number' ? property.minimum : 0
+    case 'boolean':
+      return false
+    case 'array':
+      return [exampleValue(property.items)]
+    case 'object':
+      return {}
+    default:
+      return ''
+  }
+}
+
+/** JavaScript source, not JSON — this text is going into a console. */
+function literal(value: unknown): string {
+  if (typeof value === 'string') return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+  if (Array.isArray(value)) return `[${value.map(literal).join(', ')}]`
+  if (value === null || value === undefined) return 'null'
+  if (typeof value === 'object') {
+    const body = Object.entries(value as Record<string, unknown>)
+      .map(([key, inner]) => `${key}: ${literal(inner)}`)
+      .join(', ')
+    return body ? `{ ${body} }` : '{}'
+  }
+  return String(value)
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 const CAPABILITY_HELP: Record<Capability, string> = {
@@ -477,6 +594,35 @@ const S = {
     color: 'var(--panel-warn, #f0a227)',
     opacity: 0.9,
   },
+  commandRow: { display: 'flex', alignItems: 'flex-start', gap: 6, marginTop: 6 },
+  command: {
+    flex: 1,
+    minWidth: 0,
+    margin: 0,
+    padding: 8,
+    background: 'var(--panel-well, rgba(0,0,0,0.28))',
+    borderRadius: 6,
+    whiteSpace: 'pre-wrap' as const,
+    wordBreak: 'break-word' as const,
+    fontFamily: MONO,
+    fontSize: 10.5,
+    lineHeight: 1.5,
+    userSelect: 'all' as const,
+  },
+  copy: {
+    flexShrink: 0,
+    padding: '4px 8px',
+    borderRadius: 6,
+    border: '1px solid var(--panel-line, #2a323d)',
+    background: 'transparent',
+    color: 'inherit',
+    fontFamily: SANS,
+    fontSize: 9.5,
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase' as const,
+    cursor: 'pointer',
+  },
+  commandNote: { margin: '5px 0 0', fontSize: 10, lineHeight: 1.45, opacity: 0.55 },
   schemaToggle: {
     display: 'flex',
     alignItems: 'center',

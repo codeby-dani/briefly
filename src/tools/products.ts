@@ -120,7 +120,16 @@ export function getProductTool(): ToolSpec {
       const unexpected = unexpectedField(input, ['productId'])
       if (unexpected) return { ok: false as const, reason: unexpected }
       const product = readProduct(input.productId)
-      return product ?? { ok: false as const, reason: 'product not found' }
+      // Name what does exist, the way open_trend and the bridge's unknown-tool
+      // path do. A caller holding a stale or guessed id can correct itself from
+      // the refusal instead of having to go back through list_products.
+      return (
+        product ?? {
+          ok: false as const,
+          reason: 'product not found',
+          known: readProducts().map((p) => p.id),
+        }
+      )
     },
   })
 }
