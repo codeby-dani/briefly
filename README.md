@@ -9,7 +9,7 @@
 ![Challenge](https://img.shields.io/badge/Google%20x%20Devpost-WebMCP%20Challenge-0f7490?style=flat-square)
 
 <p align="center">
-  <img src="public/brand/briefly-readme-banner.png" alt="Briefly — Trend signals, made actionable." width="100%" />
+  <img src="public/brand/briefly-readme-banner.png" alt="Briefly — Smart content. Faster." width="100%" />
 </p>
 
 > **briefly** · Turn trend research and business context into grounded content briefs.
