@@ -912,3 +912,10 @@ to match the demo-data context without asserting unavailable measurements.
 The browser interaction check confirmed both menus open, and dashboard checks,
 brand checks, production build, lint, and whitespace validation passed. Lint
 retains only five pre-existing warnings in the WebMCP integration files.
+
+### 2026-09-04 01:55 WITA — tab icon correction
+
+The horizontal Briefly wordmark was causing the browser tab favicon to appear
+compressed. A dedicated square `briefly-mark.png` was cropped from the supplied
+logo’s B monogram and now powers the favicon and Apple touch icon; the full
+wordmark remains unchanged inside the application shell.
