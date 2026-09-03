@@ -2981,6 +2981,89 @@
   margin-top: 12px;
 }
 
+.calendar-content-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.calendar-content-detail,
+.calendar-open-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-high);
+}
+
+.calendar-content-detail-top,
+.calendar-detail-facts,
+.calendar-open-slot > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.calendar-content-detail-top {
+  justify-content: space-between;
+}
+
+.calendar-content-detail h3,
+.calendar-open-slot h3 {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 17px;
+}
+
+.calendar-content-detail > p,
+.calendar-open-slot > p:not(.eyebrow) {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.calendar-detail-facts {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  font-size: 11px;
+}
+
+.calendar-detail-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.calendar-detail-facts span + span::before {
+  margin-right: 3px;
+  color: var(--border-strong);
+  content: '·';
+}
+
+.calendar-open-slot {
+  max-width: 620px;
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.calendar-open-slot .eyebrow {
+  margin: 0;
+}
+
+.calendar-scheduled-briefs {
+  margin-top: 16px;
+}
+
+.calendar-scheduled-briefs .library-section-label {
+  margin-bottom: 7px;
+}
+
 /* ---------------------------------------------------------------------- *
  * Phase 5 — Performance.
  * ---------------------------------------------------------------------- */

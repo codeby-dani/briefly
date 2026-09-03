@@ -976,3 +976,10 @@ appear in their own section above the catalog.
 Calendar plan cards no longer use a colored vertical status rail, which made
 the compact cards look mechanically generated. Status remains legible through
 its existing text treatment while the card edge stays clean and consistent.
+
+### 2026-09-04 03:42 WITA — Calendar content detail
+
+The month now carries 16 skincare content plans instead of six. Selecting a
+date reveals a purpose-built content card with content type, platform, time,
+status, angle, and goal; open dates instead show a usable creative suggestion.
+The former implementation-facing instruction is gone from the empty state.

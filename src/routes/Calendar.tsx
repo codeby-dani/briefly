@@ -52,17 +52,32 @@ type ContentPlan = {
   platform: Platform
   status: ScheduleStatus
   time: string
+  contentType: 'Educating' | 'Entertaining' | 'Promotional' | 'Community'
+  angle: string
+  goal: string
 }
 
 /** Editorial planning cards decorate the calendar without writing to the schedule store. */
 const CONTENT_PLANS: ContentPlan[] = [
-  { id: 'barrier-myth', day: 3, title: 'Barrier repair myth check', platform: 'tiktok', status: 'planned', time: '18:30' },
-  { id: 'routine-reset', day: 6, title: 'Routine reset carousel', platform: 'instagram', status: 'in_progress', time: '10:00' },
-  { id: 'ratio-guide', day: 10, title: 'Cold brew ratio guide', platform: 'youtube', status: 'planned', time: '17:00' },
-  { id: 'creator-note', day: 14, title: 'Creator insight thread', platform: 'x', status: 'published', time: '09:15' },
-  { id: 'night-shift', day: 18, title: 'Night shift skin ritual', platform: 'instagram', status: 'planned', time: '19:00' },
-  { id: 'product-myth', day: 22, title: 'Product myth, explained', platform: 'tiktok', status: 'in_progress', time: '12:30' },
+  { id: 'morning-ritual', day: 2, title: 'A calm morning skin ritual', platform: 'instagram', status: 'published', time: '08:30', contentType: 'Community', angle: 'Invite the audience to share their smallest, most consistent morning step.', goal: 'Build conversation' },
+  { id: 'barrier-myth', day: 3, title: 'Barrier repair myth check', platform: 'tiktok', status: 'planned', time: '18:30', contentType: 'Educating', angle: 'Debunk the idea that stinging means a product is working.', goal: 'Build trust' },
+  { id: 'spf-texture', day: 4, title: 'The no-pilling SPF check', platform: 'tiktok', status: 'planned', time: '12:00', contentType: 'Entertaining', angle: 'Show the sunscreen texture test under makeup in one quick take.', goal: 'Drive discovery' },
+  { id: 'routine-reset', day: 6, title: 'Routine reset carousel', platform: 'instagram', status: 'in_progress', time: '10:00', contentType: 'Educating', angle: 'Frame a simple three-step reset for reactive-skin days.', goal: 'Save-worthy education' },
+  { id: 'ingredient-note', day: 8, title: 'Ingredients that keep routines calm', platform: 'x', status: 'published', time: '09:15', contentType: 'Educating', angle: 'Explain why fewer familiar ingredients can feel more reassuring.', goal: 'Build authority' },
+  { id: 'layering-guide', day: 10, title: 'SPF layering guide', platform: 'youtube', status: 'planned', time: '17:00', contentType: 'Educating', angle: 'Walk through moisturiser, serum, and SPF order without overcomplicating it.', goal: 'Teach routines' },
+  { id: 'desk-dryness', day: 12, title: 'Desk-side dryness check', platform: 'instagram', status: 'planned', time: '15:30', contentType: 'Community', angle: 'Ask followers where their skin feels driest during the workday.', goal: 'Start conversation' },
+  { id: 'creator-note', day: 14, title: 'Creator insight thread', platform: 'x', status: 'published', time: '09:15', contentType: 'Community', angle: 'Share a behind-the-scenes note about making skincare feel less intimidating.', goal: 'Humanise the brand' },
+  { id: 'serum-pairing', day: 16, title: 'How to pair a barrier serum', platform: 'youtube', status: 'planned', time: '18:00', contentType: 'Promotional', angle: 'Demonstrate the serum as a gentle support step, not a miracle fix.', goal: 'Drive product discovery' },
+  { id: 'night-shift', day: 18, title: 'Night shift skin ritual', platform: 'instagram', status: 'planned', time: '19:00', contentType: 'Educating', angle: 'Offer a low-effort routine for skin that feels tired after a long day.', goal: 'Help routine beginners' },
+  { id: 'texture-poll', day: 20, title: 'Which texture feels right?', platform: 'tiktok', status: 'planned', time: '11:30', contentType: 'Entertaining', angle: 'Use a quick side-by-side texture poll to invite a simple choice.', goal: 'Increase engagement' },
+  { id: 'product-myth', day: 22, title: 'Product myth, explained', platform: 'tiktok', status: 'in_progress', time: '12:30', contentType: 'Educating', angle: 'Answer the question: does a minimal routine still work?', goal: 'Build trust' },
+  { id: 'sun-care', day: 24, title: 'Sunscreen that feels like skincare', platform: 'instagram', status: 'planned', time: '09:00', contentType: 'Promotional', angle: 'Focus on the comfortable daily feel of Daily Cloud SPF 50.', goal: 'Drive consideration' },
+  { id: 'weekend-reset', day: 26, title: 'Weekend routine reset', platform: 'instagram', status: 'planned', time: '10:30', contentType: 'Community', angle: 'Share a soft reset prompt the audience can adapt to their own routine.', goal: 'Build connection' },
+  { id: 'sensitive-skin', day: 28, title: 'Sensitive skin: less can be more', platform: 'youtube', status: 'planned', time: '16:00', contentType: 'Educating', angle: 'Explain the role of consistency when skin feels reactive.', goal: 'Teach routines' },
+  { id: 'month-recap', day: 30, title: 'September skin moments recap', platform: 'tiktok', status: 'planned', time: '18:30', contentType: 'Entertaining', angle: 'Recap the month’s most saved calm-skin ideas in a quick montage.', goal: 'Celebrate community' },
 ]
+
+const MONTHLY_CAPACITY = 20
 
 /**
  * ISO day built from numbers, never from `Date.toISOString()`.
@@ -123,6 +138,7 @@ export function Calendar() {
   const byPlatform = new Map<Platform, number>()
   CONTENT_PLANS.forEach((plan) => byPlatform.set(plan.platform, (byPlatform.get(plan.platform) ?? 0) + 1))
   const channelBreakdown = [...byPlatform.entries()]
+  const selectedPlans = selectedDay ? plansByDay.get(Number(selectedDay.slice(-2))) ?? [] : []
 
   const step = (delta: number) => {
     const next = new Date(cursor.year, cursor.month + delta, 1)
@@ -245,10 +261,10 @@ export function Calendar() {
 
       <aside className="calendar-insights" data-testid="calendar-insights" aria-label="Calendar insights">
         <section className="card calendar-insight-card">
-          <div className="calendar-insight-head"><h3>Monthly capacity</h3><span>{Math.round(CONTENT_PLANS.length / 16 * 100)}% planned</span></div>
-          <strong className="calendar-capacity">{CONTENT_PLANS.length}<small>/ 16 slots</small></strong>
-          <span className="calendar-capacity-bar"><i style={{ width: `${CONTENT_PLANS.length / 16 * 100}%` }} /></span>
-          <p className="muted small">{16 - CONTENT_PLANS.length} open slots this month</p>
+          <div className="calendar-insight-head"><h3>Monthly capacity</h3><span>{Math.round(CONTENT_PLANS.length / MONTHLY_CAPACITY * 100)}% planned</span></div>
+          <strong className="calendar-capacity">{CONTENT_PLANS.length}<small>/ {MONTHLY_CAPACITY} slots</small></strong>
+          <span className="calendar-capacity-bar"><i style={{ width: `${CONTENT_PLANS.length / MONTHLY_CAPACITY * 100}%` }} /></span>
+          <p className="muted small">{MONTHLY_CAPACITY - CONTENT_PLANS.length} open slots this month</p>
         </section>
 
         <section className="card calendar-insight-card">
@@ -269,23 +285,26 @@ export function Calendar() {
 
       <section className="card" data-testid="schedule-day">
         <div className="card-head">
-          <h2>{selectedDay ? `Day — ${selectedDay}` : 'Pick a day'}</h2>
+          <h2>{selectedDay ? `Content for ${formatCalendarDate(selectedDay)}` : 'Content plan'}</h2>
         </div>
         {selectedDay === null ? (
           <p className="muted" data-testid="schedule-day-empty">
-            Click a day above to assign a brief to it, or ask a connected agent — the same write
-            goes through <code>schedule_brief</code>, which is idempotent by brief and date, so a
-            retry updates the slot instead of stacking a second chip on it.
+            Select a date to view its content plan, publishing details, and the next best idea for that day.
           </p>
         ) : (
-          <DayPanel date={selectedDay} briefs={briefs} entries={byDate.get(selectedDay) ?? []} />
+          <DayPanel date={selectedDay} briefs={briefs} entries={byDate.get(selectedDay) ?? []} plans={selectedPlans} />
         )}
       </section>
     </>
   )
 }
 
-function DayPanel({ date, briefs, entries }: { date: string; briefs: Brief[]; entries: ScheduleEntry[] }) {
+function formatCalendarDate(date: string): string {
+  const [year, month, day] = date.split('-').map(Number)
+  return `${MONTHS[month - 1]} ${day}, ${year}`
+}
+
+function DayPanel({ date, briefs, entries, plans }: { date: string; briefs: Brief[]; entries: ScheduleEntry[]; plans: ContentPlan[] }) {
   const [briefId, setBriefId] = useState('')
   const [platform, setPlatform] = useState<Platform | ''>('')
   const [pic, setPic] = useState('')
@@ -318,12 +337,30 @@ function DayPanel({ date, briefs, entries }: { date: string; briefs: Brief[]; en
 
   return (
     <>
-      {entries.length === 0 ? (
-        <p className="muted small" data-testid="schedule-day-none">
-          Nothing scheduled on {date} yet.
-        </p>
+      {plans.length > 0 ? (
+        <div className="calendar-content-details" data-testid="calendar-content-details">
+          {plans.map((plan) => (
+            <article key={plan.id} className="calendar-content-detail" data-testid={`calendar-detail-${plan.id}`}>
+              <div className="calendar-content-detail-top"><span className={`content-type content-type-${plan.contentType.toLowerCase()}`}>{plan.contentType}</span><span className={`status status-${plan.status}`}>{STATUS_LABEL[plan.status]}</span></div>
+              <h3>{plan.title}</h3>
+              <p>{plan.angle}</p>
+              <div className="calendar-detail-facts"><span><PlatformIcon platform={plan.platform} size={16} />{plan.time}</span><span>{plan.goal}</span></div>
+            </article>
+          ))}
+        </div>
       ) : (
-        <ul className="rows" data-testid="schedule-list">
+        <article className="calendar-open-slot" data-testid="calendar-day-suggestion">
+          <p className="eyebrow">Open creative slot</p>
+          <h3>Share one small, reassuring skincare habit</h3>
+          <p>A simple before-and-after routine moment works well here: keep the message calm, practical, and easy to save.</p>
+          <div><span className="content-type">Educating</span><span className="content-type">Instagram carousel</span><span className="content-type">10:00</span></div>
+        </article>
+      )}
+
+      {entries.length > 0 && (
+        <section className="calendar-scheduled-briefs">
+          <p className="library-section-label">Scheduled briefs</p>
+          <ul className="rows" data-testid="schedule-list">
           {entries.map((entry) => (
             <EntryRow
               key={entry.id}
@@ -331,7 +368,8 @@ function DayPanel({ date, briefs, entries }: { date: string; briefs: Brief[]; en
               title={briefs.find((b) => b.id === entry.briefId)?.title ?? entry.briefId}
             />
           ))}
-        </ul>
+          </ul>
+        </section>
       )}
 
       {briefs.length > 0 && (

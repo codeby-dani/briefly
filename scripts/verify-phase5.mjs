@@ -108,6 +108,8 @@ assert.match(emptyMarkup, new RegExp(`data-testid="calendar-day-${today}"`))
 assert.equal(emptyMarkup.includes('data-testid="schedule-chip-'), false)
 assert.match(emptyMarkup, /data-testid="calendar-plan-/)
 assert.match(emptyMarkup, /data-testid="calendar-insights"/)
+assert.doesNotMatch(emptyMarkup, /schedule_brief/)
+assert.match(emptyMarkup, /Select a date to view its content plan/)
 
 const appCss = readFileSync(new URL('../src/App.css', import.meta.url), 'utf8')
 assert.doesNotMatch(appCss, /border-left:\s*3px solid/)
