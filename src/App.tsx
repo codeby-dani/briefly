@@ -115,7 +115,6 @@ function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: bool
   }, [workspaceOpen])
 
   return (
-    <>
     <aside className={`sidebar${collapsed ? ' is-collapsed' : ''}`} aria-label="Sections">
       <div className="sidebar-top">
         <div className="sidebar-brand">
@@ -142,6 +141,7 @@ function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: bool
             aria-expanded={workspaceOpen}
             aria-haspopup="listbox"
             data-testid="workspace-switcher"
+            title={collapsed ? activeWorkspace.name : undefined}
             onClick={() => setWorkspaceOpen((open) => !open)}
           >
             <span className="workspace-avatar" aria-hidden="true">{activeWorkspace.initials}</span>
@@ -182,6 +182,9 @@ function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: bool
               className={`nav-item${name === route ? ' is-current' : ''}`}
               aria-current={name === route ? 'page' : undefined}
               data-testid={`nav-${name}`}
+              /* Collapsed, the label is clipped to screen-reader-only, so the
+                 tooltip is the only way a pointer user reads the rail. */
+              title={collapsed ? NAV_LABEL[name] : undefined}
               onClick={(event) => {
                 // Route through the same reducer `navigate_to` uses, so the
                 // human's click and the agent's call cannot diverge.
@@ -202,6 +205,7 @@ function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: bool
         aria-current={route === 'products' ? 'page' : undefined}
         aria-label="Open profile for Aarief"
         data-testid="open-profile"
+        title={collapsed ? 'Aarief — Workspace owner' : undefined}
         onClick={() => navigate('products')}
       >
         <span className="account-avatar" aria-hidden="true">AR</span>
@@ -214,17 +218,6 @@ function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: bool
         </svg>
       </button>
     </aside>
-    <button
-      type="button"
-      className={`sidebar-toggle${collapsed ? ' is-collapsed' : ''}`}
-      aria-label={collapsed ? 'Show sidebar' : 'Hide sidebar'}
-      aria-expanded={!collapsed}
-      data-testid="sidebar-toggle"
-      onClick={onToggle}
-    >
-      <NavIcon name="chevron" size={16} />
-    </button>
-    </>
   )
 }
 

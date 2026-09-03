@@ -99,6 +99,10 @@
   --shadow-md: 0 12px 32px -8px rgba(9, 12, 2, 0.1), 0 4px 12px rgba(9, 12, 2, 0.04);
 
   /* Radii */
+  /* Sidebar rail width when the sidebar is collapsed. Read by both the aside
+   * and the shell gutter, so the two cannot drift apart. */
+  --rail-w: 72px;
+
   --r-sm: 8px;
   --r: 12px;
   --r-lg: 16px;

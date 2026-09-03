@@ -36,10 +36,8 @@
   gap: 16px;
   overflow-y: auto;
   padding-bottom: 16px;
-  transition: transform 180ms ease;
+  transition: width 180ms ease;
 }
-
-/* Floating toggle removed — collapse is now controlled by the in-brand button. */
 
 .sidebar-top {
   display: flex;
@@ -166,35 +164,82 @@
   }
 }
 
+/* ---- Collapsed: an icon rail, not a hidden sidebar ----
+ *
+ * Collapsing used to `translateX(-100%)` the whole aside, which took the nav
+ * off screen entirely and left the in-brand toggle — the only control that
+ * brings it back — offscreen with it. The rail keeps every target in place and
+ * only drops the text beside it, so collapsing is a width change and nothing
+ * more.
+ *
+ * Labels are clipped to screen-reader-only rather than `display: none`, because
+ * `display: none` on the only text inside a link strips its accessible name.
+ * `title` on the JSX side gives pointer users the same label as a tooltip. */
 .sidebar.is-collapsed {
-  transform: translateX(-100%);
-}
+  width: var(--rail-w);
 
-.sidebar-toggle {
-  position: fixed;
-  z-index: 51;
-  top: 92px;
-  left: 0;
-  display: none;
-  width: 28px;
-  height: 32px;
-  place-items: center;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 0 8px 8px 0;
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
-  color: var(--text-h);
-  cursor: pointer;
-}
+  /* `overflow-y: auto` on the expanded aside is a clipping context, which at
+   * 72px cuts the workspace menu off mid-word. Six icons never overflow the
+   * rail vertically, so there is nothing to scroll here anyway. */
+  overflow: visible;
 
-.sidebar-toggle.is-collapsed {
-  display: grid;
-}
+  /* Direct children only. `.workspace-text` also lives inside every row of the
+   * workspace menu, and clipping it there left the open menu as a column of
+   * bare avatars. */
+  .sidebar-brand > .brand-mark,
+  .workspace-button > .workspace-text,
+  .workspace-button > .nav-icon,
+  .account-button > .account-copy,
+  .account-button > .account-chevron,
+  .nav-item > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 
-.sidebar-toggle:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  .sidebar-brand {
+    padding: 0;
+    justify-content: center;
+  }
+
+  .sidebar-toggle-inner {
+    margin-left: 0;
+  }
+
+  .workspace-switcher {
+    margin: 0 0 12px;
+  }
+
+  .workspace,
+  .nav-item,
+  .account-button {
+    justify-content: center;
+    gap: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .sidebar-nav {
+    padding: 0 12px;
+  }
+
+  .account-button {
+    width: calc(100% - 24px);
+    margin-inline: 12px;
+  }
+
+  /* Anchored to the rail, not to the button, so it does not inherit the
+   * centred layout above and collapse to 72px wide. */
+  .workspace-menu {
+    left: 8px;
+    width: 248px;
+  }
 }
 
 
@@ -383,7 +428,7 @@
 }
 
 .shell.is-sidebar-collapsed {
-  padding-left: 0;
+  padding-left: var(--rail-w);
 }
 
 .topbar {
@@ -2928,11 +2973,13 @@
     justify-content: flex-start;
   }
 
+  /* Below 900px the sidebar is a horizontal strip, so there is no rail to
+   * collapse to and the toggle has nothing to do. */
   .sidebar.is-collapsed {
-    transform: none;
+    width: auto;
   }
 
-  .sidebar-toggle {
+  .sidebar-toggle-inner {
     display: none;
   }
 
@@ -2950,7 +2997,8 @@
     display: inline;
   }
 
-  .shell {
+  .shell,
+  .shell.is-sidebar-collapsed {
     padding-left: 0;
   }
 
