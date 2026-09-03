@@ -7,19 +7,18 @@ Taken out of Phase 6's polish budget, not out of Phases 2–4.
 
 ## Status
 
-- [ ] Vite starter content removed from `App.tsx` — done in code, not deployed
-- [ ] App shell renders with `ToolSurfacePanel` and `UnsupportedBrowserNotice` — done in code, not deployed
-- [ ] One throwaway tool registers and is visible in the panel — done in code, verified on `localhost:4173`, not deployed
-- [ ] Deployed to Vercel, live URL recorded in `PROGRESS.md` — **blocked: push to GitHub, CI/CD deploys**
-- [ ] Tool surface confirmed on the **deployed origin** in both environments — blocked on the deploy
-- [ ] 12 clips copied into `public/media/`, `src/fixtures/clips.ts` generated — done in code, not deployed
-- [ ] `/api/analyze` returns a structured 503 with no key set — handler verified locally against all five paths, not deployed
-- [ ] `GEMINI_API_KEY` set in Vercel project env; `/api/analyze` returns 200 — **blocked, needs your Vercel dashboard**
+- [x] Vite starter content removed from `App.tsx` — present in the deployed Phase 1 bundle
+- [x] App shell renders with `ToolSurfacePanel` and `UnsupportedBrowserNotice` — deployed
+- [ ] Global tools register and are visible in the panel — two tools are present in the deployed bundle; required browser runtime check pending
+- [x] Deployed to Vercel, live URL recorded in `PROGRESS.md` — `https://trend-lake.vercel.app`
+- [ ] Tool surface confirmed on the **deployed origin** in both environments — ChatGPT and flagged Chrome checks pending
+- [x] 12 clips copied into `public/media/`, `src/fixtures/clips.ts` generated — poster and MP4 return their real media content types from the deployed origin
+- [ ] `/api/analyze` returns structured JSON — deployed POST timed out on 2026-09-03; ten-second upstream timeout is ready on `feat/hackathon-compliance`
+- [ ] `GEMINI_API_KEY` set in Vercel project env; `/api/analyze` returns 200 — inspect the environment and retest after deploying the timeout fix
 
-Every box stays `[ ]` because `plan/README.md` defines `[x]` as *deployed*, and
-nothing here is deployed yet. The annotations say which are code-complete and
-which need you. This is not the phase running long; it is the phase reaching the
-one step an agent cannot take.
+The static application and corpus are deployed. The phase remains open because
+the required browser checks have not been performed and the live function does
+not yet return a response.
 
 **Added beyond the original scope, at your request:** every tool is also served
 at `window.__td` so Claude — and any other agent that can run JavaScript on the

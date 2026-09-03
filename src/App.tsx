@@ -35,12 +35,12 @@ export default function App() {
 
       <header className="app-header">
         <div className="brand">
-          <span className="brand-mark" aria-hidden />
+          <img className="brand-mark" src="/brand/anglebook-mark.svg" alt="" aria-hidden="true" />
           <div>
-            <h1>TrendDashboard</h1>
+            <h1>Anglebook</h1>
             <p className="tagline">
-              Trend research, product knowledge and briefs — worked by a human and an agent
-              on the same screen.
+              Trend research, product knowledge and briefs — one shared workspace for people
+              and agents.
             </p>
           </div>
         </div>

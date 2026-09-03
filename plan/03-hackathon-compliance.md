@@ -5,6 +5,11 @@ Every row must be `[x]` before submitting.
 
 Source: https://webmcp.devpost.com and https://webmcp.devpost.com/rules
 
+> **Current-state guard:** the deployed app is at Phase 1 with two tools. The
+> judging narrative and Devpost description below describe the intended
+> submission state; reconcile their tool count and feature claims against the
+> deployed build before pasting them into a submission.
+
 ## Deadlines
 
 | Event | When | Local (WITA) |
@@ -20,10 +25,10 @@ rejected uploads at the wire before, and there is no appeal.
 
 | # | Requirement | Satisfied by | State |
 |---|-------------|--------------|-------|
-| 1 | Working live URL, reachable in ChatGPT's in-app browser | Vercel deploy, Phase 0 | `[ ]` |
-| 2 | Same URL working in Chrome 149+ with `#enable-webmcp-testing` | Same deploy, verified separately | `[ ]` |
-| 2b | *Not required by the rules:* same tools reachable by Claude and any other JS-capable agent | `window.__td` bridge, `src/webmcp/bridge.ts` | `[ ]` |
-| 3 | Public repo on GitHub/GitLab/Bitbucket | This repo, made public in Phase 7 | `[ ]` |
+| 1 | Working live URL, reachable in ChatGPT's in-app browser | `https://trend-lake.vercel.app`; origin returns 200, required browser check still pending | `[ ]` |
+| 2 | Same URL working in Chrome 149+ with `#enable-webmcp-testing` | Same deploy; required browser check still pending | `[ ]` |
+| 2b | *Not required by the rules:* same tools reachable by Claude and any other JS-capable agent | `window.__td` bridge, `src/webmcp/bridge.ts`; live bundle contains both Phase 1 tools, runtime check still pending | `[ ]` |
+| 3 | Public repo on GitHub/GitLab/Bitbucket | `https://github.com/codeby-dani/TrendDashboard`, GitHub API reports `visibility: public` | `[x]` |
 | 4 | Open-source licence, visible | `LICENSE` at repo root | `[x]` |
 | 5 | Demo video under 3:00, **with audio**, public on YouTube | `99-demo-script.md` | `[ ]` |
 | 6 | Text description: WebMCP fit, UX gain, collaboration | Draft below | `[ ]` |
@@ -48,9 +53,9 @@ as such.
 
 - [x] Repo history begins at `ebe1b8a Initial commit: TrendDashboard`, within
       the window. No prior work exists to disambiguate.
-- [ ] README states this explicitly, so a judge is not left to infer it. Phase 7
-      owns the final wording; the Phase 0 README states the status and the media
-      provenance but not yet the creation-window argument.
+- [ ] README states this explicitly, so a judge is not left to infer it. The
+      wording is complete on `feat/hackathon-compliance`; check this only after
+      the branch is merged and the README is visible on the public repo.
 
 ### Media provenance
 
@@ -60,8 +65,8 @@ author. Every clip is `cc0` and self-generated: script written by the author,
 voiced with macOS text-to-speech, over generated footage. **No third-party
 media is used anywhere in this project.**
 
-- [x] README credits ClipBrief as the corpus source with a link — in the repo;
-      the repo itself goes public in Phase 7
+- [x] README credits ClipBrief as the corpus source with a link; the public repo
+      and detected MIT licence were verified on 2026-09-03
 - [x] `Clip.sourceNote` renders in the UI beside every player, not only in JSON —
       `.source-note` in the clip card, Phase 0
 - [x] `LICENSE` covers the repo; clip licence is recorded per-clip as `cc0` —
@@ -140,9 +145,9 @@ present itself.
 |------------|---------|
 | WebMCP disabled if `document.domain` is set | `[x]` never set |
 | Origin isolation required | `[x]` single origin, static deploy |
-| Gated by the `tools` Permissions Policy, default `self` | `[ ]` verify Vercel does not override |
-| Function and page share one origin — no CORS, no cross-origin fetch from a tool | `[ ]` verify `/api/analyze` resolves same-origin on the deploy |
-| No secret reachable from the client bundle | `[x]` no key in the repo (`git grep -i AIza` clean); the variable is read only in `api/analyze.ts`, which never reaches the bundle. Re-grep `dist/` in Phase 6 |
+| Gated by the `tools` Permissions Policy, default `self` | `[x]` deployed response does not override the default; `vercel.json` also sets `tools=(self)` explicitly for the next deploy |
+| Function and page share one origin — no CORS, no cross-origin fetch from a tool | `[ ]` route is same-origin, but the deployed POST timed out on 2026-09-03; the branch replaces the retired Gemini 2.0 default and adds a provider timeout, then needs deploy verification |
+| No secret reachable from the client bundle | `[x]` no key-shaped secrets in the repo; `GEMINI_API_KEY`, `AIza`, and `apiKey` are absent from the 2026-09-03 production bundle |
 | Chrome needs 149+ and the testing flag | `[x]` `UnsupportedBrowserNotice` explains all three paths |
 | WebMCP reaches only ChatGPT's browser and flagged Chrome | `[x]` `window.__td` bridge carries the same tools to Claude and any other JS-capable agent — additive, never a substitute for requirements 1 and 2 |
 | `getTools()` returns `inputSchema` as a JSON string | `[x]` `parseSchema()` |
@@ -154,14 +159,10 @@ present itself.
 is committed — SPA rewrite that excludes `/api`, and immutable cache headers on
 `/media`. The function is `api/analyze.ts`, routed by its file path.
 
-- [ ] **Confirm Vercel is on the rules' approved-hosting list before submitting.**
-      The earlier draft of this file recorded Netlify as approved and named its
-      $500 sponsor prize. Switching hosts drops that prize and re-opens the
-      approval question, and neither is something to discover on the form. If
-      Vercel is not approved, the port back is `vercel.json` → `netlify.toml`
-      and `api/` → `netlify/functions/`; the handler itself is web-standard
-      `Request`/`Response` and moves unchanged, which is why it was written that
-      way.
+- [x] **Vercel is allowed.** Verified against the official rules on 2026-09-03:
+      Submission Requirements explicitly list ChatGPT Sites, Cloudflare,
+      Vercel, Render, Netlify, or any other provider of the entrant's choice.
+      Vercel is also listed among the hackathon sponsors.
 
 The single secret, `GEMINI_API_KEY`, lives in Vercel's project environment
 variables and never in the repo.
@@ -171,7 +172,7 @@ variables and never in the repo.
 To be pasted into the Devpost form. Refine in Phase 7; having a draft now means
 the deadline never arrives with a blank field.
 
-> **What it is.** TrendDashboard is a content-marketing workspace where the
+> **What it is.** Anglebook is a content-marketing workspace where the
 > trend research, the product knowledge and the brief writing happen in one
 > place — and where a connected AI agent works the same surface the human does.
 >
