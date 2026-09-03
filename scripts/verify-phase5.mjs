@@ -12,6 +12,7 @@
  */
 
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 
 class MemoryStorage {
   values = new Map()
@@ -107,6 +108,9 @@ assert.match(emptyMarkup, new RegExp(`data-testid="calendar-day-${today}"`))
 assert.equal(emptyMarkup.includes('data-testid="schedule-chip-'), false)
 assert.match(emptyMarkup, /data-testid="calendar-plan-/)
 assert.match(emptyMarkup, /data-testid="calendar-insights"/)
+
+const appCss = readFileSync(new URL('../src/App.css', import.meta.url), 'utf8')
+assert.doesNotMatch(appCss, /border-left:\s*3px solid/)
 
 const scheduled = await execute(scheduleBriefTool(), { briefId: brief.id, date: today })
 assert.equal(scheduled.ok, true)

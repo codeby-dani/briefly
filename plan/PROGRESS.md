@@ -970,3 +970,9 @@ It keeps platform and status filters, adds content-type labels, and shows eight
 cards per page with pagination. These catalog examples are deliberately kept
 outside the brief store, so user- and agent-authored briefs remain editable and
 appear in their own section above the catalog.
+
+### 2026-09-04 03:28 WITA — Calendar card cleanup
+
+Calendar plan cards no longer use a colored vertical status rail, which made
+the compact cards look mechanically generated. Status remains legible through
+its existing text treatment while the card edge stays clean and consistent.

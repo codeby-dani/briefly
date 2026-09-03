@@ -2841,16 +2841,12 @@
   gap: 3px;
   padding: 5px 6px;
   border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
   border-radius: 7px;
   background: var(--surface);
   box-shadow: var(--shadow-sm);
   color: var(--text-h);
   overflow: hidden;
 }
-
-.calendar-plan.plan-in_progress { border-left-color: var(--warn); }
-.calendar-plan.plan-published { border-left-color: var(--ok); }
 
 .calendar-plan-meta {
   display: flex;
