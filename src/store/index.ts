@@ -9,6 +9,17 @@ export {
   updateProduct,
 } from './products'
 export type { ProductDraft, ProductPatch } from './products'
+export {
+  readSchedule,
+  readScheduleEntry,
+  readScheduleForBrief,
+  readScheduleForDate,
+  scheduleBrief,
+  scheduleStore,
+  setScheduleStatus,
+  unschedule,
+} from './schedule'
+export type { ScheduleInput, ScheduleResult } from './schedule'
 export { readTrend, readTrends, trendStore } from './trends'
 export { readWatchlist, watchlistStore } from './watchlist'
 export type { AppState, RouterAction } from './router'

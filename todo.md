@@ -159,7 +159,7 @@ the moment anyone looks closely.
 
 - [~] Real scraping pipeline. SKIPPED — no time, and not what is being judged.
 - [~] Team management and roles. SKIPPED — single-user demo.
-- [~] PDF export. SKIPPED — CSV only, and only if Phase 5 survives.
+- [~] PDF export. SKIPPED — CSV only. Phase 5 survived and the CSV shipped.
 - [~] Brief versioning. SKIPPED — duplicate-and-edit covers the demo.
 - [~] Reminders and notifications. SKIPPED — nothing to notify in a 3-min demo.
 - [~] Connect-social-media OAuth. SKIPPED — cannot be done safely in-window.
@@ -267,13 +267,20 @@ the moment anyone looks closely.
       filter, sort and watchlist controls); the Products surface from Phase 3
       (`product-list`, `product-card-{id}`, `product-editor`, `close-product`,
       `product-form-edit`, `product-usp-{n}`, `product-dos-{n}`,
-      `create-product`); and the Briefs surface from Phase 4 (`composer-trend`,
-      `composer-product`). Only Phase 5's routes are outstanding
+      `create-product`); the Briefs surface from Phase 4 (`composer-trend`,
+      `composer-product`); and the Phase 5 routes (`calendar-grid`,
+      `calendar-day-{iso}`, `schedule-chip-{id}`, `schedule-entry-{id}`,
+      `schedule-form`, `per-content-table`, `sort-{field}`, `export-csv`,
+      `bar-chart`, `stacked-bar`, `tvr-row-{trendId}`). Every route is now
+      covered; the box stays `[ ]` only because nothing is deployed
 - [x] The merged tree builds and every route is reachable — `npm run build`
       exits 0 and all six routes render with the surface counts 2 / 8 / 5 / 4 /
       2 / 2. Added 2026-09-03 23:05: the parallel merges had silently dropped
       the `trends` and `briefs` route branches and one type guard, and `main`
-      did not compile at all. Re-run both checks after every future merge
+      did not compile at all. Re-run both checks after every future merge.
+      Re-run 2026-09-03 23:40 on `phase5` after fast-forwarding to `1b81994`:
+      build exits 0, counts are 2 / 8 / 5 / 4 / **4** / 2 and 12 with a trend
+      open — the calendar moved because Phase 5 registers two tools there
 - [ ] Vercel deploy verified from a cold browser, not just localhost —
       **BLOCKING four phases now, and the live URL is actively misleading.** The
       deployed bundle predates Phase 2: a judge opening it today finds Trends and

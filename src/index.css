@@ -54,6 +54,18 @@
   --warn: #f0a227;
   --danger: #fd6f85;
 
+  /* Phase 5 — a four-step ramp for the Performance platform-mix bar.
+     One hue, four steps, every value read verbatim from the Stitch design
+     system's named colours (`primary_fixed`, `primary`, `inverse_primary`,
+     `on_primary_fixed_variant`) rather than picked by eye. Deliberately not
+     four unrelated colours: `demo data` amber and `measured` teal are the only
+     two places in this app where colour carries a factual claim, and a rainbow
+     chart beside them would compete for that meaning. */
+  --ramp-1: #d9b1ff;
+  --ramp-2: #c890ff;
+  --ramp-3: #7c41b5;
+  --ramp-4: #602399;
+
   --code-bg: #1d1f29;
   --social-bg: #12131a;
   --shadow: rgba(0, 0, 0, 0.5) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
