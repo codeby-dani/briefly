@@ -1,9 +1,5 @@
 # Briefly
 
-<p align="center">
-  <img src="public/brand/briefly-official-logo.png" alt="Briefly" width="420" />
-</p>
-
 ![License](https://img.shields.io/badge/License-MIT-7b2cbf?style=flat-square)
 ![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?style=flat-square&logo=vite&logoColor=white)
