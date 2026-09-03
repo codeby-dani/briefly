@@ -1,7 +1,7 @@
 /**
  * Briefs — the payoff route. Two halves:
  *
- *   Composer  — pick a trend and a product, then fill (or have an agent fill) a
+ *   Composer  — pick a trend and an offering, then fill (or have an agent fill) a
  *               brief. Picking both is what puts get_brief_context and save_brief
  *               on the surface; that registration happens in App.tsx, guarded on
  *               the same selection this component drives.
@@ -131,18 +131,18 @@ export function Briefs() {
             </label>
 
             <label className="field">
-              <span className="field-label">Product</span>
+              <span className="field-label">Offering</span>
               <select
                 data-testid="composer-product"
-                value={app.selectedProductId ?? ''}
+                value={app.selectedOfferingId ?? ''}
                 onChange={(e) =>
-                  dispatch({ type: 'selectProduct', productId: e.target.value || null })
+                  dispatch({ type: 'selectOffering', offeringId: e.target.value || null })
                 }
               >
-                <option value="">Select a product…</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
+                <option value="">Select an offering…</option>
+                {offerings.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
                   </option>
                 ))}
               </select>
@@ -151,7 +151,7 @@ export function Briefs() {
 
           {!bothSelected ? (
             <p className="muted small" data-testid="composer-empty">
-              Pick a trend and a product to open the form. It puts{' '}
+              Pick a trend and an offering to open the form. It puts{' '}
               <code>get_brief_context</code> and <code>save_brief</code> on the agent surface — fill
               it in yourself either way.
             </p>
@@ -169,7 +169,7 @@ export function Briefs() {
                     <input
                       data-testid="field-title"
                       value={form.title}
-                      placeholder={`${trend!.keyword} × ${product!.name}`}
+                      placeholder={`${trend!.keyword} × ${offering!.name}`}
                       onChange={(e) => set({ title: e.target.value })}
                     />
                   </Field>

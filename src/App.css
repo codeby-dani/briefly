@@ -973,13 +973,6 @@
   }
 }
 
-.source-note {
-  font-size: 12px;
-  color: var(--text);
-  border-left: 2px solid var(--accent-border);
-  padding-left: 10px;
-}
-
 .clip-picker {
   display: flex;
   flex-wrap: wrap;
@@ -1791,6 +1784,7 @@
  * a readable row height; the poster is cropped, never letterboxed. */
 .thumb {
   position: relative;
+  container-type: inline-size;
   aspect-ratio: 4 / 5;
   background: var(--surface-high);
   overflow: hidden;
@@ -1803,23 +1797,31 @@
   display: block;
 }
 
+/* The generated cover for a trend with no clip. It copies the corpus posters —
+ * white display type, centred, over a dark gradient — so a clipless trend
+ * looks like a trend rather than like an image that failed to load. */
 .thumb-plate {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 14px;
+  overflow: hidden;
 }
 
 .thumb-plate-word {
   font-family: var(--heading);
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.25;
+  font-size: clamp(14px, 2.6cqw + 8px, 20px);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
   text-align: center;
-  color: #2c2c33;
+  text-transform: lowercase;
+  color: #fff;
+  text-shadow: 0 2px 10px rgb(0 0 0 / 0.45);
   text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
 /* The platform badge. White disc, brand-coloured mark: the same treatment the
@@ -1957,7 +1959,7 @@
  * read. The blocks are now dealt into whichever column is shorter by hand:
  * spike and clip left, summary, related and samples right. */
 .drawer {
-  box-shadow: var(--shadow-md), inset 3px 0 0 var(--accent);
+  box-shadow: var(--shadow-md);
   gap: 14px;
 
   h3 {
@@ -2050,12 +2052,6 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-}
-
-.drawer-note {
-  margin: 0;
-  padding-top: 2px;
-  border-top: 1px solid var(--border);
 }
 
 /* Inside a drawer column the player has about half the width it had, so the

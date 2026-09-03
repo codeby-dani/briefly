@@ -16,14 +16,21 @@ import { getClip } from '../fixtures/clips'
 import { PlatformIcon } from './PlatformIcon'
 import type { Category, Platform } from '../types'
 
-/** One hue per category, so a wall of cards still sorts by eye. */
+/**
+ * One gradient per category for the trends that have no clip.
+ *
+ * These are deep and saturated rather than pastel on purpose: the real posters
+ * in this corpus are white display type over a dark gradient, and a pale tile
+ * with small grey text beside them reads as a thumbnail that failed to load
+ * rather than as a trend with no video. Same treatment, generated here.
+ */
 const PLATE: Record<Category, string> = {
-  beauty: 'linear-gradient(145deg, #f4d9ec, #d9c4ef)',
-  food: 'linear-gradient(145deg, #f7e2c8, #efd0c0)',
-  fashion: 'linear-gradient(145deg, #dde0f3, #cfd8ee)',
-  tech: 'linear-gradient(145deg, #d4e6f6, #c8dcef)',
-  fitness: 'linear-gradient(145deg, #d5eede, #c6e6d8)',
-  finance: 'linear-gradient(145deg, #e6e6df, #d8ddd2)',
+  beauty: 'linear-gradient(160deg, #8c3b6f 0%, #4a2350 100%)',
+  food: 'linear-gradient(160deg, #a8551f 0%, #5c2a17 100%)',
+  fashion: 'linear-gradient(160deg, #3f4a7a 0%, #1e2340 100%)',
+  tech: 'linear-gradient(160deg, #245c78 0%, #12293b 100%)',
+  fitness: 'linear-gradient(160deg, #1f6b52 0%, #10322a 100%)',
+  finance: 'linear-gradient(160deg, #6b5a2a 0%, #2e2715 100%)',
 }
 
 function clock(seconds: number): string {

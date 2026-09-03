@@ -75,14 +75,6 @@ export function TrendDetail({ trend }: { trend: Trend }) {
           broken before anything in it was read. */}
       <div className="drawer-grid">
         <div className="drawer-col">
-          <section className="panel">
-            <div className="panel-head">
-              <h3>14-day spike</h3>
-              <DemoBadge what="This series" />
-            </div>
-            <LineChart points={trend.spike} height={110} label={`${trend.keyword}, 14-day spike`} />
-          </section>
-
           {clips.length > 0 ? (
             <ClipPanel clips={clips} />
           ) : (
@@ -98,6 +90,13 @@ export function TrendDetail({ trend }: { trend: Trend }) {
               </p>
             </section>
           )}
+          <section className="panel">
+            <div className="panel-head">
+              <h3>14-day spike</h3>
+              <DemoBadge what="This series" />
+            </div>
+            <LineChart points={trend.spike} label={`${trend.keyword}, 14-day spike`} />
+          </section>
         </div>
 
         <div className="drawer-col">
@@ -106,17 +105,6 @@ export function TrendDetail({ trend }: { trend: Trend }) {
               resetting that in an effect would be a second render for
               something React can do by identity. */}
           <SummaryBlock key={trend.id} trend={trend} />
-
-          <section className="panel">
-            <div className="panel-head">
-              <h3>Related</h3>
-            </div>
-            <div className="chips">
-              {trend.relatedKeywords.map((keyword) => (
-                <span key={keyword} className="chip is-static">{keyword}</span>
-              ))}
-            </div>
-          </section>
 
           <section className="panel">
             <div className="panel-head">
@@ -135,14 +123,19 @@ export function TrendDetail({ trend }: { trend: Trend }) {
               ))}
             </ul>
           </section>
+
+          <section className="panel">
+            <div className="panel-head">
+              <h3>Related</h3>
+            </div>
+            <div className="chips">
+              {trend.relatedKeywords.map((keyword) => (
+                <span key={keyword} className="chip is-static">{keyword}</span>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
-
-      <p className="drawer-note muted small">
-        Closing this removes four tools from the agent surface —{' '}
-        <code>get_trend_detail</code>, <code>write_trend_summary</code>,{' '}
-        <code>play_clip</code> and <code>analyze_trend</code>. Watch the panel.
-      </p>
     </section>
   )
 }
@@ -214,7 +207,6 @@ function ClipPanel({ clips }: { clips: Clip[] }) {
             <div><dt>segments</dt><dd>{clip.signals.segments}</dd></div>
             <div><dt>transcript</dt><dd>{clip.signals.transcriptSource}</dd></div>
           </dl>
-          <p className="source-note">{clip.sourceNote}</p>
         </div>
       </div>
 
