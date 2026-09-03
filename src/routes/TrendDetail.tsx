@@ -255,11 +255,15 @@ function SummaryBlock({ trend }: { trend: Trend }) {
               ? ` · ${trend.cached.model}, ${trend.cached.generatedAt}`
               : ''}
           </p>
-          {trend.suggestedAngles.length > 0 && (
+          {/* Coalesced: a record persisted by an older build of the store can
+              carry `aiSummary` without `suggestedAngles`, and reading `.length`
+              off that took the whole route down rather than rendering a summary
+              with no angles under it. */}
+          {(trend.suggestedAngles ?? []).length > 0 && (
             <>
               <h4>Suggested angles</h4>
               <ul className="angles">
-                {trend.suggestedAngles.map((angle) => (
+                {(trend.suggestedAngles ?? []).map((angle) => (
                   <li key={angle}>{angle}</li>
                 ))}
               </ul>

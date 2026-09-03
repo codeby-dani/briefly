@@ -102,6 +102,9 @@ one-second proof that both parties are on the same surface.
 Cut `analyze_trend` before anything else in this phase — it is the no-agent
 floor, and the demo is recorded on the agent path. `play_clip` is cheap and
 stays. The player itself stays: a drawer with no video is a text list, and the
-corpus is the reason the analysis is worth anything. Make the
-unregistration animation legible: the panel already ghosts removed tools
-struck-through for 1.1s. Do not shorten that.
+corpus is the reason the analysis is worth anything. The panel does not animate
+registration in either direction: it answers what the agent can do now, so a
+tool appears and disappears with the state it belongs to, and the footer count
+is the signal a viewer reads. Do not add a `new` or `removed` badge back — they
+described the last two seconds rather than the current surface, and a reader had
+to work out which rows were live.

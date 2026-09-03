@@ -64,9 +64,10 @@ Select a trend and a product together and the brief composer's tools register.
 The set an agent can see is always exactly the set that can succeed.
 
 `ToolSurfacePanel` renders this live, driven by the spec's `toolchange` event.
-Tools flash in when they register and linger struck-through when they go. A
-viewer watches the surface follow the human's selection rather than taking our
-word for it — which matters, because this is the claim the project is making
+The list is the present tense: a tool appears when it registers and leaves when
+it does not, with no badge marking it as recently changed. The footer count is
+what a viewer watches follow the human's selection rather than taking our word
+for it — which matters, because this is the claim the project is making
 and it is otherwise invisible.
 
 ## Users

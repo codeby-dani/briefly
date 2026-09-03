@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import { readEvents, subscribeToEvents } from '../tools/trace'
 import type { ToolEvent } from '../tools/trace'
 import { bridgeTools, subscribeToBridge } from './bridge'
@@ -7,8 +7,6 @@ import { parseSchema } from './types'
 import type { ToolAnnotations } from './types'
 import { useSurfaceSource, useToolSurface } from './useTool'
 
-const GHOST_MS = 1100
-const FLASH_MS = 1100
 const LOG_SHOWN = 40
 
 /**
@@ -25,9 +23,13 @@ const LOG_SHOWN = 40
  * about a tool is hidden behind a click except its raw JSON input schema, which
  * is the one part a human reader does not need.
  *
- * Tools still flash in when they register and linger struck-through when they
- * unregister, so a viewer can watch the surface follow the human's selection
- * instead of taking our word for it.
+ * The list is the present tense and nothing else. It answers "what can the
+ * agent do right now", so a tool appears the moment it registers and leaves the
+ * moment it does not — with no `new` flash and no struck-through farewell row.
+ * Those marked a name as recently-changed, which is a fact about the last two
+ * seconds rather than about what the agent can call, and a reader had to work
+ * out which rows were live. The count in the footer is the honest version of
+ * the same signal: it moves when the surface moves.
  *
  * Colours read through `var(--panel-*)` with dark fallbacks, so the panel picks
  * up the app's palette without hardcoding it and still renders standalone.
@@ -39,37 +41,6 @@ export function ToolSurfacePanel({ defaultOpen = true }: { defaultOpen?: boolean
   const [open, setOpen] = useState(defaultOpen)
   const [tab, setTab] = useState<'surface' | 'ask' | 'log'>('surface')
   const [expanded, setExpanded] = useState<string | null>(null)
-  const [fresh, setFresh] = useState<Set<string>>(new Set())
-  const [ghosts, setGhosts] = useState<string[]>([])
-  const prevNames = useRef<string[]>([])
-
-  useEffect(() => {
-    const names = tools.map((t) => t.name)
-    const before = prevNames.current
-    prevNames.current = names
-
-    const added = names.filter((n) => !before.includes(n))
-    const removed = before.filter((n) => !names.includes(n))
-
-    if (added.length) {
-      setFresh((s) => new Set([...s, ...added]))
-      const id = setTimeout(() => {
-        setFresh((s) => {
-          const next = new Set(s)
-          added.forEach((n) => next.delete(n))
-          return next
-        })
-      }, FLASH_MS)
-      return () => clearTimeout(id)
-    }
-    if (removed.length) {
-      setGhosts((g) => [...g, ...removed])
-      const id = setTimeout(() => {
-        setGhosts((g) => g.filter((n) => !removed.includes(n)))
-      }, GHOST_MS)
-      return () => clearTimeout(id)
-    }
-  }, [tools])
 
   return (
     <aside style={S.panel} aria-label="Agent tool surface" data-testid="tool-surface">
@@ -117,8 +88,6 @@ export function ToolSurfacePanel({ defaultOpen = true }: { defaultOpen?: boolean
               <SurfaceTab
                 tools={tools}
                 supported={supported}
-                fresh={fresh}
-                ghosts={ghosts}
                 expanded={expanded}
                 setExpanded={setExpanded}
               />
@@ -177,15 +146,11 @@ function useAnnotations(): Map<string, ToolAnnotations> {
 function SurfaceTab({
   tools,
   supported,
-  fresh,
-  ghosts,
   expanded,
   setExpanded,
 }: {
   tools: ReturnType<typeof useToolSurface>
   supported: boolean
-  fresh: Set<string>
-  ghosts: string[]
   expanded: string | null
   setExpanded: (name: string | null) => void
 }) {
@@ -201,21 +166,17 @@ function SurfaceTab({
         </p>
       )}
 
-      {tools.length === 0 && ghosts.length === 0 && (
-        <p style={S.empty}>No tools registered right now.</p>
-      )}
+      {tools.length === 0 && <p style={S.empty}>No tools registered right now.</p>}
 
       <ul style={S.list}>
         {tools.map((tool) => {
-          const isNew = fresh.has(tool.name)
           const isOpen = expanded === tool.name
           const marks = annotations.get(tool.name) ?? {}
           const capability = capabilityOf(marks)
           return (
-            <li key={tool.name} style={S.item(isNew)} data-testid={`tool-row-${tool.name}`}>
+            <li key={tool.name} style={S.item} data-testid={`tool-row-${tool.name}`}>
               <div style={S.row}>
                 <code style={S.name}>{tool.name}</code>
-                {isNew && <span style={S.badge}>new</span>}
                 <span
                   style={S.pill(capability)}
                   data-testid={`tool-capability-${tool.name}`}
@@ -252,13 +213,6 @@ function SurfaceTab({
             </li>
           )
         })}
-
-        {ghosts.map((name) => (
-          <li key={`ghost-${name}`} style={S.ghost}>
-            <code style={S.name}>{name}</code>
-            <span style={S.badgeGone}>removed</span>
-          </li>
-        ))}
       </ul>
     </>
   )
@@ -333,7 +287,7 @@ function LogTab() {
       {events.slice(0, LOG_SHOWN).map((event) => {
         const isOpen = expanded === event.traceId
         return (
-          <li key={event.traceId} style={S.item(false)} data-testid={`event-${event.traceId}`}>
+          <li key={event.traceId} style={S.item} data-testid={`event-${event.traceId}`}>
             <button
               style={S.itemBtn}
               onClick={() => setExpanded(isOpen ? null : event.traceId)}
@@ -479,12 +433,7 @@ const S = {
     flexDirection: 'column' as const,
     gap: 2,
   },
-  item: (isNew: boolean) => ({
-    borderRadius: 8,
-    padding: '8px 8px 6px',
-    background: isNew ? 'var(--panel-flash, rgba(53,205,188,0.16))' : 'transparent',
-    transition: 'background 420ms ease',
-  }),
+  item: { borderRadius: 8, padding: '8px 8px 6px' },
   row: { display: 'flex', alignItems: 'center', gap: 7 },
   itemBtn: {
     display: 'flex',
@@ -519,26 +468,6 @@ const S = {
     color: CAPABILITY_STYLE[capability].color,
     background: CAPABILITY_STYLE[capability].bg,
   }),
-  badge: {
-    fontSize: 9,
-    letterSpacing: '0.08em',
-    color: 'var(--panel-accent, #35cdbc)',
-    textTransform: 'uppercase' as const,
-  },
-  badgeGone: {
-    fontSize: 9,
-    letterSpacing: '0.08em',
-    color: 'var(--panel-danger, #f0817e)',
-    textTransform: 'uppercase' as const,
-  },
-  ghost: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 7,
-    padding: '8px',
-    opacity: 0.45,
-    textDecoration: 'line-through',
-  },
   detail: { padding: '0 8px 8px', display: 'flex', flexDirection: 'column' as const, gap: 6 },
   desc: { margin: '5px 0 0', opacity: 0.8, lineHeight: 1.55, fontSize: 11 },
   note: {

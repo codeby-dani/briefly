@@ -36,7 +36,7 @@ Open a trend.
 > "Open a trend, and four more appear — because now there is a trend to read, a
 > video to play, and a summary to write."
 
-Close it. Let the ghosted rows show.
+Close it. Let the rows drop out of the list.
 
 > "Close it, and they're gone. The agent is never offered a tool that can't
 > succeed."
@@ -104,8 +104,10 @@ Edit the hook by hand. Set status to approved.
   the evidence.
 - **Do not narrate what is on screen.** Say why it matters. The viewer can read.
 - **Two takes minimum.** Play back take one with headphones before take two.
-- **Do not speed up the tool registration animations.** The 1.1s ghost is the
-  proof.
+- **Keep the panel's footer count in frame.** The panel has no registration
+  animation — a tool appears and disappears with the state it belongs to — so
+  the count moving from 2 to 8 to 12 and back is the whole proof. Frame it, and
+  pause on each number long enough to read.
 - **Let `play_clip` play.** Two seconds of the agent driving your video player
   is worth more than two sentences describing it.
 - **Do not demo `analyze_trend`.** It needs a key and a round-trip, and it
