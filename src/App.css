@@ -162,43 +162,6 @@
   flex-shrink: 0;
 }
 
-.sidebar-foot {
-  margin: 0 16px;
-  padding: 14px;
-  border-radius: var(--r);
-  background: var(--surface-high);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.foot-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.foot-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-h);
-}
-
-.foot-count {
-  font-family: var(--mono);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-}
-
-.foot-note {
-  font-size: 11px;
-  line-height: 16px;
-  color: var(--text);
-}
-
 /* ---------------------------------------------------------------------- *
  * Shell and top bar.
  * ---------------------------------------------------------------------- */
@@ -1535,10 +1498,6 @@
 
   .nav-item.is-current span {
     display: inline;
-  }
-
-  .sidebar-foot {
-    display: none;
   }
 
   .shell {
