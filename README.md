@@ -10,10 +10,11 @@ the brief lands in the library, not in a chat transcript.
 
 Built for [The WebMCP Challenge](https://webmcp.devpost.com).
 
-> **Status: Phase 0 of 7.** The shell, the clip corpus and the first tool are in.
-> Routes, stores and the remaining twenty tools land in Phases 1–5. Progress and
-> what is actually done live in [plan/PROGRESS.md](plan/PROGRESS.md) — that file,
-> not this one, is the authority on state.
+> **Status: Phase 1 of 7.** The shell, the clip corpus, the hash router, the
+> stores and the two global tools are in. The remaining nineteen tools land in
+> Phases 2–5. Progress and what is actually done live in
+> [plan/PROGRESS.md](plan/PROGRESS.md) — that file, not this one, is the
+> authority on state.
 
 ## Trying it with an agent
 
@@ -84,6 +85,34 @@ never blurred:
   (`scripts/generate-clips.mjs`, over ClipBrief's measurements). Clip duration,
   word count, speaking rate, hook length.
 
+## Design
+
+The palette, type and radii come from a [Stitch](https://stitch.withgoogle.com)
+design system — *TrendDashboard Dark*: dark mode, Inter, 8px corners, generated
+from a `#aa3bff` seed with `#16171d` pinned as the neutral. A Dashboard screen
+was generated from it and the layout in `src/routes/` is built against that
+screen.
+
+What is in the repo is the **token set, not the markup**. Stitch emits Tailwind;
+this project ships zero runtime dependencies, so the hex values the Stitch API
+resolved were transcribed into the custom properties at the top of
+`src/index.css` and everything else references those. Nothing in `App.css` names
+a colour directly.
+
+Two deliberate departures, both to avoid shipping something nobody has looked
+at:
+
+- **Dark only.** The design system is dark and has no light counterpart. A
+  `prefers-color-scheme` fork would have meant inventing a light palette Stitch
+  never produced, so the page declares `color-scheme: dark` and commits.
+- **Inter is asked for, never fetched.** The font stack requests Inter and falls
+  through to the platform UI font. Pulling it from a font CDN would put a
+  third-party request on the critical path of a page a judge opens once, on an
+  unknown connection.
+
+The inspector panel reads the same tokens through its own `--panel-*` custom
+properties, so it shares the palette rather than looking bolted on.
+
 ## Media
 
 The 12 clips in `public/media/` come from
@@ -98,6 +127,9 @@ is used anywhere in this project.
 |---|---|
 | `src/webmcp/` | Registration, lifecycle, the bridge, the live surface panel |
 | `src/tools/` | Tool definitions — schemas, executors, trace wrapper |
+| `src/store/` | Hash router, selection state, and one store per domain |
+| `src/routes/` | One file per route |
+| `src/components/` | Badges and the hand-rolled SVG charts |
 | `src/fixtures/` | Seeded data and the generated clip corpus |
 | `api/` | `/api/analyze`, the only server-side code |
 | `plan/` | The sprint plan. `PROGRESS.md` first |

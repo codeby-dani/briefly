@@ -165,12 +165,19 @@ the moment anyone looks closely.
 
 ## 7. Design and Assets
 
-- [ ] **Design source.** A Stitch key was proposed for this.
-      **BLOCKING — that key was pasted into a chat transcript and must be
-      treated as compromised. Revoke and reissue it before use.** It has not
-      been written to any file in this repo and must not be.
-- [ ] **Decide: Stitch-generated screens, or hand-built from the existing CSS?**
-      At T-10h, hand-built is the lower-risk answer. TODO
+- [~] **Design source.** Resolved without the key: Stitch was driven through its
+      MCP connector, so no API key was needed, none was requested, and none is in
+      this repo. **The previously pasted key is still exposed and still needs
+      revoking (B3)** — that is a security item, not a design one, and using
+      Stitch a different way does not close it.
+- [x] **Decide: Stitch-generated screens, or hand-built from the existing CSS?**
+      Both, in that order. A Stitch project and design system were created
+      (`TrendDashboard Dark`, dark, Inter, 8px radii, seeded from `#aa3bff`) and
+      a Dashboard screen generated from it. What landed in the repo is the
+      resolved *token set* — the exact hex values the Stitch API returned —
+      transcribed into `src/index.css`, with the layout hand-built against the
+      generated screen. No generated markup was pasted: Stitch emits Tailwind,
+      and `plan/README.md` forbids new runtime dependencies.
 - [x] **Palette and shell** — reuse the dark panel tokens already in
       `src/webmcp/ToolSurfacePanel.tsx` so the inspector does not look bolted on.
 

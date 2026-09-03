@@ -58,3 +58,113 @@ export interface Clip {
   transcript: string
   signals: ClipSignals
 }
+
+/* ------------------------------------------------------------------------- *
+ * Phase 1 — stores. Contracts: plan/02-data-model.md § Types.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Where a trend's analysis came from. `null` until something writes one.
+ * The UI renders this verbatim next to the summary (`summary-source`), because
+ * a cached fixture passed off as a fresh model call is the one dishonesty this
+ * project cannot afford.
+ */
+export type SummarySource = null | 'agent' | 'model' | 'cached' | 'human'
+
+export interface Sample {
+  author: string
+  text: string
+  /** Invented. Badged `demo data`. */
+  engagement: number
+  /** Present when this sample is backed by a real playable clip. */
+  clipId?: string
+}
+
+export interface Trend {
+  id: string
+  keyword: string
+  /** Mentions in the last 24h — invented, badged `demo data`. */
+  volume: number
+  /** Versus the previous 24h — invented, badged `demo data`. */
+  growthPct: number
+  platform: Platform
+  category: Category
+  /** ISO date. */
+  firstSeen: string
+  /** 14 daily points for the sparkline — invented. */
+  spike: number[]
+  relatedKeywords: string[]
+  samples: Sample[]
+  /** Clips in the corpus belonging to this trend; may be empty. */
+  clipIds: string[]
+  aiSummary: string | null
+  aiSummarySource: SummarySource
+  suggestedAngles: string[]
+  /** Literal `true`, not a boolean: the badge cannot be forgotten. */
+  demo: true
+}
+
+export interface Product {
+  id: string
+  name: string
+  description: string
+  usp: string[]
+  priceIdr: number
+  /** Things the brand will say. */
+  dos: string[]
+  /** Things the brand will not say. */
+  donts: string[]
+  updatedAt: string
+}
+
+export type BriefStatus = 'draft' | 'approved' | 'published'
+
+export interface Brief {
+  id: string
+  title: string
+  trendId: string
+  productId: string
+  platform: Platform
+  status: BriefStatus
+  hook: string
+  outline: string[]
+  tone: string
+  cta: string
+  hashtags: string[]
+  audience: string
+  authoredBy: 'agent' | 'human'
+  createdAt: string
+  updatedAt: string
+}
+
+/** Phase 5, cuttable. Declared here so the store keys are complete. */
+export interface ScheduleEntry {
+  id: string
+  briefId: string
+  /** ISO date, day precision. */
+  date: string
+  platform: Platform
+  pic: string
+  status: 'planned' | 'in_progress' | 'published'
+}
+
+export interface AnalyticsContent {
+  briefId: string | null
+  title: string
+  platform: Platform
+  postedAt: string
+  reach: number
+  engagement: number
+}
+
+export interface Analytics {
+  demo: true
+  reach: number
+  impressions: number
+  engagementRate: number
+  /** 30 daily points. */
+  followerGrowth: number[]
+  perContent: AnalyticsContent[]
+  /** 24 buckets, relative score. */
+  bestPostingHours: number[]
+}

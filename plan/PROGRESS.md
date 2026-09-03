@@ -2,7 +2,7 @@
 
 **This is the session entry point. Read this before anything else.**
 
-Last updated: 2026-09-03 21:25 WITA · by: Phase 0 build session (Vercel switch)
+Last updated: 2026-09-03 22:05 WITA · by: Phase 1 build session, then the design pass
 
 ---
 
@@ -10,18 +10,18 @@ Last updated: 2026-09-03 21:25 WITA · by: Phase 0 build session (Vercel switch)
 
 | | |
 |---|---|
-| **Current phase** | Phase 0 — code complete, **not deployed** |
+| **Current phase** | Phase 1 — code complete, **not deployed**. Phase 0 also still open on deploy |
 | **Sprint start (T+0)** | 2026-09-03 17:51 WITA |
 | **Hard deadline** | 2026-09-04 04:00 WITA (13:00 PDT, 2026-09-03) |
 | **Time remaining at last update** | 10h 05m |
 | **Deployed URL** | none yet — BLOCKING |
-| **Tools registered** | 1 of 21 planned (`get_app_state`), locally verified |
+| **Tools registered** | 2 of 21 planned (`get_app_state`, `navigate_to`), locally verified |
 
 ## Next Task
 
-**Deploy.** Everything Phase 0 asks for in code is written, built and verified on
-`localhost:4173`; the phase cannot close because nothing is on a public origin,
-and the push is yours to make.
+**Deploy.** This has not moved since the last session and it is now blocking two
+phases instead of one. Phases 0 and 1 are both code-complete and both verified
+on `localhost:4173`; neither can close because nothing is on a public origin.
 
 Hosting is **Vercel**, wired to GitHub, so the deploy is a push:
 
@@ -30,13 +30,15 @@ git push origin main
 ```
 
 Then, on the deployed origin: open it in the ChatGPT in-app browser and in
-flagged Chrome, `curl -X POST <url>/api/analyze -d '{}'` and confirm a 503 JSON
-rather than a 404 or HTML, set `GEMINI_API_KEY` in Vercel's project environment
-variables, redeploy, and curl again for a 200. Record the URL in the table above
-and clear B2.
+flagged Chrome and confirm the panel reads 2, `curl -X POST <url>/api/analyze -d
+'{}'` and confirm a 503 JSON rather than a 404 or HTML, set `GEMINI_API_KEY` in
+Vercel's project environment variables, redeploy, and curl again for a 200. Open
+it once in a real private window. Record the URL in the table above and clear B2.
 
-Do not start Phase 1 features before the URL is live. Every hour that the
-deploy path stays unproven is an hour of unbounded risk.
+Phase 2 can be started against localhost without waiting — the Trends table does
+not depend on the origin — but the deploy is still the highest-value thing you
+can do with ten minutes, because every hour it stays unproven is an hour of
+unbounded risk on the one requirement the submission cannot survive missing.
 
 ## Blockers
 
@@ -44,12 +46,13 @@ deploy path stays unproven is an hour of unbounded risk.
 |---|---------|-------|-------|-------|
 | B1 | Devpost registration not confirmed | you | pre | **open** |
 | B2 | No live URL | you | 0 | **open** |
-| B3 | Stitch API key compromised (pasted in chat) — revoke before use | you | pre | **open** |
+| B3 | Stitch API key compromised (pasted in chat) — revoke before use | you | pre | **open** · no longer blocks design (MCP connector used, no key needed) but the key is still exposed |
 | B4 | Screen recorder not tested | you | 7 | open |
 | B5 | Repo still private | you | 7 | open |
 | B6 | `GEMINI_API_KEY` not obtained (free tier, aistudio.google.com/apikey) | you | 0 | **open** |
 | B8 | Vercel not confirmed on the hackathon's approved-hosting list — the plan recorded Netlify as approved | you | 0 | **open** |
 | B7 | Clip corpus not yet copied from ClipBrief into `public/media/` | — | 0 | **closed** 2026-09-03 21:10 |
+| B9 | No committed `cached` summaries for clip-backed trends — `02-data-model.md` asks for them but defines no `Trend` field to hold one | — | 2 | open |
 
 B6 is Phase 0 work, not pre-work, and is not fatal: without it `analyze_trend`
 serves the cached summary, which degrades rather than breaks. B7 is closed — the
@@ -59,12 +62,18 @@ and one mp4 were served locally (200 `image/jpeg`, 206 `video/mp4`).
 B1, B2 and B3 are the ones that can end the entry. B3 is a security issue, not
 a schedule issue: the key is exposed regardless of whether Stitch gets used.
 
+B9 is new and is not urgent: it only bites `analyze_trend`, which is itself the
+pre-designated first cut inside Phase 2. Resolve it by adding two fields to
+`Trend` in `02-data-model.md` first and then to the fixture — not the other way
+round, or the type and the document drift on the one file that exists to stop
+exactly that.
+
 ## Phase Completion
 
 | Phase | Title | Window | State | Exit criteria met |
 |-------|-------|--------|-------|-------------------|
 | 0 | Foundation | T+0:00 → T+1:15 | `[ ]` | 3 / 8 · rest blocked on deploy |
-| 1 | Shell and data layer | T+1:15 → T+2:45 | `[ ]` | 0 / 6 |
+| 1 | Shell and data layer | T+1:15 → T+2:45 | `[ ]` | 7 / 7 locally · 0 verified on a deployed origin |
 | 2 | Trends | T+2:45 → T+4:15 | `[ ]` | 0 / 10 |
 | 3 | Product Knowledge | T+4:15 → T+5:15 | `[ ]` | 0 / 5 |
 | 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 0 / 7 |
@@ -79,7 +88,7 @@ The judged surface. 21 tools planned; see `01-architecture.md` for contracts.
 | # | Tool | Scope | Phase | State |
 |---|------|-------|-------|-------|
 | 1 | `get_app_state` | global | 1 | `[ ]` written, registered, locally verified — not deployed |
-| 2 | `navigate_to` | global | 1 | `[ ]` |
+| 2 | `navigate_to` | global | 1 | `[ ]` written, registered, locally verified — not deployed |
 | 3 | `search_trends` | trends | 2 | `[ ]` |
 | 4 | `filter_trends` | trends | 2 | `[ ]` |
 | 5 | `sort_trends` | trends | 2 | `[ ]` |
@@ -265,3 +274,135 @@ Session log entries above this one still say Netlify. They are left alone on
 purpose — a superseded decision with its reasoning intact is worth more than a
 tidy history, and the reasoning in the corpus-revision entry is what made this
 swap cheap.
+
+### 2026-09-03 21:45 WITA — Phase 1 build
+
+Router, five stores, three fixtures, the dashboard and the second global tool.
+All seven exit criteria pass on `localhost:4173`. Nothing is deployed, so no box
+is `[x]` and the phase is not closed — the same wall Phase 0 is still sitting
+against, now with two phases behind it.
+
+**Router.** `src/store/router.ts` — one reducer over `location.hash` plus the
+three selection fields, at module level rather than inside a component. That
+placement is the whole design: `plan/01-architecture.md` requires executors to
+read current state without going through render scope, because an agent can call
+a tool between a render and its commit. A `useReducer` inside `App` would have
+satisfied the task line and broken the constraint. `navigate()` writes the hash
+after dispatching, so a hash typed by hand and a `navigate_to` call from an agent
+take the identical path through the same reducer — there is no second code path
+that could disagree with the first.
+
+**Stores.** `createStore` over `useSyncExternalStore`, one module per store, each
+exposing a plain `read()` alongside the hook. Same reason. Every read and write
+is wrapped in try/catch: a private window with storage disabled has to degrade to
+an in-memory app rather than a white screen, and that is a real judging
+environment.
+
+**Fixtures.** 24 trends across four platforms and all six categories, growth from
+-12% to +680%, 14-point spike series shaped so a +680% trend actually draws a
+hockey stick and a -12% one drifts down — a sparkline that contradicts the number
+beside it makes the whole dashboard read as noise. All 12 clips are referenced,
+`fashion` and `finance` carry none by design, and the trend store asserts at seed
+time that every `clipId` resolves. 4 products; `prd_sudut` is deliberately the
+wrong product for the top trend, so the demo has a moment where the agent can
+decline an angle. 30 days of analytics with a weekday/weekend rhythm and an
+evening posting peak.
+
+**Badges.** Amber `demo data`, teal `measured`, different words and visibly
+different colour. Placed per section rather than per figure: a badge repeated
+eleven times inside one card stops being read, and the claim being made is about
+the whole card. The dashboard carries three `demo data` and the corpus panel one
+`measured`.
+
+**Tools.** `navigate_to` joins `get_app_state`, both registered unconditionally
+at the root. Neither takes state as an argument — they read the stores directly.
+`navigate_to` validates its own input and returns `{ ok: false, reason, known }`
+for a bad route rather than throwing, because the schema is a hint to the agent,
+not a guarantee about what arrives.
+
+**Verified on `localhost:4173`, through `window.__td`.** All six routes by
+`navigate_to` and by typed hash, with the on-screen `route-*` testid, the hash
+and `get_app_state().route` agreeing every time; surface count exactly 2 on all
+six; a bad route rejected with the six known names; hard reload preserving a
+hand-edited product and a planted brief while `td:trends` stayed byte-identical;
+cleared storage reseeding to a byte-identical fixture and a populated dashboard;
+all 24 media files behind the referenced clips returning 200. `npm run build`
+exits 0. `npx oxlint` exits 0 with the same four pre-existing warnings in
+`src/webmcp/`, which the phase files say not to rewrite.
+
+**Deferred, and it is a contract question rather than a shortcut.**
+`02-data-model.md` § Seed Data asks for one committed summary per clip-backed
+trend, for `analyze_trend`'s no-key fallback. The `Trend` interface in that same
+document has no field to put it in — `aiSummary` is the live field and correctly
+starts `null`. Inventing `cachedSummary` here would have put a field in the code
+that the data model does not describe, which is the exact drift `src/types.ts`
+opens by promising not to do. Logged as B9, to be fixed in the document first.
+
+**Phase 0 scaffolding kept.** The clip player moved to
+`src/routes/CorpusCheck.tsx` and still renders under the dashboard, because Phase
+0's sixth exit criterion — a poster and an mp4 loading from the *deployed*
+origin — has not been checked yet and that panel is how it gets checked. Phase 2
+replaces it with the real drawer.
+
+**Prediction to check later:** `ToolSurfacePanel` is fixed to the right edge and
+at an 800px viewport it covers the fourth KPI card. Harmless on a wide screen and
+invisible in the demo, but a judge on a laptop will see a clipped card. It is a
+Phase 6 polish item and it is written down here so Phase 6 does not have to
+rediscover it — the panel itself is not to be rewritten during the sprint.
+
+### 2026-09-03 22:05 WITA — design source settled, on your instruction
+
+`todo.md` §7 has been carrying an undecided question since planning: Stitch
+screens or hand-built CSS. Decided: Stitch, and it cost about twenty minutes.
+
+**The key question dissolved.** The plan assumed Stitch meant an API key, which
+is why B3 sat on the critical path. It does not — Stitch has an MCP connector,
+already authorised in this session, so no key was needed, none was requested and
+none is in the repo. **B3 does not close.** The previously pasted key is exposed
+whether or not this project ever used it, and reaching Stitch by a different door
+is not revocation.
+
+**What was made.** A Stitch project and a design system, *TrendDashboard Dark* —
+dark, Inter, 8px radii, seeded from `#aa3bff` with `#16171d` pinned as the
+neutral, and a design brief in `designMd` carrying the constraints that actually
+matter here: no component library, no icon font, hand-rolled SVG charts, a
+reserved right-hand gutter for the inspector, and the two badge colours spelled
+out. A Dashboard screen was generated from it, describing the real Phase 1
+layout card by card rather than a generic dashboard.
+
+**What landed in the repo is the token set, not the markup.** Stitch emits
+Tailwind and `plan/README.md` forbids new runtime dependencies, so the hex values
+the Stitch API resolved were transcribed into custom properties at the top of
+`src/index.css` and every rule in `App.css` now references those — the file names
+no colour of its own. Page `#0d0e14`, cards `#181921`, inner tiles `#1d1f29`,
+text `#a9aab8` over `#e4e4f4`, accent `#c890ff`. The layout was hand-built
+against the generated screen.
+
+**Two departures from the design system, both deliberate.** It is dark-only, so
+the `prefers-color-scheme` fork is gone and the page declares `color-scheme:
+dark` — keeping the fork would have meant inventing a light palette Stitch never
+produced and shipping a second look nobody has looked at. And Inter is requested
+in the font stack but never fetched: a font CDN would put a third-party request
+on the critical path of a page a judge opens once on an unknown connection.
+
+**Free win.** `ToolSurfacePanel` styles itself through `var(--panel-bg, …)`
+fallbacks, so defining `--panel-bg`, `--panel-fg` and `--panel-line` in
+`index.css` pulled the inspector into the same palette without editing a file the
+sprint rules say not to touch. That was the stated goal of the `todo.md` line
+about the panel not looking bolted on, and it turned out to be three
+declarations.
+
+**Prediction from the last entry, closed.** The panel overlapping the fourth KPI
+card is fixed rather than deferred to Phase 6 — the Stitch brief had already
+called for a 300px right-hand gutter, so `.app-main` takes 312px of right padding
+in the 1025–1680px band where the overlap actually occurs. Verified at 1280px:
+no card rectangle intersects the panel rectangle, and all four KPI cards are
+visible.
+
+Verified after the change: computed styles match the transcribed tokens on the
+card, tile, both badges, the nav and the panel; `get_app_state` and `navigate_to`
+still register and answer, surface count still 2. `npm run build` exits 0.
+`npx oxlint` exits 0 with the same four pre-existing `src/webmcp/` warnings.
+
+README gained a Design section recording the provenance, alongside the existing
+one for the media corpus. Its status line moved to Phase 1.

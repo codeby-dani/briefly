@@ -4,14 +4,25 @@
 
 ## Status
 
-- [ ] Hash router with six routes
-- [ ] Stores implemented with `localStorage` persistence
-- [ ] Fixtures seeded on first run
-- [ ] Dashboard route renders KPI cards and recent briefs
-- [ ] `get_app_state` and `navigate_to` registered globally
-- [ ] `demo data` badge component, used on every invented value
-- [ ] `measured` badge component, used on every clip signal
-- [ ] `clips.ts` wired: every trend's `clipIds` resolve to a real clip
+- [ ] Hash router with six routes — done in code, all six driven on `localhost:4173`, not deployed
+- [ ] Stores implemented with `localStorage` persistence — done in code, hard reload preserves edits, not deployed
+- [ ] Fixtures seeded on first run — done in code, cleared-storage reload reseeds byte-identically, not deployed
+- [ ] Dashboard route renders KPI cards and recent briefs — done in code, not deployed
+- [ ] `get_app_state` and `navigate_to` registered globally — done in code, surface count 2 on all six routes, not deployed
+- [ ] `demo data` badge component, used on every invented value — done in code, not deployed
+- [ ] `measured` badge component, used on every clip signal — done in code, not deployed
+- [ ] `clips.ts` wired: every trend's `clipIds` resolve to a real clip — done in code, all 12 referenced, all 24 media files 200, not deployed
+
+Every box stays `[ ]` for the same reason every Phase 0 box does: `plan/README.md`
+defines `[x]` as *deployed*, and nothing is on a public origin yet. The
+annotations say what was actually verified and where.
+
+**Deferred out of this phase, on purpose:** `plan/02-data-model.md` § Seed Data
+asks for "one committed summary per clip-backed trend", used as the `cached`
+fallback when `analyze_trend` runs without a key. There is no field on `Trend`
+for it in that document's type — `aiSummary` is the live field and starts
+`null` — so writing one now would mean inventing a contract the plan does not
+define. It moves to Phase 2 alongside the tool that consumes it. Tracked as B9.
 
 ## Tasks
 
