@@ -7,15 +7,13 @@
  * that has never shipped, and a half-migrated store is worse than a fresh one.
  */
 
-// 2 — Phase 2 added `Trend.cached`. There are no migrations by design, so a
-// bump is how a warm localStorage from an earlier build gets the new field
-// instead of quietly serving trends that have no fallback summary.
-export const SCHEMA_VERSION = 2
+// 3 — Phase 3 replaces products with one business profile and offerings.
+export const SCHEMA_VERSION = 3
 
 export const KEYS = {
   version: 'td:version',
   trends: 'td:trends',
-  products: 'td:products',
+  businessProfile: 'td:business-profile',
   briefs: 'td:briefs',
   watchlist: 'td:watchlist',
   schedule: 'td:schedule',
@@ -23,7 +21,7 @@ export const KEYS = {
 } as const
 
 /** Keys that are wiped when the schema version moves. `td:events` is not one — the log survives a reseed on purpose. */
-const SEEDED_KEYS = [KEYS.trends, KEYS.products, KEYS.briefs, KEYS.watchlist, KEYS.schedule, KEYS.analytics]
+const SEEDED_KEYS = [KEYS.trends, KEYS.businessProfile, KEYS.briefs, KEYS.watchlist, KEYS.schedule, KEYS.analytics, 'td:products']
 
 /**
  * Every read and write is wrapped, because a private window with storage

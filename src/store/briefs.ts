@@ -27,16 +27,16 @@ export function readBrief(briefId: string): Brief | undefined {
   return briefStore.read().find((brief) => brief.id === briefId)
 }
 
-/** Briefs already written for one trend+product pair. Feeds `get_brief_context`. */
-export function readBriefsForPair(trendId: string, productId: string): Brief[] {
-  return briefStore.read().filter((b) => b.trendId === trendId && b.productId === productId)
+/** Briefs already written for one trend+offering pair. Feeds `get_brief_context`. */
+export function readBriefsForPair(trendId: string, offeringId: string): Brief[] {
+  return briefStore.read().filter((b) => b.trendId === trendId && b.offeringId === offeringId)
 }
 
 /** The fields a composer — human or agent — supplies. Everything else is set here. */
 export interface BriefDraftInput {
   title: string
   trendId: string
-  productId: string
+  offeringId: string
   platform: Platform
   hook: string
   outline: string[]
@@ -61,7 +61,7 @@ export function saveDraft(input: BriefDraftInput, authoredBy: 'agent' | 'human')
     id: newBriefId(),
     title: input.title,
     trendId: input.trendId,
-    productId: input.productId,
+    offeringId: input.offeringId,
     platform: input.platform,
     status: 'draft',
     hook: input.hook,

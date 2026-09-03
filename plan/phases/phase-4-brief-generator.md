@@ -36,25 +36,25 @@ register their own tools.
 
 ## Tasks
 
-1. **Composer.** Two selects (trend, product) and a brief form with hook,
+1. **Composer.** Two selects (trend, offering) and a brief form with hook,
    outline (list), tone, CTA, hashtags (list), audience, platform. Every field
    hand-editable at all times.
 2. **Selection-scoped tools.** `get_brief_context` and `save_brief` register
-   when `selectedTrendId && selectedProductId`, regardless of route. They must
-   survive the human navigating to Products mid-composition.
-3. **`get_brief_context`.** Bundles the trend, the full product record, the
+   when `selectedTrendId && selectedOfferingId`, regardless of route. They must
+   survive the human navigating to Profile mid-composition.
+3. **`get_brief_context`.** Bundles the trend, business profile, selected offering, the
    platform, and existing briefs for the same pair so the agent does not repeat
    an angle.
 4. **`save_brief`.** Writes a `draft`, sets `authoredBy: 'agent'`, returns the
    id. Cannot set any other status — enforce in the executor, not the schema.
-5. **Library.** Cards with status chip, trend link, product link.
+5. **Library.** Cards with status chip, trend link, offering link.
    `search_briefs` and `update_brief_status`.
 6. **Status control.** A human control; transitions validated against the
    machine in `02-data-model.md`. Rejections say what the current status is.
 
 ## Exit Criteria
 
-1. Selecting a trend and a product adds exactly two tools to the surface,
+1. Selecting a trend and an offering adds exactly two tools to the surface,
    visibly, and deselecting either removes them.
 2. An agent given only "write me a brief for this" produces a brief that
    references the product's USP and respects its do-not list.

@@ -1,55 +1,35 @@
-# Phase 3 — Product Knowledge
+# Phase 3 — Business Profile
 
 **Window:** T+4:15 → T+5:15 · **Cuttable:** no
 
-The "real" half of the feature split, and the context that makes briefs good.
+The durable business context that makes briefs good: one profile, shared claim guardrails, and structured offerings.
 
 ## Status
 
-- [ ] Product list and detail — implemented; re-verified in a real browser 2026-09-03 23:05, four seeded cards, editor opens on click. Not deployed
-- [ ] Create, update, delete by hand — implemented; the agent-side round trip runs 4 → 5 → 4 in a browser. Not deployed
-- [ ] `list_products`, `get_product`, `create_product` on the route — surface is 5 on Products, verified in a browser. Not deployed
-- [ ] `update_product`, `delete_product` when a product is open — both appear on open and disappear on close, verified in a browser. Not deployed
-- [ ] Do-and-do-not lists are first-class, not a notes field — `product-usp-{n}` / `product-dos-{n}` row controls render, and `get_brief_context` hands the do-not list to the agent as an array. Not deployed
-
-The earlier verification here was `scripts/verify-phase3.mjs`, an isolated Vite
-SSR harness, because no browser was available that session. It has now been
-confirmed the ordinary way, in a browser against the production build, and the
-two agree. One thing the harness could not have caught: the merge that brought
-this phase into `main` also dropped `App.tsx`'s `trends` and `briefs` branches
-and a type guard, leaving the tree unable to compile — the products route was
-correct and the app around it was not.
+- [x] Editable business profile with structured offerings
+- [x] `get_business_profile` available on Profile; write tools only while editing
+- [x] Shared and offering-specific claim guardrails are first-class fields
 
 ## Tasks
 
-1. **List.** Cards with name, positioning line, price, USP count.
-   `data-testid="product-card-{id}"`.
-2. **Detail and form.** One component in two modes. Fields: name,
-   description, USP list, price, dos list, donts list. List fields are
-   add/remove rows, not comma-separated text — the agent reads them as arrays
-   and a free-text field would force a parse.
-3. **Delete.** Confirmation required in the UI. `delete_product` accepts only
-   the currently open id.
-4. **Route tools.** `list_products`, `get_product`, `create_product`.
-5. **Conditional tools.** `update_product`, `delete_product`, guarded on
-   `openProductId`, both annotated `destructiveHint`.
+1. **Profile.** Identity, quality summary, facts, chips, offerings, and shared guardrails.
+2. **Editor.** One panel manages shared fields and detailed offerings.
+3. **Route tools.** `get_business_profile` is read-only and returns untrusted content.
+4. **Conditional tools.** Profile and offering write tools register only while editing.
 
 ## Exit Criteria
 
-1. Surface count is 5 on the route, 7 with a product open.
-2. A product created by an agent appears in the list without a reload.
-3. `update_product` with a subset of fields leaves the others untouched.
-4. `delete_product` with an id that is not open returns
-   `{ ok: false, reason: 'product is not open' }` and deletes nothing.
-5. `get_product` output carries `untrustedContentHint` and the description round
-   -trips exactly, including newlines.
+1. Surface count is 3 on Profile and 7 while its editor is open.
+2. Editing shared fields updates facts, chips, guardrails, and offering cards without reload.
+3. Offering create, patch, and removal work through both UI and bridge tools.
+4. Unknown fields, empty patches, and missing offering ids return structured failures without changing data.
+5. `get_business_profile` carries `untrustedContentHint` and returns the full structured profile.
 
-## Why The Do-Not List Matters
+## Why Claim Guardrails Matter
 
-It is the part of product knowledge that never survives a copy-paste into a
-chat window, and it is the part that makes an agent-written brief usable
-without a rewrite. It is also the most legible thing to demo: ask the agent for
-a brief, and watch it avoid a claim because the product record forbids it.
+They are the part of business context that never survives a copy-paste into a
+chat window, and make an agent-written brief usable without a rewrite. Shared
+guardrails apply to every brief; offering-level guardrails preserve the nuances
+of the thing being promoted.
 
-Seed at least one product whose `donts` will visibly constrain the brief the
-agent writes for the top trend. Without that, the field is invisible on camera.
+Seed at least one offering whose prohibited claims visibly constrain a brief.
