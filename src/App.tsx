@@ -80,6 +80,8 @@ const NAV_LABEL: Record<Route, string> = {
 }
 
 function Sidebar({ route }: { route: Route }) {
+  const primaryRoutes = ROUTES.filter((name) => name !== 'products')
+
   return (
     <aside className="sidebar" aria-label="Sections">
       <div className="sidebar-top">
@@ -99,7 +101,7 @@ function Sidebar({ route }: { route: Route }) {
         </div>
 
         <nav className="sidebar-nav">
-          {ROUTES.map((name) => (
+          {primaryRoutes.map((name) => (
             <a
               key={name}
               href={`#/${name}`}
@@ -120,12 +122,23 @@ function Sidebar({ route }: { route: Route }) {
         </nav>
       </div>
 
-      {/* The reference puts a plan-usage card in the slot below the nav. It held
-          the agent surface count and its route, which the floating status pill
-          now reports from the corner on every viewport — two live counts of the
-          same thing, and a reader had to notice they always agreed. There is no
-          plan and no quota to put here instead, and inventing one would be a
-          number on screen that nobody observed, so the slot stays empty. */}
+      <button
+        type="button"
+        className={`account-button${route === 'products' ? ' is-current' : ''}`}
+        aria-current={route === 'products' ? 'page' : undefined}
+        aria-label="Open profile for Aarief"
+        data-testid="open-profile"
+        onClick={() => navigate('products')}
+      >
+        <span className="account-avatar" aria-hidden="true">AR</span>
+        <span className="account-copy">
+          <strong>Aarief</strong>
+          <span>Workspace owner</span>
+        </span>
+        <svg className="account-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
     </aside>
   )
 }
