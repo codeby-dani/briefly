@@ -21,7 +21,8 @@ import { trendStore } from '../store/trends'
 import { dispatch, navigate, useAppState } from '../store/router'
 import { libraryTools } from '../tools/briefs'
 import { useTools } from '../webmcp'
-import { PLATFORMS } from '../types'
+import { PLATFORM_LABEL, PLATFORMS } from '../types'
+import { PlatformIcon } from '../components/PlatformIcon'
 import type { Brief, BriefStatus, Platform } from '../types'
 
 /** The next legal statuses for a human control, from the machine in the store. */
@@ -55,6 +56,46 @@ const EMPTY_FORM: FormState = {
   audience: '',
   platform: '',
 }
+
+type ContentType = 'Educating' | 'Entertaining' | 'Promotional' | 'Community'
+
+interface CatalogBrief {
+  id: string
+  title: string
+  product: string
+  platform: Platform
+  contentType: ContentType
+  status: BriefStatus
+  updatedAt: string
+  audience: string
+}
+
+const CATALOG_TEMPLATES: Omit<CatalogBrief, 'id' | 'updatedAt'>[] = [
+  { title: 'The 60-second barrier reset', product: 'Barrier Reset Serum', platform: 'tiktok', contentType: 'Educating', status: 'published', audience: 'Sensitive-skin adults' },
+  { title: 'SPF layering, simplified', product: 'Daily Cloud SPF 50', platform: 'instagram', contentType: 'Educating', status: 'approved', audience: 'Routine beginners' },
+  { title: 'What a calm skin day looks like', product: 'Barrier Reset Serum', platform: 'instagram', contentType: 'Community', status: 'published', audience: 'Ingredient-conscious shoppers' },
+  { title: '3 signs your cleanser is too harsh', product: 'Barrier Reset Serum', platform: 'youtube', contentType: 'Educating', status: 'draft', audience: 'Sensitive-skin adults' },
+  { title: 'The no-pilling SPF check', product: 'Daily Cloud SPF 50', platform: 'tiktok', contentType: 'Entertaining', status: 'approved', audience: 'Routine beginners' },
+  { title: 'Your serum order matters', product: 'Barrier Reset Serum', platform: 'x', contentType: 'Promotional', status: 'published', audience: 'Skincare regulars' },
+  { title: 'Before your retinol night', product: 'Barrier Reset Serum', platform: 'instagram', contentType: 'Educating', status: 'draft', audience: 'Ingredient-conscious shoppers' },
+  { title: 'A sunscreen that feels like skincare', product: 'Daily Cloud SPF 50', platform: 'youtube', contentType: 'Promotional', status: 'approved', audience: 'Daily SPF shoppers' },
+  { title: 'Dry skin rescue at 3 PM', product: 'Barrier Reset Serum', platform: 'tiktok', contentType: 'Entertaining', status: 'published', audience: 'Office commuters' },
+  { title: 'Minimal routine, maximum comfort', product: 'Daily Cloud SPF 50', platform: 'instagram', contentType: 'Community', status: 'approved', audience: 'Routine beginners' },
+  { title: 'Is your routine doing too much?', product: 'Barrier Reset Serum', platform: 'x', contentType: 'Community', status: 'draft', audience: 'Sensitive-skin adults' },
+  { title: 'Morning texture test', product: 'Daily Cloud SPF 50', platform: 'tiktok', contentType: 'Entertaining', status: 'published', audience: 'Daily SPF shoppers' },
+]
+
+/** Visual catalog only: these examples never enter the user/agent brief store. */
+const CATALOG_BRIEFS: CatalogBrief[] = Array.from({ length: 67 }, (_, index) => {
+  const template = CATALOG_TEMPLATES[index % CATALOG_TEMPLATES.length]
+  return {
+    ...template,
+    id: `catalog-${String(index + 1).padStart(2, '0')}`,
+    updatedAt: `2026-09-${String(28 - (index % 24)).padStart(2, '0')}`,
+  }
+})
+
+const PAGE_SIZE = 8
 
 function toList(text: string, splitter: RegExp): string[] {
   return text
@@ -274,8 +315,8 @@ export function Briefs() {
       <section className="card library-card" data-testid="brief-library">
         <div className="card-head">
           <h2>Library</h2>
-          <span className="muted small">
-            {briefs.length} brief{briefs.length === 1 ? '' : 's'}
+          <span className="muted small" data-testid="library-catalog-count">
+            {CATALOG_BRIEFS.length + briefs.length} briefs
           </span>
         </div>
         <Library briefs={briefs} highlightId={savedId} />
@@ -300,8 +341,9 @@ function Library({ briefs, highlightId }: { briefs: Brief[]; highlightId: string
   const [query, setQuery] = useState('')
   const [status, setStatusFilter] = useState<BriefStatus | ''>('')
   const [platform, setPlatformFilter] = useState<Platform | ''>('')
+  const [page, setPage] = useState(1)
 
-  const shown = briefs
+  const shownBriefs = briefs
     .filter((b) => {
       if (status && b.status !== status) return false
       if (platform && b.platform !== platform) return false
@@ -313,13 +355,21 @@ function Library({ briefs, highlightId }: { briefs: Brief[]; highlightId: string
     })
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
 
-  if (briefs.length === 0) {
-    return (
-      <p className="muted" data-testid="library-empty">
-        No briefs yet — none are seeded, on purpose. A brief is what the human and the agent make
-        together, so the first one in here will be one you or an agent just wrote. Compose one above.
-      </p>
-    )
+  const shownCatalog = CATALOG_BRIEFS.filter((brief) => {
+    if (status && brief.status !== status) return false
+    if (platform && brief.platform !== platform) return false
+    if (!query) return true
+    return `${brief.title} ${brief.product} ${brief.audience} ${brief.contentType}`.toLowerCase().includes(query.toLowerCase())
+  })
+  const pageCount = Math.max(1, Math.ceil(shownCatalog.length / PAGE_SIZE))
+  const activePage = Math.min(page, pageCount)
+  const pageCatalog = shownCatalog.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE)
+
+  function updateFilters(patch: { query?: string; status?: BriefStatus | ''; platform?: Platform | '' }) {
+    if (patch.query !== undefined) setQuery(patch.query)
+    if (patch.status !== undefined) setStatusFilter(patch.status)
+    if (patch.platform !== undefined) setPlatformFilter(patch.platform)
+    setPage(1)
   }
 
   return (
@@ -329,13 +379,13 @@ function Library({ briefs, highlightId }: { briefs: Brief[]; highlightId: string
           className="search"
           data-testid="brief-search"
           value={query}
-          placeholder="Search title, hook, audience"
-          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search briefs, products, or audience"
+          onChange={(e) => updateFilters({ query: e.target.value })}
         />
         <select
           data-testid="brief-filter-status"
           value={status}
-          onChange={(e) => setStatusFilter(e.target.value as BriefStatus | '')}
+          onChange={(e) => updateFilters({ status: e.target.value as BriefStatus | '' })}
         >
           <option value="">Any status</option>
           <option value="draft">draft</option>
@@ -345,7 +395,7 @@ function Library({ briefs, highlightId }: { briefs: Brief[]; highlightId: string
         <select
           data-testid="brief-filter-platform"
           value={platform}
-          onChange={(e) => setPlatformFilter(e.target.value as Platform | '')}
+          onChange={(e) => updateFilters({ platform: e.target.value as Platform | '' })}
         >
           <option value="">Any platform</option>
           {PLATFORMS.map((p) => (
@@ -356,24 +406,64 @@ function Library({ briefs, highlightId }: { briefs: Brief[]; highlightId: string
         </select>
       </div>
 
-      {shown.length === 0 ? (
+      {shownBriefs.length > 0 && (
+        <section className="library-user-briefs" aria-label="Your briefs">
+          <p className="library-section-label">Your briefs</p>
+          <ul className="rows" data-testid="library-list">
+            {shownBriefs.map((brief) => (
+              <BriefCard
+                key={brief.id}
+                brief={brief}
+                trendKeyword={trends.find((t) => t.id === brief.trendId)?.keyword ?? brief.trendId}
+                productName={offerings.find((item) => item.id === brief.offeringId)?.name ?? brief.offeringId}
+                highlight={brief.id === highlightId}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {shownCatalog.length === 0 && shownBriefs.length === 0 ? (
         <p className="muted small" data-testid="library-no-match">
           No briefs match those filters.
         </p>
       ) : (
-        <ul className="rows" data-testid="library-list">
-          {shown.map((brief) => (
-            <BriefCard
-              key={brief.id}
-              brief={brief}
-              trendKeyword={trends.find((t) => t.id === brief.trendId)?.keyword ?? brief.trendId}
-              productName={offerings.find((item) => item.id === brief.offeringId)?.name ?? brief.offeringId}
-              highlight={brief.id === highlightId}
-            />
-          ))}
-        </ul>
+        <>
+          <div className="library-catalog-head">
+            <p className="library-section-label">Skincare campaign library</p>
+            <span className="muted small">{shownCatalog.length} campaign briefs</span>
+          </div>
+          <ul className="library-showcase-grid" data-testid="library-list">
+            {pageCatalog.map((brief) => <CatalogBriefCard key={brief.id} brief={brief} />)}
+          </ul>
+          <nav className="library-pagination" data-testid="library-pagination" aria-label="Library pages">
+            <button type="button" className="chip" disabled={activePage === 1} onClick={() => setPage((current) => Math.max(1, current - 1))}>Previous</button>
+            {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => (
+              <button key={number} type="button" className={`chip${number === activePage ? ' is-active' : ''}`} aria-current={number === activePage ? 'page' : undefined} onClick={() => setPage(number)}>{number}</button>
+            ))}
+            <button type="button" className="chip" disabled={activePage === pageCount} onClick={() => setPage((current) => Math.min(pageCount, current + 1))}>Next</button>
+          </nav>
+        </>
       )}
     </>
+  )
+}
+
+function CatalogBriefCard({ brief }: { brief: CatalogBrief }) {
+  return (
+    <li className="catalog-brief" data-testid={`library-showcase-${brief.id}`}>
+      <div className="catalog-brief-tags">
+        <span className={`content-type content-type-${brief.contentType.toLowerCase()}`}>{brief.contentType}</span>
+        <span className={`status status-${brief.status}`}>{brief.status}</span>
+      </div>
+      <h3>{brief.title}</h3>
+      <p>{brief.audience}</p>
+      <div className="catalog-brief-meta">
+        <span><PlatformIcon platform={brief.platform} size={15} />{PLATFORM_LABEL[brief.platform]}</span>
+        <span>{brief.product}</span>
+      </div>
+      <small>Updated {brief.updatedAt}</small>
+    </li>
   )
 }
 

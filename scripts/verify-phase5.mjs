@@ -49,6 +49,7 @@ const { readSchedule } = await import('../src/store/schedule.ts')
 const { createElement } = await import('react')
 const { renderToStaticMarkup } = await import('react-dom/server')
 const { Calendar } = await import('../src/routes/Calendar.tsx')
+const { Briefs } = await import('../src/routes/Briefs.tsx')
 const { Performance } = await import('../src/routes/Performance.tsx')
 const { toCsv } = await import('../src/csv.ts')
 const { calendarRouteTools, listScheduleTool, scheduleBriefTool } = await import('../src/tools/schedule.ts')
@@ -69,6 +70,14 @@ assert.equal(GLOBAL, 2)
 assert.deepEqual(calendarRouteTools().map((tool) => tool.name), ['schedule_brief', 'list_schedule'])
 assert.equal(scheduleBriefTool().annotations?.idempotentHint, true)
 assert.equal(listScheduleTool().annotations?.readOnlyHint, true)
+
+/* --- Brief Library: visual catalog stays separate from stored briefs ------ */
+
+const libraryMarkup = renderToStaticMarkup(createElement(Briefs))
+assert.match(libraryMarkup, /data-testid="library-catalog-count">67 briefs/)
+assert.match(libraryMarkup, /data-testid="library-showcase-/)
+assert.match(libraryMarkup, /Educating|Entertaining|Promotional|Community/)
+assert.match(libraryMarkup, /data-testid="library-pagination"/)
 
 /* --- Exit criterion 1: an agent-scheduled brief renders, no reload ------ */
 

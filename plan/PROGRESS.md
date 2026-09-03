@@ -962,3 +962,11 @@ platform icons, scheduling times, and clear status treatments. A companion
 insights column provides monthly capacity, per-channel planning, and upcoming
 posts. These are visual planning prompts only; schedules created by users or
 agents still remain the sole persisted and editable calendar data.
+
+### 2026-09-04 03:20 WITA — Brief Library catalog
+
+The empty Library view now has a visual catalog of 67 skincare campaign briefs.
+It keeps platform and status filters, adds content-type labels, and shows eight
+cards per page with pagination. These catalog examples are deliberately kept
+outside the brief store, so user- and agent-authored briefs remain editable and
+appear in their own section above the catalog.
