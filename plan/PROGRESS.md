@@ -870,3 +870,12 @@ for the key live-state hooks and responsive/reduced-motion CSS contracts. The
 production build passes, the in-app preview at `#/dashboard` was refreshed, and
 its console remains free of errors. `npm run lint` still reports only the four
 pre-existing `useTool.ts` warnings.
+
+### 2026-09-04 01:05 WITA — Briefly brand asset
+
+The supplied Briefly wordmark is now a checked-in, cropped transparent PNG at
+`public/brand/briefly-logo.png`. The shell, workspace name, browser title,
+metadata, favicon and bridge app identity all use Briefly; product-level
+“brand” vocabulary remains deliberately unchanged. `npm run verify:brand`
+checks the public identity and asset path, while the in-app dashboard preview
+was refreshed with no console errors.

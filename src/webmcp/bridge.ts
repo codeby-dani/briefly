@@ -138,7 +138,7 @@ export function installBridge(): void {
   const bridge: TrendDashboardBridge = {
     version: 1,
     describe: () => ({
-      app: 'Anglebook',
+      app: 'Briefly',
       surface: 'bridge',
       webmcpAvailable: typeof document.modelContext?.registerTool === 'function',
       toolCount: tools.size,

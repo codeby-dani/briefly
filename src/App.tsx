@@ -88,16 +88,16 @@ function Sidebar({ route }: { route: Route }) {
     <aside className="sidebar" aria-label="Sections">
       <div className="sidebar-top">
         <div className="sidebar-brand">
-          <img className="brand-mark" src="/brand/anglebook-mark.svg" alt="" aria-hidden="true" />
-          <span className="brand-name">Anglebook</span>
+          <img className="brand-mark" src="/brand/briefly-logo.png" alt="" aria-hidden="true" />
+          <span className="brand-sr-only">Briefly</span>
         </div>
 
         <div className="workspace">
           <span className="workspace-avatar" aria-hidden="true">
-            AB
+            BR
           </span>
           <span className="workspace-text">
-            <strong>Anglebook Studio</strong>
+            <strong>Briefly Studio</strong>
             <span>Shared human + agent workspace</span>
           </span>
         </div>
