@@ -2617,21 +2617,318 @@
 /* ---------------------------------------------------------------------- *
  * Business profile.
  * ---------------------------------------------------------------------- */
-.profile-workspace { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 22px; align-items: start; }
-.profile-sidebar { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 18px; }
-.profile-identity h2, .profile-main h1, .profile-main h2, .profile-main h3 { color: var(--text-h); }
-.profile-avatar { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: var(--accent); color: var(--bg); font-size: 24px; font-weight: 700; margin-bottom: 18px; }
-.profile-completeness { margin-top: 22px; display: grid; gap: 7px; font-size: 13px; }
-.profile-completeness span { height: 6px; background: var(--surface-high); border-radius: 8px; overflow: hidden; }
-.profile-completeness i { display: block; height: 100%; background: var(--accent); border-radius: inherit; }
-.profile-completeness small { color: var(--text); }
-.context-quality h3 { margin: 3px 0 8px; font-size: 16px; }.context-quality p:last-child { font-size: 13px; line-height: 1.5; margin: 0; }
-.profile-main { min-width: 0; display: flex; flex-direction: column; gap: 18px; }.profile-main .workspace-head { align-items: flex-end; }.profile-main h1 { margin: 2px 0 6px; font-size: clamp(28px, 4vw, 40px); }
-.profile-about { display: flex; flex-direction: column; gap: 17px; }.profile-about > p { margin: 0; line-height: 1.6; max-width: 74ch; }
-.profile-facts { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--border); padding-bottom: 15px; gap: 14px; }.profile-facts div { display: grid; gap: 4px; }.profile-facts small { color: var(--text); font-family: var(--mono); font-size: 10px; text-transform: uppercase; }.profile-facts strong { color: var(--text-h); font-size: 14px; }
-.profile-group h3 { font-size: 12px; font-weight: 550; margin: 0 0 8px; }.profile-chips { display: flex; flex-wrap: wrap; gap: 7px; }.profile-chips span { padding: 5px 8px; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 12px; background: var(--surface-high); }.prohibited .profile-chips span, .offering-claims > :last-child .profile-chips span { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, var(--border)); }
-.section-heading h2 { margin: 2px 0 0; font-size: 22px; }.offering-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }.offering-card { display: flex; flex-direction: column; gap: 14px; }.offering-card > div:first-child { display: flex; justify-content: space-between; gap: 12px; }.offering-card h3 { margin: 0; font-size: 17px; }.offering-card strong { color: var(--accent); font-family: var(--mono); font-size: 13px; }.offering-card p { margin: 0; font-size: 14px; line-height: 1.5; }.offering-claims { display: grid; gap: 10px; border-top: 1px solid var(--border); padding-top: 12px; }
-.claim-guardrails { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 18px; align-items: start; }.claim-guardrails h2 { font-size: 18px; margin: 2px 0 0; }.profile-editor { position: fixed; z-index: 3; top: 16px; right: 16px; bottom: 16px; width: min(560px, calc(100vw - 32px)); overflow: auto; box-shadow: -12px 0 35px rgb(0 0 0 / .25); }.editor-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }.offering-manager { border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: grid; gap: 8px; }.offering-manager legend { font-size: 13px; color: var(--text-h); }.offering-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-bottom: 1px solid var(--border); padding: 10px 0; }.offering-edit label { display: grid; gap: 4px; font-size: 11px; color: var(--text); }.offering-edit label:first-child, .offering-edit label:nth-child(2), .offering-edit > div { grid-column: 1 / -1; }.offering-edit .remove-offering { color: var(--danger); margin-left: 12px; }
+/* Two columns: a sticky identity rail and the reading column. Spacing here is
+ * one 4px scale — the block used to run on 7/13/14/15/17/18/22px gaps set
+ * per-rule, which is why the sidebar card read looser than the cards beside it
+ * despite both being `.card`. Vertical rhythm now steps 8 → 12 → 16 → 20, and
+ * anything that needs to differ from that says why. */
+.profile-workspace {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+/* `top` matches the 24px the content area is padded by, so the rail parks flush
+ * with the header rather than 6px above it. */
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 24px;
+}
+
+.profile-identity h2,
+.profile-main h1,
+.profile-main h2,
+.profile-main h3 {
+  color: var(--text-h);
+}
+
+.profile-identity h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.profile-identity > p:last-of-type {
+  margin: 0;
+  color: var(--text);
+}
+
+/* `.card` already puts 12px between children; the avatar only adds the 4px that
+ * makes the gap under it read as a break rather than a list step. */
+.profile-avatar {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r);
+  background: var(--accent);
+  color: var(--accent-on);
+  font-family: var(--heading);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.profile-completeness {
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.profile-completeness span {
+  height: 6px;
+  background: var(--surface-high);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.profile-completeness i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: inherit;
+}
+
+.profile-completeness small {
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.context-quality h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.context-quality p:last-child {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.profile-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-main .workspace-head {
+  align-items: flex-end;
+}
+
+.profile-main h1 {
+  margin: 4px 0 8px;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.15;
+}
+
+.profile-main .workspace-head .muted {
+  margin: 0;
+}
+
+.profile-about {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-about > p {
+  margin: 0;
+  line-height: 1.6;
+  max-width: 74ch;
+}
+
+.profile-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+}
+
+.profile-facts div {
+  display: grid;
+  gap: 4px;
+}
+
+.profile-facts small {
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.profile-facts strong {
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.profile-group h3 {
+  font-size: 12px;
+  font-weight: 550;
+  margin: 0 0 8px;
+}
+
+.profile-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile-chips span {
+  padding: 5px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 18px;
+  background: var(--surface-high);
+}
+
+.prohibited .profile-chips span,
+.offering-claims > :last-child .profile-chips span {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+}
+
+.section-heading h2 {
+  margin: 4px 0 0;
+  font-size: 22px;
+}
+
+.offering-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.offering-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.offering-card > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.offering-card h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.offering-card strong {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.offering-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Pushed to the bottom of the card so two offerings of unequal copy length
+ * still line their claim blocks up with each other. */
+.offering-claims {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.claim-guardrails {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.claim-guardrails > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.claim-guardrails h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+/* ---- Editor drawer ---- */
+
+.profile-editor {
+  position: fixed;
+  z-index: 3;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  width: min(560px, calc(100vw - 32px));
+  overflow: auto;
+  box-shadow: -12px 0 35px rgb(0 0 0 / .25);
+}
+
+.editor-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.offering-manager {
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.offering-manager legend {
+  font-size: 13px;
+  color: var(--text-h);
+  padding: 0 4px;
+}
+
+.offering-edit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+}
+
+.offering-edit:last-of-type {
+  border-bottom: 0;
+}
+
+.offering-edit label {
+  display: grid;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text);
+}
+
+.offering-edit label:first-child,
+.offering-edit label:nth-child(2),
+.offering-edit > div {
+  grid-column: 1 / -1;
+}
+
+.offering-edit .remove-offering {
+  color: var(--danger);
+  margin-left: 12px;
+}
 
 @media (max-width: 760px) {
   .workspace-head {
@@ -2658,7 +2955,42 @@
     position: static;
   }
 
-  .profile-workspace { grid-template-columns: 1fr; }.profile-sidebar { position: static; }.offering-grid, .claim-guardrails, .editor-lists { grid-template-columns: 1fr; }.profile-facts { grid-template-columns: 1fr; }.profile-editor { top: 8px; right: 8px; bottom: 8px; width: calc(100vw - 16px); }
+  .profile-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-sidebar {
+    position: static;
+  }
+
+  /* `.profile-main .workspace-head` outranks the generic column rule above, so
+   * without this the head stacks but the Edit button stays pinned right. */
+  .profile-main .workspace-head {
+    align-items: flex-start;
+  }
+
+  .offering-grid,
+  .claim-guardrails,
+  .editor-lists {
+    grid-template-columns: 1fr;
+  }
+
+  /* Three facts side by side on a phone leaves each ~90px wide, which wraps the
+   * values onto two lines. Two columns keeps them on one. */
+  .profile-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .offering-edit {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-editor {
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: calc(100vw - 16px);
+  }
 }
 
 /* ---------------------------------------------------------------------- *
