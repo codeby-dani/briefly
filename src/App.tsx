@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import { ROUTES } from './types'
 import type { Route } from './types'
@@ -87,9 +87,32 @@ const WORKSPACES = [
 ]
 
 function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: boolean; onToggle: () => void }) {
+  const primaryRoutes = ROUTES.filter((name) => name !== 'products')
+  // The switcher is presentational for now: there is one real workspace and
+  // the other two are labels. It still needs real state, because a menu that
+  // cannot be dismissed except by picking something is a trap — Escape and a
+  // click outside both close it.
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState(WORKSPACES[0]!.id)
   const [workspaceOpen, setWorkspaceOpen] = useState(false)
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState(WORKSPACES[0].id)
-  const activeWorkspace = WORKSPACES.find((workspace) => workspace.id === activeWorkspaceId) ?? WORKSPACES[0]
+  const switcherRef = useRef<HTMLDivElement>(null)
+
+  const activeWorkspace = WORKSPACES.find((w) => w.id === activeWorkspaceId) ?? WORKSPACES[0]!
+
+  useEffect(() => {
+    if (!workspaceOpen) return
+    const onPointerDown = (event: PointerEvent) => {
+      if (!switcherRef.current?.contains(event.target as Node)) setWorkspaceOpen(false)
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setWorkspaceOpen(false)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [workspaceOpen])
 
   return (
     <>
@@ -100,7 +123,7 @@ function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: bool
           <span className="brand-sr-only">Briefly</span>
         </div>
 
-        <div className="workspace-switcher">
+        <div className="workspace-switcher" ref={switcherRef}>
           <button
             type="button"
             className="workspace workspace-button"
@@ -141,7 +164,7 @@ function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: bool
         </div>
 
         <nav className="sidebar-nav">
-          {ROUTES.map((name) => (
+          {primaryRoutes.map((name) => (
             <a
               key={name}
               href={`#/${name}`}
@@ -162,16 +185,23 @@ function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: bool
         </nav>
       </div>
 
-      <div className="sidebar-utility" aria-label="Workspace support">
-        <button type="button" className="nav-item" data-testid="sidebar-settings" title="Workspace settings">
-          <NavIcon name="settings" />
-          <span>Settings</span>
-        </button>
-        <button type="button" className="nav-item" data-testid="sidebar-help" title="Help &amp; Support">
-          <NavIcon name="help" />
-          <span>Help &amp; Support</span>
-        </button>
-      </div>
+      <button
+        type="button"
+        className={`account-button${route === 'products' ? ' is-current' : ''}`}
+        aria-current={route === 'products' ? 'page' : undefined}
+        aria-label="Open profile for Aarief"
+        data-testid="open-profile"
+        onClick={() => navigate('products')}
+      >
+        <span className="account-avatar" aria-hidden="true">AR</span>
+        <span className="account-copy">
+          <strong>Aarief</strong>
+          <span>Workspace owner</span>
+        </span>
+        <svg className="account-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
     </aside>
     <button
       type="button"

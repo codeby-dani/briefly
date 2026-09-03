@@ -28,6 +28,7 @@ import type { ToolSpec } from '../webmcp'
 import { PLATFORMS, SCHEDULE_STATUSES, isPlatform, isScheduleStatus } from '../types'
 import type { Platform, ScheduleStatus } from '../types'
 import { readBrief, readBriefs } from '../store/briefs'
+import { searchBriefsTool } from './briefs'
 import { readSchedule, scheduleBrief } from '../store/schedule'
 import { traced } from './trace'
 
@@ -59,15 +60,27 @@ export function scheduleBriefTool(): ToolSpec {
   return traced({
     name: 'schedule_brief',
     description:
-      'Use on the Calendar route to put a brief on a specific day, after the human has ' +
-      'a brief worth scheduling. Safe to retry: scheduling the same brief on the same ' +
-      'date twice updates that one entry rather than creating a second, and the result ' +
-      'says whether anything actually changed. Omit platform and it follows the brief; ' +
-      'omit pic and the slot is left unassigned; omit status and it starts as planned.',
+      'Use to put an existing brief on a specific day. It schedules a brief; it cannot ' +
+      'create one, and briefId must be a real id. ' +
+      'BEFORE THIS, in order: (1) call search_briefs — it is on this route too — to find ' +
+      'a brief and take its id; (2) if nothing there is right, the brief does not exist ' +
+      'yet, so navigate_to("briefs"), open_trend and select_offering to arm the composer, ' +
+      'then generate_brief or save_brief to write one, and come back; (3) call ' +
+      'list_schedule to see what that day already holds. ' +
+      'AFTER THIS: list_schedule to confirm the slot, or update_brief_status to approve ' +
+      'the brief you just scheduled. ' +
+      'Safe to retry: scheduling the same brief on the same date twice updates that one ' +
+      'entry rather than creating a second, and the result says whether anything actually ' +
+      'changed. Omit platform and it follows the brief; omit pic and the slot is left ' +
+      'unassigned; omit status and it starts as planned.',
     inputSchema: {
       type: 'object',
       properties: {
-        briefId: { type: 'string', description: 'The brief to schedule. Use search_briefs to find one.' },
+        briefId: {
+          type: 'string',
+          description:
+            'The brief to schedule, by id. Get one from search_briefs — never invent an id.',
+        },
         date: { type: 'string', description: 'ISO date, day precision: YYYY-MM-DD.' },
         platform: {
           type: 'string',
@@ -98,7 +111,10 @@ export function scheduleBriefTool(): ToolSpec {
         return {
           ok: false as const,
           reason: `no such brief: ${briefId}`,
-          known: readBriefs().map((b) => b.id),
+          hint: 'Call search_briefs to get a real id, or write the brief first with save_brief.',
+          // Ids alone made an agent guess which one it meant. The title is what
+          // it was actually looking for.
+          known: readBriefs().map((b) => ({ id: b.id, title: b.title, status: b.status })),
         }
       }
 
@@ -202,6 +218,15 @@ export function listScheduleTool(): ToolSpec {
 }
 
 /** Registered on the Calendar route. Surface there is these two plus the two globals. */
+/**
+ * `search_briefs` is registered here as well as on the Briefs route, and that
+ * duplication is the point. `schedule_brief` needs a brief id and nothing on
+ * this route produced one, so an agent asked to schedule something had to
+ * navigate away to look a brief up, losing the calendar's tools to get the
+ * briefs' — and the two halves of one obvious task were never on the surface at
+ * the same time. Registering the lookup where the id is needed is cheaper than
+ * asking every agent to work that out.
+ */
 export function calendarRouteTools(): ToolSpec[] {
-  return [scheduleBriefTool(), listScheduleTool()]
+  return [scheduleBriefTool(), listScheduleTool(), searchBriefsTool()]
 }

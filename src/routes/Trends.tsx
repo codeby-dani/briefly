@@ -318,6 +318,7 @@ function TrendCard({
         }
       >
         <TrendThumb
+          trendId={trend.id}
           clipId={trend.clipIds[0]}
           keyword={trend.keyword}
           platform={trend.platform}

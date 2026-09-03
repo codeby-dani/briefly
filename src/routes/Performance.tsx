@@ -1,13 +1,15 @@
 /**
  * Performance — the seeded account analytics, and the loop back to trends.
  *
- * **No tools register here**, and that is a decision rather than an omission.
- * plan/01-architecture.md's catalog gives Phase 5 exactly two tools and puts
- * both on the Calendar. Inventing a third for this route would break the rule
- * the whole project argues for: a tool an agent cannot usefully call must not
- * be on the surface. So the surface on this route is 2 — the two globals — and
- * an agent that wants these numbers reads them through `get_app_state` and the
- * page the human is already looking at.
+ * One tool registers here: `get_performance`. This header used to say none did,
+ * on the grounds that the phase catalog allotted Phase 5 two tools and put both
+ * on the Calendar — and that an agent wanting these numbers could read them off
+ * the page the human is looking at. It could not: `get_app_state` returns
+ * counts, and "did the brief we wrote actually land?" is answerable only from
+ * the analytics on this route. A page whose numbers exist nowhere else and
+ * offers the agent no way to read them is not a restrained tool surface, it is
+ * a blind spot. The rule it was protecting survives intact — one tool, because
+ * one is what there is to usefully call.
  *
  * Everything from `analytics` is invented, so every section built on it carries
  * a `demo data` badge beside its heading. The Trend-versus-result section is
@@ -25,6 +27,8 @@ import { dispatch, navigate } from '../store/router'
 import { scheduleStore } from '../store/schedule'
 import { trendStore } from '../store/trends'
 import type { Brief, Platform, ScheduleEntry, Trend } from '../types'
+import { performanceRouteTools } from '../tools/analytics'
+import { useTools } from '../webmcp'
 
 const ID = new Intl.NumberFormat('en-US')
 const SOCIAL_SOURCES: Platform[] = ['instagram', 'tiktok', 'youtube', 'x']
@@ -46,6 +50,8 @@ const COLUMNS: { field: SortField; label: string; numeric?: boolean }[] = [
 ]
 
 export function Performance() {
+  useTools(performanceRouteTools())
+
   const analytics = analyticsStore.use()
   const briefs = briefStore.use()
   const trends = trendStore.use()
@@ -88,7 +94,7 @@ export function Performance() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = 'anglebook-performance.csv'
+    link.download = 'briefly-performance.csv'
     document.body.appendChild(link)
     link.click()
     link.remove()

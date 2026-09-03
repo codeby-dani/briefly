@@ -18,6 +18,8 @@ import { trendStore } from '../store/trends'
 import { dispatch, navigate, useAppState } from '../store/router'
 import type { Platform, Trend } from '../types'
 import { AnimatedNumber } from '../components/AnimatedNumber'
+import { dashboardRouteTools } from '../tools/global'
+import { useTools } from '../webmcp'
 import { useToolSurface } from '../webmcp'
 
 const ID = new Intl.NumberFormat('en-US')
@@ -34,6 +36,11 @@ function growth(value: number): string {
 }
 
 export function Dashboard() {
+  // One tool, and it is the orientation call: an agent that lands here can read
+  // what is climbing, what is drafted and what is scheduled in a single hop,
+  // rather than navigating three routes to find out where to start.
+  useTools(dashboardRouteTools())
+
   const analytics = analyticsStore.use()
   const trends = trendStore.use()
   const briefs = briefStore.use()

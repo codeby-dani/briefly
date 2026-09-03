@@ -10,7 +10,7 @@ Last updated: 2026-09-04 00:29 WITA · by: dashboard interaction pass
 
 | | |
 |---|---|
-| **Current phase** | Phases 5 and 6 are merged locally; browser E2E and deployment remain open |
+| **Current phase** | Phase 7 submission materials prepared locally; deployment and entrant-owned evidence remain open |
 | **Sprint start (T+0)** | 2026-09-03 17:51 WITA |
 | **Hard deadline** | 2026-09-04 04:00 WITA (13:00 PDT, 2026-09-03) |
 | **Time remaining at last update** | 3h 31m |
@@ -19,8 +19,9 @@ Last updated: 2026-09-04 00:29 WITA · by: dashboard interaction pass
 
 ## Next Task
 
-**Push local `main` — the push is the deploy.** Re-drive the surface counts and
-the two required browser checks on the resulting public origin.
+**Provide the entrant-owned submission evidence, then deploy the current main.**
+The paste-ready Devpost copy is in `DEVPOST_SUBMISSION.md`; video, browser-check,
+and Devpost-confirmation fields are intentionally blank until evidenced.
 
 The live origin is still running a bundle from before Phase 2 and **every claim
 for Phases 2, 3 and 5 below is a local claim** until that push lands. After it:
@@ -37,7 +38,7 @@ Phase 6 is next in the plan and is the last phase before the submission work.
 | B1 | Devpost registration not confirmed | you | pre | **open** |
 | B2 | No live URL | you | 0 | **closed** 2026-09-03 22:10 — `https://trend-lake.vercel.app` and media return 200 |
 | B3 | Stitch API key compromised (pasted in chat) — revoke before use | you | pre | **open** · no longer blocks design (MCP connector used, no key needed) but the key is still exposed |
-| B4 | Screen recorder not tested | you | 7 | open |
+| B4 | Screen recorder/video evidence not recorded in the repo | you | 7 | open — add the public YouTube URL and playback result to `DEVPOST_SUBMISSION.md` |
 | B5 | Repo still private | you | 7 | **closed** 2026-09-03 22:09 — GitHub API reports `visibility: public` |
 | B6 | `/api/analyze` never responds on the live origin — GET and POST both hang | you | 0 | **open** — diagnosed below; not a key problem |
 | B8 | Vercel not confirmed on the hackathon's approved-hosting list | you | 0 | **closed** 2026-09-03 22:08 — official rules explicitly list Vercel |
@@ -85,7 +86,7 @@ moved 1 → 2 so a warm `localStorage` reseeds instead of serving trends with no
 | 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 6 / 7 locally · 6 / 7 **deployed and re-verified on the live origin** · criterion 2 needs a live agent |
 | 5 | Calendar and Performance | T+6:45 → T+7:45 | `[ ]` | 4 / 4 locally · **0 deployed** — not on the live bundle · was cuttable, not cut |
 | 6 | Polish and manual E2E | T+7:45 → T+8:30 | `[ ]` | 1 / 6 locally (description pass); no current local preview, agent E2E and deployment remain |
-| 7 | Demo and submission | T+8:30 → T+10:00 | `[ ]` | 0 / 6 |
+| 7 | Demo and submission | T+8:30 → T+10:00 | `[ ]` | 0 / 6 deployed · paste-ready submission copy prepared locally; entrant evidence remains open |
 
 Phase 4 is the only phase with any criterion met on a public origin, and that is
 an accident of merge order rather than a plan: it reached `main` before Phase 2
@@ -141,6 +142,17 @@ The four required artifacts. All four, or the entry does not count.
 
 Append one entry per working session. Never rewrite an earlier entry — a wrong
 prediction that was later corrected is more useful than a tidy history.
+
+### 2026-09-04 00:00 WITA — Phase 7 submission worksheet
+
+Prepared `DEVPOST_SUBMISSION.md` as a paste-ready Devpost worksheet from the
+committed product, architecture, provenance, and hosting evidence. It includes
+the project name, live URL, source URL, elevator pitch, full description, tech
+stack, challenges, learnings, next steps, and provenance. Entrant-only facts
+(public YouTube URL and playback, signed-out checks, browser checks, eligibility,
+and Devpost confirmation) are intentionally blank rather than asserted. No
+Phase 7 checkbox is `[x]`: the plan defines that state as deployed and
+verified, and the evidence is not present in the repository.
 
 ### 2026-09-03 17:51 WITA — planning
 
