@@ -1,6 +1,10 @@
 # Phase 6 — Polish and Manual E2E
 
-**Window:** T+7:30 → T+8:30 · **Cuttable:** partly
+**Window:** T+7:45 → T+8:30 · **Cuttable:** partly
+
+Shortened from 60 to 45 minutes. The 15 minutes went to Phase 0, which now
+copies the clip corpus and smoke-tests the function. Polish is the right place
+to take it from: it is the only phase whose output degrades gracefully.
 
 ## Status
 

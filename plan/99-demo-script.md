@@ -33,8 +33,8 @@ Navigate: Dashboard, then Trends. **Keep the panel in frame.**
 
 Open a trend.
 
-> "Open a trend, and two more appear — because now there is a trend to read and
-> a summary to write."
+> "Open a trend, and four more appear — because now there is a trend to read, a
+> video to play, and a summary to write."
 
 Close it. Let the ghosted rows show.
 
@@ -50,11 +50,14 @@ Open the top trend. Ask in the chat panel:
 
 > *"Why is this trending, and what angle could we take?"*
 
-Agent calls `get_trend_detail`, then `write_trend_summary`.
+Agent calls `get_trend_detail`, then `play_clip`, then `write_trend_summary`.
 
-> "It read the spike shape, the related keywords and the sample posts — and
-> wrote the analysis onto the page, in front of me, not into a chat transcript
-> I'd have to copy out."
+**Let the video actually play for two seconds before speaking.**
+
+> "It read the spike, the keywords and the full transcripts of the clips on this
+> trend — then started the one it wanted to cite. That's my player. I could have
+> clicked it myself. And the analysis landed on the page, in front of me, not in
+> a chat transcript I'd have to copy out."
 
 ### 1:20–2:05 — The payoff
 
@@ -81,14 +84,19 @@ Edit the hook by hand. Set status to approved.
 
 ### 2:05–2:30 — Honesty and close
 
-> "Trend scraping and analytics are seeded fixtures — you can see them labelled.
-> Product knowledge, search, filtering, the briefs and the summaries are real.
+> "The dataset is fiction, and it says so. Trend volumes and analytics are
+> invented — badged `demo data`. The clips are ours, generated, never published
+> anywhere, so they have no view counts to fake; what you see on them is
+> measured off the files — badged `measured`.
 >
-> And there's no model in this app. No API key, no backend. The page exposes
-> what it knows and accepts what it's told; the agent you're already talking to
-> does the writing. That's the bet: the web app supplies capability, the agent
-> supplies reasoning, and the human stays in the loop because the app is built
-> so they have to be."
+> The processing is not fiction. That summary came from a model reading the
+> actual transcript of the clip you just watched.
+>
+> And nothing wrote that brief except the agent you're already talking to.
+> There's no model behind the brief generator — no server path, no fallback.
+> The page exposes what it knows and accepts what it's told. That's the bet:
+> the web app supplies capability, the agent supplies reasoning, and the human
+> stays in the loop because the app is built so they have to be."
 
 ## Rules For The Recording
 
@@ -98,6 +106,11 @@ Edit the hook by hand. Set status to approved.
 - **Two takes minimum.** Play back take one with headphones before take two.
 - **Do not speed up the tool registration animations.** The 1.1s ghost is the
   proof.
+- **Let `play_clip` play.** Two seconds of the agent driving your video player
+  is worth more than two sentences describing it.
+- **Do not demo `analyze_trend`.** It needs a key and a round-trip, and it
+  competes with the point. It exists for the judge who opens the URL without an
+  agent; the video is the agent path.
 - **No title cards.** Three minutes is short and a judge has watched forty
   videos.
 - **Have the pickers pre-positioned.** Hunting for a dropdown on camera costs

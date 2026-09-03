@@ -1,6 +1,6 @@
 # Phase 1 — Shell and Data Layer
 
-**Window:** T+1:00 → T+2:30 · **Cuttable:** no
+**Window:** T+1:15 → T+2:45 · **Cuttable:** no
 
 ## Status
 
@@ -9,7 +9,9 @@
 - [ ] Fixtures seeded on first run
 - [ ] Dashboard route renders KPI cards and recent briefs
 - [ ] `get_app_state` and `navigate_to` registered globally
-- [ ] `demo data` badge component, used on every seeded surface
+- [ ] `demo data` badge component, used on every invented value
+- [ ] `measured` badge component, used on every clip signal
+- [ ] `clips.ts` wired: every trend's `clipIds` resolve to a real clip
 
 ## Tasks
 
@@ -22,8 +24,16 @@
    consistent read.
 3. **Fixtures.** Write `src/fixtures/trends.ts`, `products.ts`, `analytics.ts`
    per the counts in `02-data-model.md`. Seed on missing or stale `td:version`.
-4. **`DemoBadge`.** A small labelled pill, `data-testid="demo-badge"`. Rendered
-   wherever `demo: true` data is displayed.
+   `clips.ts` already exists from Phase 0 — it is a static import, not a store,
+   and it is never seeded or reseeded. Populate `Trend.clipIds` against it and
+   assert at seed time that every id resolves; a dangling clip id surfaces as a
+   blank player in Phase 2 and is expensive to trace back from there.
+4. **Badges.** Two components, and the distinction is not cosmetic:
+   `DemoBadge` (`data-testid="demo-badge"`) wherever `demo: true` data is
+   displayed, `MeasuredBadge` (`data-testid="measured-badge"`) wherever a
+   `ClipSignals` field is. See the two-badge table in `02-data-model.md`.
+   Give them visibly different colour and wording — if a viewer has to read
+   carefully to tell them apart, they do no work.
 5. **Dashboard.** Four KPI cards (badged), a 7/30-day toggle over a hand-rolled
    SVG line, top-5 trending list with a "Generate Brief" action, and recent
    briefs with status chips.
@@ -36,8 +46,10 @@
 2. `get_app_state` returns a route that matches what is on screen.
 3. A hard reload preserves products and briefs; trends reseed identically.
 4. A private window seeds cleanly and shows a populated dashboard.
-5. Every seeded number on the dashboard sits next to a `demo data` badge.
+5. Every invented number on the dashboard sits next to a `demo data` badge.
 6. Tool surface count is exactly 2 on every route.
+7. Every `Trend.clipIds` entry resolves to a clip in `clips.ts`, and every clip
+   file it names exists in `public/media/`.
 
 ## Notes
 

@@ -1,6 +1,6 @@
 # Phase 3 — Product Knowledge
 
-**Window:** T+4:00 → T+5:00 · **Cuttable:** no
+**Window:** T+4:15 → T+5:15 · **Cuttable:** no
 
 The "real" half of the feature split, and the context that makes briefs good.
 

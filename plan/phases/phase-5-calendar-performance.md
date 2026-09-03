@@ -1,6 +1,6 @@
 # Phase 5 — Calendar and Performance
 
-**Window:** T+6:30 → T+7:30 · **Cuttable: YES — this is the first cut**
+**Window:** T+6:45 → T+7:45 · **Cuttable: YES — this is the first cut**
 
 Everything here is worth having and none of it is worth the submission. If
 Phase 4 runs past T+6:30, skip straight to Phase 6 and mark this `[~]` with the

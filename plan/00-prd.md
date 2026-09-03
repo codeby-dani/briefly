@@ -58,7 +58,8 @@ easy version and it produces the wrong behaviour: an agent is offered
 `save_brief` while the user is on the settings page, calls it, and fails.
 
 Here the surface is derived from app state. On the Trends route the agent sees
-six tools. Open a trend and two more appear. Navigate away and all eight go.
+six tools. Open a trend and four more appear — one of them lets the agent start
+the video the human is watching. Navigate away and all ten go.
 Select a trend and a product together and the brief composer's tools register.
 The set an agent can see is always exactly the set that can succeed.
 
@@ -96,10 +97,30 @@ submission:
    the human sees it appear without reloading.
 4. **The same loop is completable by hand** in a browser with no agent. Nothing
    is agent-only.
-5. **Real and mocked surfaces are visibly distinguished.** Seeded data carries a
-   `demo data` badge everywhere it appears.
+5. **Real, measured and mocked surfaces are visibly distinguished.** Invented
+   numbers carry a `demo data` badge; numbers derived from files in the repo
+   carry a `measured` badge. A viewer can tell which is which without asking.
 6. **All four submission artifacts exist** and the Devpost entry is in before
    T+9:30.
+
+## Fake Data, Real Processing
+
+Every number and every video in this app is invented. None of it was scraped,
+none of it was published anywhere, and no view count in it was ever observed.
+That is stated up front because the alternative — a judge working it out on
+their own — costs more than the admission does.
+
+What is *not* invented is the processing. The trend analysis is produced by a
+model reading the actual transcripts of the actual clips in this repo, at the
+moment it is asked. The clip signals — duration, word count, speaking rate,
+where the hook ends — are measured from the encoded files by a committed script
+and can be re-derived by anyone who clones the repo. The tool surface, the
+filters, the status machine and the brief library are ordinary working software.
+
+So the honest one-line description is: **a real content workflow, operating on
+a fictional dataset.** The fiction is in the inputs, deliberately and visibly.
+It is not in the machinery, and it is not in the WebMCP integration, which is
+what the entry is actually claiming.
 
 ## Non-Goals
 
@@ -107,10 +128,15 @@ Stated so they do not get re-litigated at hour eight.
 
 - Not a scraper. Trend data is seeded. Building a real scraper would consume
   the entire window and is not the thing being judged.
+- Not a video platform. The 12 clips are a fixed corpus that ships with the
+  build. No upload, no transcoding, no CDN.
 - Not an analytics product. Account metrics are seeded fixtures.
-- Not multi-tenant. One user, `localStorage`, no accounts, no server.
-- Not an LLM wrapper. The page contains no model calls and no API key. If no
-  agent is connected, the AI-authored fields are simply empty and hand-editable.
+- Not multi-tenant. One user, `localStorage`, no accounts, no database.
+- Not an LLM wrapper. The brief generator has no model behind it — the
+  connected agent writes every brief, and there is no server path that does it
+  instead. One tool, `analyze_trend`, calls a model server-side so that a judge
+  with no agent still sees an analysis happen; it is a floor under the feature,
+  not the feature. See `01-architecture.md`.
 - Not a scheduler. The calendar records intent; it does not publish anything.
 
 ## The Core Loop, End to End
@@ -119,8 +145,9 @@ Stated so they do not get re-litigated at hour eight.
 2. Human opens the top trend. Two more tools register.
 3. Human asks the agent: *why is this rising, and can we use it?*
 4. Agent calls `get_trend_detail`, reads the spike shape, related keywords and
-   sample content, and calls `write_trend_summary` — the summary appears on the
-   page, in front of the human, not in the chat.
+   the full transcripts of the clips attached to the trend, calls `play_clip`
+   to put the one it is citing on screen, and calls `write_trend_summary` — the
+   summary appears on the page, in front of the human, not in the chat.
 5. Human picks a product. The brief composer's tools register.
 6. Human asks for a brief. Agent calls `get_brief_context`, which returns the
    trend and the full product record — USP, price, do-and-do-not list.

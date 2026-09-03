@@ -1,6 +1,9 @@
 # Phase 0 — Foundation
 
-**Window:** T+0:00 → T+1:00 · **Cuttable:** no
+**Window:** T+0:00 → T+1:15 · **Cuttable:** no
+
+Widened by 15 minutes to absorb the corpus copy and the function smoke test.
+Taken out of Phase 6's polish budget, not out of Phases 2–4.
 
 ## Status
 
@@ -9,6 +12,9 @@
 - [ ] One throwaway tool registers and is visible in the panel
 - [ ] Deployed to Netlify, live URL recorded in `PROGRESS.md`
 - [ ] Tool surface confirmed on the **deployed origin** in both environments
+- [ ] 12 clips copied into `public/media/`, `src/fixtures/clips.ts` generated
+- [ ] `/api/analyze` returns a structured 503 with no key set
+- [ ] `GEMINI_API_KEY` set in Netlify env; `/api/analyze` returns 200
 
 ## Why This Is First
 
@@ -39,6 +45,22 @@ touch it.
    Confirm the panel shows the tool.
 8. Open it in a **private window** to confirm nothing depends on warm
    `localStorage`.
+9. **Copy the corpus.** From `github.com/aliefauzan/ClipBrief`, copy
+   `public/media/*` (12 mp4, 12 jpg, 6 vtt — 8.8MB) into `public/media/`. Then
+   generate `src/fixtures/clips.ts` from that repo's `data/corpus.json`:
+   remap `category` per the table in `02-data-model.md`, carry `signals`
+   through verbatim, and inline each transcript's `fullText` from
+   `data/transcripts/`. Commit the media. Confirm one poster and one mp4 load
+   from the deployed origin.
+10. **Stand up the function.** `netlify/functions/analyze.ts`, returning
+    `{ ok: false, error: 'llm_unavailable', message, hint }` with status 503
+    when `GEMINI_API_KEY` is absent. Deploy. `curl` the deployed
+    `/api/analyze` and confirm the 503 JSON, not a 404 — a 404 means the
+    redirect or the functions directory is wrong, and finding that out in
+    Phase 2 costs more than finding it out now.
+11. Set `GEMINI_API_KEY` in the Netlify env UI — **never in a committed file**.
+    Confirm `.env.local` is gitignored *before* writing any key anywhere.
+    `curl` again and confirm a 200.
 
 ## Exit Criteria
 
@@ -50,11 +72,21 @@ Observable, not felt:
 3. In flagged Chrome, `ToolSurfacePanel` shows a green dot and a count of 1.
 4. In a private window, the page renders without errors.
 5. `npm run build` exits 0.
+6. A clip poster and its mp4 both load from the deployed origin.
+7. `curl -X POST <url>/api/analyze -d '{}'` returns JSON with an `ok` field —
+   503 before the key is set, 200 after. Not a 404, not HTML.
+8. `git grep -i AIza` and `git grep GEMINI_API_KEY -- ':!*.md'` return nothing
+   outside `.env.example`.
 
 ## If This Runs Long
 
-It must not. If the deploy is still not working at T+1:00, stop feature work
+It must not. If the deploy is still not working at T+1:15, stop feature work
 and fix it — a perfect app on localhost scores zero. If the *ChatGPT browser*
 specifically is the problem and flagged Chrome works, continue building and
 carry it as blocker; the rules accept either environment, though the demo is
 better in the ChatGPT one.
+
+If the **function** is what runs long, cut it here and move on. `analyze_trend`
+is the floor, not the feature — Phases 1–4 do not depend on it, and shipping
+tiers 1 and 3 is the original architecture working as designed. Do not spend
+Phase 2's budget debugging a serverless deploy.

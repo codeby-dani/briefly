@@ -1,6 +1,6 @@
 # Phase 4 — Brief Generator and Library
 
-**Window:** T+5:00 → T+6:30 · **Cuttable:** no
+**Window:** T+5:15 → T+6:45 · **Cuttable:** no
 
 The product. Everything before this exists to make this phase possible.
 

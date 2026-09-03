@@ -43,8 +43,19 @@ interface ToolEvent {
   input: unknown      // truncated to 500 chars
   output: unknown     // truncated to 500 chars
   error?: string
+  network?: {         // present only on analyze_trend
+    endpoint: '/api/analyze'
+    status: number
+    source: 'model' | 'cached'
+  }
 }
 ```
+
+`analyze_trend` is the only tool that leaves the page, so it is the only one
+that can fail for reasons the rest of the log cannot explain — a 404 from a
+misrouted function, a 503 from a missing key, a 429 from an exhausted free
+tier. Recording `status` and `source` on the event turns all three into one
+glance instead of a devtools session, which matters at hour seven.
 
 The wrapper is applied centrally when tools are built, not by each executor. An
 executor that has to remember to log will eventually forget, and it will forget
@@ -97,6 +108,10 @@ later pass — the later pass will not happen.
 | Tool surface row | `tool-row-{name}` |
 | Event log row | `tool-event-{traceId}` |
 | Demo data badge | `demo-badge` |
+| Measured badge | `measured-badge` |
+| Clip player | `clip-player` |
+| Clip signal row | `clip-signals-{clipId}` |
+| Summary provenance label | `summary-source` |
 
 These earn their place twice: they make a manual E2E pass scriptable in Phase
 6, and they make the demo recording repeatable when the first take goes wrong.

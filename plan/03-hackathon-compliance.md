@@ -49,6 +49,23 @@ as such.
       the window. No prior work exists to disambiguate.
 - [ ] README states this explicitly, so a judge is not left to infer it.
 
+### Media provenance
+
+The 12 clips in `public/media/` are copied from
+[ClipBrief](https://github.com/aliefauzan/ClipBrief), a public repo by the same
+author. Every clip is `cc0` and self-generated: script written by the author,
+voiced with macOS text-to-speech, over generated footage. **No third-party
+media is used anywhere in this project.**
+
+- [ ] README credits ClipBrief as the corpus source with a link
+- [ ] `Clip.sourceNote` renders in the UI beside every player, not only in JSON
+- [ ] `LICENSE` covers the repo; clip licence is recorded per-clip as `cc0`
+
+Reusing the author's own prior corpus is asset reuse, not project reuse. The
+application, the tool surface and every line of `src/` are new work inside the
+window. Say this in the README rather than leaving a judge to check commit
+dates against a second repo.
+
 ## Judging Criteria — What Answers Each
 
 The four criteria carry equal weight. Each needs a specific answer, not a
@@ -59,7 +76,7 @@ general claim of quality.
 > "Thoroughness and skill in using WebMCP with genuine, non-trivial
 > implementation."
 
-The answer is the state-dependent tool surface. 19 tools that register and
+The answer is the state-dependent tool surface. 21 tools that register and
 unregister as the human navigates and selects, driven by `AbortSignal`
 lifecycles, rendered live from the `toolchange` event. Not a fixed list bolted
 on at page load.
@@ -80,9 +97,11 @@ The app works entirely by hand with no agent connected. Real and seeded
 surfaces are visibly labelled. Six routes, full CRUD on Product Knowledge, and
 a brief library with a real status machine.
 
-The `demo data` badging matters here specifically: a judge who discovers on
-their own that the "live" trend data is fake scores execution down. A judge who
-is told up front scores it as a scoped decision.
+The badging matters here specifically: a judge who discovers on their own that
+the "live" trend data is fake scores execution down. A judge who is told up
+front scores it as a scoped decision. Two badges do this work — `demo data` on
+every invented number, `measured` on every value derived from a file in the
+repo — and the difference between them is visible without reading code.
 
 ### Potential Impact
 
@@ -97,11 +116,17 @@ carries the argument.
 
 > "Novel concepts differing from existing solutions."
 
-The claim: a tool surface that is derived from view state rather than declared
-at load, and an app that deliberately contains no model of its own — the
-connected agent does the reasoning, the page supplies capability and receives
-results. Both are arguable positions about how agentic web apps should be
-built, not just features.
+The claim: a tool surface derived from view state rather than declared at load,
+and a division of labour where the connected agent does the reasoning while the
+page supplies capability and receives results. The brief generator has no model
+behind it at all — if no agent is connected, no brief is written, by design.
+
+The second claim is about honesty under mocking. The dataset is entirely
+fictional and says so, while the processing over it is real: a live model call
+reading committed transcripts, and clip signals measured from the encoded files
+by a re-runnable script. Most demos blur invented and derived numbers together.
+Separating them into two badges is a position about how a mocked demo should
+present itself.
 
 ## Technical Constraints From the Spec
 
@@ -110,6 +135,8 @@ built, not just features.
 | WebMCP disabled if `document.domain` is set | `[x]` never set |
 | Origin isolation required | `[x]` single origin, static deploy |
 | Gated by the `tools` Permissions Policy, default `self` | `[ ]` verify Netlify does not override |
+| Function and page share one origin — no CORS, no cross-origin fetch from a tool | `[ ]` verify `/api/analyze` resolves same-origin on the deploy |
+| No secret reachable from the client bundle | `[ ]` `GEMINI_API_KEY` set in Netlify env only; grep the built bundle for it in Phase 6 |
 | Chrome needs 149+ and the testing flag | `[x]` `UnsupportedBrowserNotice` explains both paths |
 | `getTools()` returns `inputSchema` as a JSON string | `[x]` `parseSchema()` |
 | No `unregisterTool` — abort the signal | `[x]` `useTool` uses `AbortController` |
@@ -148,14 +175,23 @@ the deadline never arrives with a blank field.
 > is structurally unable to publish, so that stays true.
 >
 > **The implementation.** The tool surface is derived from app state rather
-> than declared at page load. Nineteen tools register and unregister through
+> than declared at page load. Twenty-one tools register and unregister through
 > `AbortSignal` lifecycles as the human navigates and selects; an agent is never
 > offered a tool that cannot currently succeed. A live inspector panel renders
 > the surface from the spec's `toolchange` event, so you can watch it follow the
 > human's selection rather than take our word for it.
 >
-> **Scope, stated honestly.** Trend scraping and account analytics are seeded
-> fixtures and are labelled `demo data` everywhere they appear. The Product
-> Knowledge base, search, filter, sort, brief generation and trend summaries
-> are real. The app contains no LLM and no API key — the connected agent does
-> all the writing.
+> **Scope, stated honestly.** The dataset is fictional and labelled as such.
+> Trend volumes, growth rates and account analytics are invented and carry a
+> `demo data` badge everywhere they appear. The 12 clips are cc0 and
+> self-generated — no third-party media — and their signals (duration, word
+> count, speaking rate, hook length) are measured from the files by a committed
+> script, so they carry a `measured` badge instead.
+>
+> The processing is real. Trend analysis is a model reading the actual
+> transcripts of those clips at the moment it is asked. Brief generation has no
+> model behind it at all: the connected agent writes every brief through
+> `save_brief`, and there is no server path that does it instead. One tool,
+> `analyze_trend`, makes a server-side model call so a judge with no agent
+> connected still sees the analysis happen — and it labels its own output
+> `model` or `cached` rather than passing a fixture off as fresh.

@@ -14,6 +14,12 @@ td:analytics    Analytics      seeded, read-only
 td:events       ToolEvent[]    ring buffer, 200 entries, see 04-observability.md
 ```
 
+The clip corpus is **not** in `localStorage`. It is 12 immutable records paired
+with files in `public/media/` that ship with the build, so it is a static
+module — `src/fixtures/clips.ts` — imported directly. Nothing writes to it and
+nothing reseeds it. Keeping it out of the store also keeps ~40KB of transcript
+text out of every `localStorage` read.
+
 ## Types
 
 ```ts
@@ -23,16 +29,61 @@ type Category = 'beauty' | 'food' | 'fashion' | 'tech' | 'fitness' | 'finance'
 interface Trend {
   id: string
   keyword: string
-  volume: number            // mentions in the last 24h
-  growthPct: number         // vs the previous 24h
+  volume: number            // mentions in the last 24h — invented, badged `demo data`
+  growthPct: number         // vs the previous 24h — invented, badged `demo data`
   platform: Platform
   category: Category
   firstSeen: string         // ISO date
-  spike: number[]           // 14 daily points, for the sparkline
+  spike: number[]           // 14 daily points, for the sparkline — invented
   relatedKeywords: string[]
-  samples: { author: string; text: string; engagement: number }[]
-  aiSummary: string | null  // written by write_trend_summary; null until an agent writes it
+  samples: Sample[]
+  clipIds: string[]         // clips in the corpus that belong to this trend; may be empty
+  aiSummary: string | null  // null until something writes it
+  aiSummarySource: SummarySource
+  suggestedAngles: string[] // written alongside aiSummary; [] until then
   demo: true                // every trend is seeded; the badge reads from this
+}
+
+interface Sample {
+  author: string
+  text: string
+  engagement: number        // invented, badged `demo data`
+  clipId?: string           // present when this sample is backed by a real playable clip
+}
+
+type SummarySource =
+  | null        // nothing has written a summary yet
+  | 'agent'     // a connected agent called write_trend_summary
+  | 'model'     // analyze_trend made a live model call through /api/analyze
+  | 'cached'    // the fixture's committed summary, shown because no key and no agent
+  | 'human'     // typed into the drawer by hand
+
+interface ClipSignals {     // every field measured from the encoded file and its
+  durationS: number         // transcript by scripts/measure-clips.mjs. Nothing invented.
+  fileBytes: number
+  words: number
+  wordsPerMinute: number
+  segments: number
+  hookEndS: number          // second at which the opening line ends
+  hookWords: number
+  avgSegmentS: number
+  transcriptSource: 'caption' | 'stt'
+  measured: true
+}
+
+interface Clip {
+  id: string                // slug, stable: "glow-serum-3am"
+  title: string
+  creator: string           // display handle, e.g. "@lumen.skin"
+  src: string               // "/media/glow-serum-3am.mp4"
+  poster: string            // "/media/glow-serum-3am.jpg"
+  captionTrack?: string     // "/media/glow-serum-3am.vtt" — absent on half the corpus
+  license: 'cc0'
+  sourceNote: string        // provenance in plain words; rendered in the UI
+  category: Category
+  hashtags: string[]
+  transcript: string        // full text, committed
+  signals: ClipSignals
 }
 
 interface Product {
@@ -96,6 +147,27 @@ interface Analytics {       // seeded fixture
 `Trend.demo` and `Analytics.demo` are literal `true`, not booleans. They exist
 so the badge cannot be forgotten: a surface rendering seeded data has the flag
 in hand and the linter cannot let an unbadged path through review.
+`ClipSignals.measured` is the same trick pointing the other way.
+
+## Two Badges, Two Claims
+
+The app makes two different claims about its numbers and must not blur them.
+
+| Badge | Flag | Means | Applies to |
+|-------|------|-------|------------|
+| `demo data` | `demo: true` | Invented for the demo. Nobody observed this. | `Trend.volume`, `growthPct`, `spike`, `Sample.engagement`, all of `Analytics` |
+| `measured` | `measured: true` | Derived from a file in this repo by a committed script. Re-runnable. | every field of `ClipSignals` |
+
+The distinction is load-bearing for the Execution criterion. A dashboard that
+badges *everything* `demo data` reads as a mockup; one that badges everything
+`measured` is lying about its view counts. Two badges, honestly applied, read
+as a scoped decision — which is what it is.
+
+A clip corpus that has never been published anywhere cannot have view counts,
+likes or shares, so `Clip` has none. Engagement numbers exist only on `Sample`,
+where they are explicitly invented and badged. This rule is inherited from
+ClipBrief and is worth keeping: the moment a fake view count sits next to a
+measured word rate with no visual difference, both stop meaning anything.
 
 ## State Machines
 
@@ -129,7 +201,7 @@ Not stored, but it is a state machine and the whole product depends on it:
 
 ```
 route=trends                 ─► 6 tools + 2 global
-route=trends & trendOpen     ─► 8 tools + 2 global
+route=trends & trendOpen     ─► 10 tools + 2 global
 route=products               ─► 3 tools + 2 global
 route=products & productOpen ─► 5 tools + 2 global
 trendSelected & productSelected ─► + get_brief_context, save_brief
@@ -216,8 +288,57 @@ out: { ok: true, watchlistSize, alreadyPresent: boolean }
 
 ```
 in:  { trendId?: string }   // defaults to the open trend
-out: { trend, spike, relatedKeywords, samples, demo: true }
+out: { trend, spike, relatedKeywords, samples, demo: true,
+       clips: [{ id, title, creator, category, hashtags,
+                 transcript, signals, sourceNote }] }
 ```
+
+`clips` carries the full transcript of every clip attached to the trend. That
+is what makes the analysis real rather than decorative: an agent reading this
+tool has the actual words spoken in the videos, not a summary of them. It is
+also why the tool is `untrustedContentHint` — transcripts are authored text.
+
+Trends with no clips return `clips: []`. `fashion` and `finance` trends are
+deliberately in that state, so both branches of the drawer get exercised
+before the demo rather than during it.
+
+### `play_clip` → idempotent
+
+```
+in:  { clipId: string, seekS?: number }
+out: { ok: true, clipId, playing: true, seekS }
+   | { ok: false, reason: 'no such clip' | 'clip not on the open trend', known: [ids] }
+```
+
+Starts the clip in the drawer's player, in front of the human. The agent is
+driving the same player the human would click, which is the whole argument of
+the project applied to one small control. `seekS` is clamped to the clip's
+measured duration; out-of-range is not an error, it is a clamp.
+
+Refuses a clip that is not attached to the currently open trend. Same
+constraint as `delete_product`, same reason: an agent cannot act on something
+the human is not looking at.
+
+### `analyze_trend`
+
+```
+in:  { trendId?: string, force?: boolean }
+out: { ok: true, summary, suggestedAngles: string[],
+       source: 'model' | 'cached', model?: string, generatedAt }
+   | { ok: false, error: 'llm_unavailable', message, hint }
+```
+
+Posts the trend and its clips' transcripts to `/api/analyze` and writes the
+result into `Trend.aiSummary` with `aiSummarySource: 'model'`. This is a real
+model call over the seeded corpus — the data is invented, the reasoning is not.
+
+Without a configured key the function returns `503 llm_unavailable`; the tool
+then falls back to the fixture's committed summary and reports
+`source: 'cached'`. `force: true` skips the cache and requires the key.
+
+The `hint` on failure names `write_trend_summary` as the alternative. An agent
+told only that something failed retries it; an agent told what to do instead
+does that.
 
 ### `write_trend_summary`
 
@@ -226,8 +347,14 @@ in:  { trendId?: string, summary: string, suggestedAngles: string[] }
 out: { ok: true, renderedAt }
 ```
 
-Writes to `Trend.aiSummary` and re-renders the drawer. Cap `summary` at 800
-characters — an agent given no limit will write an essay into a 300px panel.
+Writes to `Trend.aiSummary` with `aiSummarySource: 'agent'` and re-renders the
+drawer. Cap `summary` at 800 characters — an agent given no limit will write an
+essay into a 300px panel.
+
+This is the no-key path and it stays the headline. `analyze_trend` exists so a
+judge with no agent connected still sees the analysis happen; this tool exists
+because an agent that is already connected should not be asked to wait on a
+second model round-trip through a serverless function it does not need.
 
 ### `list_products` / `get_product` → readOnly
 
@@ -302,11 +429,49 @@ out: { ok: true, from, to } | { ok: false, reason, currentStatus }
 - **24 trends** across four platforms and six categories, with growth from
   -12% to +680%, so filter and sort have something to actually do. Spike series
   are shaped, not random — a trend with +680% growth has a visible hockey stick.
+- **12 clips** in `clips.ts`, with their media in `public/media/`. See the
+  corpus section below.
 - **4 products** with genuinely different positioning, including a full
-  do-and-do-not list. One of them is deliberately a poor fit for the top trend,
-  so the demo can show the agent declining an angle rather than always agreeing.
+  do-and-do-not list. One product maps to each clip-backed category, so the
+  brief composer always has a real transcript behind it. One of them is
+  deliberately a poor fit for the top trend, so the demo can show the agent
+  declining an angle rather than always agreeing.
 - **30 days of analytics** with a weekday/weekend rhythm, so "best posting time"
   shows a real shape rather than noise.
+- **One committed summary per clip-backed trend**, used as the `cached`
+  fallback when `analyze_trend` runs without a key. Written by the same model
+  the live path uses, recorded with its model id and date.
+
+## The Clip Corpus
+
+The 12 clips come from [ClipBrief](https://github.com/aliefauzan/ClipBrief),
+`public/media/`. Same author, so there is no third-party licence to clear.
+Provenance, verbatim from that repo's `sourceNote`:
+
+> Script written by us, voiced with macOS text-to-speech, over generated
+> footage. No third-party media.
+
+Every clip is `cc0`. Total weight is 8.8MB — mp4 plus poster jpg for all 12,
+plus a `.vtt` caption track for 6 of them. That asymmetry is kept on purpose:
+half the corpus has committed captions and half does not, which is the same
+split that exercises both transcript paths.
+
+Category mapping into this app's six categories:
+
+| ClipBrief category | Clips | TrendDashboard category |
+|--------------------|-------|-------------------------|
+| skincare | 4 | `beauty` |
+| coffee | 3 | `food` |
+| fitness | 3 | `fitness` |
+| gadgets | 2 | `tech` |
+
+`fashion` and `finance` trends carry no clips. This is a decision, not a gap:
+the drawer must render correctly for a trend with nothing to play, and the only
+reliable way to guarantee that is to ship trends in that state.
+
+Copying is a one-time step in Phase 0 — `public/media/` plus a generated
+`clips.ts`. No download at runtime, no network call after the initial asset
+load, nothing to re-fetch if the source repo moves.
 
 Seeding runs on first load when `td:version` is absent or stale. Verify in a
 private window during Phase 0 — an app that only works because your own

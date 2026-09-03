@@ -103,15 +103,28 @@ The feature list on the whiteboard is a product; ten hours is a demo. Split:
 - [x] Trend "why is this rising" summary
 - [x] Brief library with status transitions
 
-### Mocked (seeded fixtures, labelled as such in the UI)
+### Mocked (seeded fixtures, labelled `demo data` in the UI)
 
 - [x] Trend scraping — seeded dataset, no live scraper
 - [x] Account analytics — seeded metrics, no connected social accounts
 - [x] KPI cards and 7/30-day performance charts
+- [x] Sample engagement counts on trend samples
 
-Every mocked surface carries a visible `demo data` badge. A judge must never
-have to guess which half is real. This is scored under Execution, and pretending
-seeded data is live reads as a defect the moment anyone looks closely.
+### Measured (derived from files in this repo, labelled `measured` in the UI)
+
+- [x] Clip duration, file size, word count, words per minute
+- [x] Hook end time and hook word count, segment count and mean length
+- [x] All of it re-derivable by anyone who clones the repo and runs the script
+
+The 12 clips themselves are cc0 and self-generated, copied from
+github.com/aliefauzan/ClipBrief. They carry **no** view, like or share counts:
+a video that was never published cannot have them, and inventing one next to a
+measured word rate would make both meaningless.
+
+Every mocked surface carries a visible `demo data` badge; every measured value
+carries `measured`. A judge must never have to guess which is which. This is
+scored under Execution, and pretending seeded data is live reads as a defect
+the moment anyone looks closely.
 
 ### Cut for the sprint — SKIPPED
 
@@ -128,11 +141,15 @@ seeded data is live reads as a defect the moment anyone looks closely.
 
 ## 6. Architecture Decisions
 
-- [x] **No backend, no LLM API key in the page.** The agent *is* the model.
-      The page exposes `get_brief_context` and `save_brief`; the connected agent
-      composes the brief and writes it back. This removes the API-key problem,
-      removes hosting cost, and is a stronger WebMCP story than calling an LLM
-      from a static site would be.
+- [x] **Revised 19:50 — the agent is still the model, with one scoped
+      exception.** Brief generation has no server path: `save_brief` is
+      agent-only. One tool, `analyze_trend`, calls Gemini through a Netlify
+      Function so a judge with no agent connected still sees an analysis
+      appear. Key lives in Netlify's env UI, never in the repo. Superseded
+      wording kept below for the record.
+      > ~~No backend, no LLM API key in the page. The agent *is* the model.
+      > Removes hosting cost, and is a stronger WebMCP story than calling an
+      > LLM from a static site would be.~~
 - [x] **Persistence is `localStorage`.** No accounts, no server, no privacy
       surface. Seed fixtures load on first run.
 - [x] **Zero new runtime dependencies.** React 19 and React DOM only.
