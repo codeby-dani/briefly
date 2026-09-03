@@ -1,4 +1,4 @@
-# TrendDashboard
+# Anglebook
 
 A content-marketing workspace where trend research, product knowledge and brief
 writing happen in one place — and where a connected AI agent works the same
@@ -9,6 +9,18 @@ tools, and the agent reads that context and writes results back into the app:
 the brief lands in the library, not in a chat transcript.
 
 Built for [The WebMCP Challenge](https://webmcp.devpost.com).
+
+The name reflects the product's job: keep a durable book of content angles,
+grounded in both the trend a person is watching and the product knowledge their
+agent can read. The source icon and raster exports live in `public/brand/`.
+
+Live app: [trend-lake.vercel.app](https://trend-lake.vercel.app)
+
+Anglebook was created during the WebMCP Challenge submission window. Its git
+history begins on 2026-09-03 with commit `ebe1b8a`; the application, WebMCP tool
+surface, and every line under `src/` are new work from that window. The only
+reused material is the author's own cc0 clip corpus described under
+[Media](#media), not application code or a pre-existing product.
 
 > **Status: Phase 1 of 7.** The shell, the clip corpus, the hash router, the
 > stores and the two global tools are in. The remaining nineteen tools land in
@@ -52,7 +64,7 @@ corner renders whichever surface is live.
 ## Running it
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
@@ -88,7 +100,7 @@ never blurred:
 ## Design
 
 The palette, type and radii come from a [Stitch](https://stitch.withgoogle.com)
-design system — *TrendDashboard Dark*: dark mode, Inter, 8px corners, generated
+design system — *Anglebook Dark*: dark mode, Inter, 8px corners, generated
 from a `#aa3bff` seed with `#16171d` pinned as the neutral. A Dashboard screen
 was generated from it and the layout in `src/routes/` is built against that
 screen.

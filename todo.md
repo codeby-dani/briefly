@@ -32,7 +32,7 @@ Every scope decision below is downstream of that number. This is not a
 | Devpost registration | `[ ]` BLOCKING |
 | Repo + open-source licence | `[x]` MIT `LICENSE` present at repo root |
 | WebMCP runtime verified | `[x]` `document.modelContext`, verified 2026-09-02 |
-| Hosting target | `[x]` **Vercel** — `vercel.json` committed, deployed from GitHub. Was Netlify; changed 2026-09-03 21:20. Confirm Vercel is on the approved-hosting list (see `plan/03-hackathon-compliance.md`) |
+| Hosting target | `[x]` **Vercel** — explicitly allowed by the official rules, verified 2026-09-03; `vercel.json` committed and deployed from GitHub |
 | Product scope frozen | `[x]` See "Scope Freeze" below |
 | Demo video | `[ ]` BLOCKING — under 3 min, audio required |
 
@@ -56,8 +56,8 @@ Four artifacts are required. Missing any one disqualifies the entry.
 
 - [ ] **Live URL** reachable in the ChatGPT in-app browser *and* in Chrome 149+
       with `chrome://flags/#enable-webmcp-testing` enabled. TODO
-- [ ] **Public repository** with an open-source licence visible.
-      `LICENSE` is committed; repo must be public before submitting. TODO
+- [x] **Public repository** with an open-source licence visible.
+      GitHub API reports the repo public and detects its MIT licence.
 - [ ] **Demo video, under 3 minutes, with audio**, public on YouTube.
       TODO — see `plan/99-demo-script.md`.
 - [ ] **Text description** covering: why WebMCP suits this use case, what the
@@ -71,7 +71,8 @@ pre-existing project *meaningfully extended* with WebMCP and documented as such.
 - [x] **Project is new.** Repo history starts at `ebe1b8a Initial commit:
       TrendDashboard`. No prior work to disambiguate.
 - [ ] **README states the provenance explicitly** anyway, so a judge never has
-      to infer it from git history. TODO
+      to infer it from git history. Written on `feat/hackathon-compliance`;
+      check after merge and deploy.
 
 ## 4. Runtime and API Surface
 
@@ -87,9 +88,10 @@ pre-existing project *meaningfully extended* with WebMCP and documented as such.
       This is what drives the live inspector panel.
 - [x] **Origin isolation required.** WebMCP is disabled on any page that sets
       `document.domain`. We never set it.
-- [ ] **Permissions-Policy `tools` header checked on the deployed origin.**
-      Defaults to `self`, which is what we want, but confirm Vercel does not
-      strip or override it. TODO
+- [x] **Permissions-Policy checked on the deployed origin.** The response has
+      no overriding header, so WebMCP keeps its default `self` allowlist.
+      `vercel.json` now also emits `Permissions-Policy: tools=(self)` explicitly;
+      verify that header after the branch deploys.
 
 ## 5. Scope Freeze
 
@@ -193,7 +195,8 @@ the moment anyone looks closely.
 
 ## 9. Outstanding Minimal Tasks
 
-- [ ] Public repo visibility flipped on before submitting
+- [x] Public repo visibility is public; verified through the GitHub API on
+      2026-09-03
 - [x] README rewritten from the Vite template to the actual project — Phase 0.
       Phase 7 still adds the creation-window provenance paragraph
 - [ ] `data-testid` on every element the demo touches — on for everything built

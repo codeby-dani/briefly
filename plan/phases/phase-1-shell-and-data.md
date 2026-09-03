@@ -4,18 +4,17 @@
 
 ## Status
 
-- [ ] Hash router with six routes — done in code, all six driven on `localhost:4173`, not deployed
-- [ ] Stores implemented with `localStorage` persistence — done in code, hard reload preserves edits, not deployed
-- [ ] Fixtures seeded on first run — done in code, cleared-storage reload reseeds byte-identically, not deployed
-- [ ] Dashboard route renders KPI cards and recent briefs — done in code, not deployed
-- [ ] `get_app_state` and `navigate_to` registered globally — done in code, surface count 2 on all six routes, not deployed
-- [ ] `demo data` badge component, used on every invented value — done in code, not deployed
-- [ ] `measured` badge component, used on every clip signal — done in code, not deployed
-- [ ] `clips.ts` wired: every trend's `clipIds` resolve to a real clip — done in code, all 12 referenced, all 24 media files 200, not deployed
+- [ ] Hash router with six routes — deployed bundle contains the router; deployed browser E2E pending
+- [ ] Stores implemented with `localStorage` persistence — deployed; cold-browser persistence check pending
+- [ ] Fixtures seeded on first run — deployed; cold-browser seed check pending
+- [ ] Dashboard route renders KPI cards and recent briefs — deployed; browser visual check pending
+- [ ] `get_app_state` and `navigate_to` registered globally — both are in the deployed bundle; WebMCP browser check pending
+- [ ] `demo data` badge component, used on every invented value — deployed; visual audit pending
+- [ ] `measured` badge component, used on every clip signal — deployed; visual audit pending
+- [ ] `clips.ts` wired: every trend's `clipIds` resolve to a real clip — deployed media verified; browser playback check pending
 
-Every box stays `[ ]` for the same reason every Phase 0 box does: `plan/README.md`
-defines `[x]` as *deployed*, and nothing is on a public origin yet. The
-annotations say what was actually verified and where.
+The code is deployed, but these boxes remain open until the browser-level exit
+criteria are repeated against the public origin.
 
 **Deferred out of this phase, on purpose:** `plan/02-data-model.md` § Seed Data
 asks for "one committed summary per clip-backed trend", used as the `cached`

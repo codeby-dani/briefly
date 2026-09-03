@@ -23,7 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Secrets. Keys live in Netlify's env UI, never in the repo.
+# Secrets. Keys live in Vercel's environment settings, never in the repo.
 .env
 .env.local
 .env.*.local
