@@ -1,8 +1,8 @@
-# PROGRESS — TrendDashboard
+# PROGRESS — Anglebook
 
 **This is the session entry point. Read this before anything else.**
 
-Last updated: 2026-09-03 22:05 WITA · by: Phase 1 build session, then the design pass
+Last updated: 2026-09-03 22:13 WITA · by: compliance audit after remote sync
 
 ---
 
@@ -10,47 +10,36 @@ Last updated: 2026-09-03 22:05 WITA · by: Phase 1 build session, then the desig
 
 | | |
 |---|---|
-| **Current phase** | Phase 1 — code complete, **not deployed**. Phase 0 also still open on deploy |
+| **Current phase** | Phase 1 — deployed; required WebMCP browser checks and `/api/analyze` repair still open |
 | **Sprint start (T+0)** | 2026-09-03 17:51 WITA |
 | **Hard deadline** | 2026-09-04 04:00 WITA (13:00 PDT, 2026-09-03) |
-| **Time remaining at last update** | 10h 05m |
-| **Deployed URL** | none yet — BLOCKING |
-| **Tools registered** | 2 of 21 planned (`get_app_state`, `navigate_to`), locally verified |
+| **Time remaining at last update** | 5h 47m |
+| **Deployed URL** | https://trend-lake.vercel.app — static app and media return 200 |
+| **Tools registered** | 2 of 21 planned (`get_app_state`, `navigate_to`), present in the deployed bundle; WebMCP browser check pending |
 
 ## Next Task
 
-**Deploy.** This has not moved since the last session and it is now blocking two
-phases instead of one. Phases 0 and 1 are both code-complete and both verified
-on `localhost:4173`; neither can close because nothing is on a public origin.
+**Merge and deploy `feat/hackathon-compliance`, then verify the required browser
+paths.** The public Phase 1 deployment and real media are reachable, and the
+repository is public. The deployed `/api/analyze` POST currently waits without
+returning JSON; the branch adds a ten-second provider timeout so that failure
+degrades predictably instead of hanging.
 
-Hosting is **Vercel**, wired to GitHub, so the deploy is a push:
-
-```
-git push origin main
-```
-
-Then, on the deployed origin: open it in the ChatGPT in-app browser and in
-flagged Chrome and confirm the panel reads 2, `curl -X POST <url>/api/analyze -d
-'{}'` and confirm a 503 JSON rather than a 404 or HTML, set `GEMINI_API_KEY` in
-Vercel's project environment variables, redeploy, and curl again for a 200. Open
-it once in a real private window. Record the URL in the table above and clear B2.
-
-Phase 2 can be started against localhost without waiting — the Trends table does
-not depend on the origin — but the deploy is still the highest-value thing you
-can do with ten minutes, because every hour it stays unproven is an hour of
-unbounded risk on the one requirement the submission cannot survive missing.
+After the branch is merged to `main`, confirm the response includes
+`Permissions-Policy: tools=(self)`, call `/api/analyze`, and verify the tool
+surface in the ChatGPT in-app browser and flagged Chrome. Then begin Phase 2.
 
 ## Blockers
 
 | # | Blocker | Owner | Phase | State |
 |---|---------|-------|-------|-------|
 | B1 | Devpost registration not confirmed | you | pre | **open** |
-| B2 | No live URL | you | 0 | **open** |
+| B2 | No live URL | you | 0 | **closed** 2026-09-03 22:10 — `https://trend-lake.vercel.app` and media return 200 |
 | B3 | Stitch API key compromised (pasted in chat) — revoke before use | you | pre | **open** · no longer blocks design (MCP connector used, no key needed) but the key is still exposed |
 | B4 | Screen recorder not tested | you | 7 | open |
-| B5 | Repo still private | you | 7 | open |
-| B6 | `GEMINI_API_KEY` not obtained (free tier, aistudio.google.com/apikey) | you | 0 | **open** |
-| B8 | Vercel not confirmed on the hackathon's approved-hosting list — the plan recorded Netlify as approved | you | 0 | **open** |
+| B5 | Repo still private | you | 7 | **closed** 2026-09-03 22:09 — GitHub API reports `visibility: public` |
+| B6 | `/api/analyze` does not return from the live origin; key/provider state needs Vercel inspection | you | 0 | **open** — branch adds a ten-second upstream timeout |
+| B8 | Vercel not confirmed on the hackathon's approved-hosting list | you | 0 | **closed** 2026-09-03 22:08 — official rules explicitly list Vercel |
 | B7 | Clip corpus not yet copied from ClipBrief into `public/media/` | — | 0 | **closed** 2026-09-03 21:10 |
 | B9 | No committed `cached` summaries for clip-backed trends — `02-data-model.md` asks for them but defines no `Trend` field to hold one | — | 2 | open |
 
@@ -59,8 +48,10 @@ serves the cached summary, which degrades rather than breaks. B7 is closed — t
 12 clips and the generated `src/fixtures/clips.ts` are committed, and one poster
 and one mp4 were served locally (200 `image/jpeg`, 206 `video/mp4`).
 
-B1, B2 and B3 are the ones that can end the entry. B3 is a security issue, not
-a schedule issue: the key is exposed regardless of whether Stitch gets used.
+B1 and B3 are still entrant-owned blockers. B3 is a security issue, not a
+schedule issue: the key is exposed regardless of whether Stitch gets used.
+The live URL exists, but the two required WebMCP browser checks have not been
+performed in this session because neither browser surface was available.
 
 B9 is new and is not urgent: it only bites `analyze_trend`, which is itself the
 pre-designated first cut inside Phase 2. Resolve it by adding two fields to
@@ -119,7 +110,7 @@ The four required artifacts. All four, or the entry does not count.
 - [ ] Live URL, verified in Chrome 149+ with the testing flag
 - [ ] Live URL, tools reachable by Claude via `window.__td` — *not a rules
       requirement; does not substitute for either line above*
-- [ ] Public repo with visible open-source licence
+- [x] Public repo with visible open-source licence
 - [ ] Demo video under 3:00 with audio, public on YouTube
 - [ ] Text description: WebMCP fit, UX gain, human–agent collaboration
 - [ ] Devpost form submitted by **T+9:30**, not at the deadline
@@ -406,3 +397,29 @@ still register and answer, surface count still 2. `npm run build` exits 0.
 
 README gained a Design section recording the provenance, alongside the existing
 one for the media corpus. Its status line moved to Phase 1.
+
+### 2026-09-03 22:13 WITA — compliance audit after remote sync
+
+Fetched `origin/main` and fast-forwarded from `5f0345a` to `285609b`, then
+created `feat/hackathon-compliance` and reapplied the existing Anglebook brand
+work. The only conflicts were README status copy and the app header; both keep
+the Phase 1 implementation and the Anglebook identity.
+
+**Confirmed externally.** The GitHub API reports the repository public and
+detects its MIT licence. GitHub records `https://trend-lake.vercel.app` as the
+project homepage; that origin serves the Phase 1 bundle and actual clip poster
+and MP4 files with the intended immutable cache header. The official rules
+explicitly allow Vercel, closing B8.
+
+**Still open.** Neither the ChatGPT in-app browser nor a Chrome surface was
+available in this session, so the two required WebMCP checks remain unchecked.
+The live `/api/analyze` POST timed out with no response instead of returning the
+required JSON. Google's current lifecycle notes also confirm its default,
+`gemini-2.0-flash`, was shut down on 2026-06-01. This branch moves to the stable
+`gemini-3.1-flash-lite` replacement and adds a ten-second Gemini fetch timeout;
+it needs a deployment and another curl before Phase 0 can close.
+
+**Submission docs tightened.** The README now names the live URL and explicitly
+documents creation-window provenance and the limited cc0 media reuse. The
+Vercel config declares `Permissions-Policy: tools=(self)`, and the compliance
+plan records evidence without checking any entrant-only or browser-only item.

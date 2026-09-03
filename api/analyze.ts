@@ -28,10 +28,13 @@
  * file from Netlify to Vercel without touching a line of its logic.
  */
 
-const DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash'
+// Gemini 2.0 Flash was shut down on 2026-06-01. Keep this on a stable,
+// low-latency replacement rather than a preview alias that can move mid-demo.
+const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-lite'
 
 const MAX_TRANSCRIPT_CHARS = 6000
 const MAX_ANGLES = 4
+const GEMINI_TIMEOUT_MS = 10_000
 
 interface AnalyzeRequest {
   keyword?: string
@@ -117,6 +120,7 @@ async function callGemini(apiKey: string, prompt: string) {
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
+    signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: SYSTEM }] },
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
