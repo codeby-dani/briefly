@@ -983,3 +983,10 @@ The month now carries 16 skincare content plans instead of six. Selecting a
 date reveals a purpose-built content card with content type, platform, time,
 status, angle, and goal; open dates instead show a usable creative suggestion.
 The former implementation-facing instruction is gone from the empty state.
+
+### 2026-09-04 03:52 WITA — Searchable Composer pickers
+
+The Composer’s browser-native trend and offering selects are now compact,
+searchable pickers. Trend choices carry their platform icon, category, and
+title; offering choices carry their positioning. The menu has a bounded scroll
+area, so long lists no longer cover the entire page.

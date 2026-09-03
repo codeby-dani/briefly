@@ -79,6 +79,9 @@ assert.match(libraryMarkup, /data-testid="library-catalog-count">67 briefs/)
 assert.match(libraryMarkup, /data-testid="library-showcase-/)
 assert.match(libraryMarkup, /Educating|Entertaining|Promotional|Community/)
 assert.match(libraryMarkup, /data-testid="library-pagination"/)
+assert.match(libraryMarkup, /data-testid="composer-trend-picker"/)
+assert.match(libraryMarkup, /data-testid="composer-offering-picker"/)
+assert.match(libraryMarkup, /aria-haspopup="listbox"/)
 
 /* --- Exit criterion 1: an agent-scheduled brief renders, no reload ------ */
 

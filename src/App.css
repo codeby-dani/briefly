@@ -1457,6 +1457,151 @@
   }
 }
 
+.composer-picker {
+  position: relative;
+  min-width: 0;
+}
+
+.composer-picker-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 11px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: var(--surface-high);
+  color: var(--text-h);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+}
+
+.composer-picker-button:hover,
+.composer-picker-button[aria-expanded='true'] {
+  border-color: var(--accent-border);
+  background: var(--surface);
+}
+
+.composer-picker-button:focus-visible,
+.composer-picker-option:focus-visible,
+.composer-picker-search:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.composer-picker-value {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.composer-picker-value > span:last-child,
+.composer-picker-option > span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.composer-picker-value strong,
+.composer-picker-option strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composer-picker-value small,
+.composer-picker-option small {
+  overflow: hidden;
+  color: var(--outline);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composer-picker-menu {
+  position: absolute;
+  z-index: 12;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.composer-picker-search {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 7px;
+  padding: 8px 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-high);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 12px;
+}
+
+.composer-picker-options {
+  display: grid;
+  max-height: 252px;
+  gap: 3px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.composer-picker-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-h);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.composer-picker-option:hover,
+.composer-picker-option[aria-selected='true'] {
+  background: var(--accent-bg);
+}
+
+.composer-picker-option.is-clear {
+  color: var(--text);
+  font-size: 11px;
+}
+
+.composer-picker-empty {
+  margin: 6px 4px;
+  color: var(--text);
+  font-size: 11px;
+}
+
+.composer-product-mark {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--accent-on);
+  font-size: 10px;
+  font-weight: 800;
+}
+
 /* Bottom-aligned: a label that wraps to two lines ("Hashtags — space or comma
    separated") would otherwise push its own input a line lower than the one
    beside it. */

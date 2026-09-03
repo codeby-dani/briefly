@@ -23,7 +23,7 @@ import { libraryTools } from '../tools/briefs'
 import { useTools } from '../webmcp'
 import { PLATFORM_LABEL, PLATFORMS } from '../types'
 import { PlatformIcon } from '../components/PlatformIcon'
-import type { Brief, BriefStatus, Platform } from '../types'
+import type { Brief, BriefStatus, BusinessOffering, Platform, Trend } from '../types'
 
 /** The next legal statuses for a human control, from the machine in the store. */
 const NEXT: Record<BriefStatus, { to: BriefStatus; label: string }[]> = {
@@ -104,6 +104,84 @@ function toList(text: string, splitter: RegExp): string[] {
     .filter((s) => s.length > 0)
 }
 
+function TrendPicker({
+  trends,
+  selectedId,
+  onSelect,
+}: {
+  trends: Trend[]
+  selectedId: string | null
+  onSelect: (id: string | null) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const selected = trends.find((trend) => trend.id === selectedId) ?? null
+  const matches = trends.filter((trend) => `${trend.keyword} ${trend.platform} ${trend.category}`.toLowerCase().includes(query.toLowerCase()))
+
+  return (
+    <div className="composer-picker" data-testid="composer-trend-picker">
+      <button type="button" className="composer-picker-button" data-testid="composer-trend" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
+        {selected ? <span className="composer-picker-value"><PlatformIcon platform={selected.platform} size={17} /><span><strong>{selected.keyword}</strong><small>{selected.category} · {selected.platform}</small></span></span> : <span>Select a trend…</span>}
+        <span aria-hidden="true">⌄</span>
+      </button>
+      {open && (
+        <div className="composer-picker-menu">
+          <input className="composer-picker-search" autoFocus value={query} placeholder="Search trends…" onChange={(event) => setQuery(event.target.value)} />
+          <div className="composer-picker-options" role="listbox" aria-label="Trends">
+            <button type="button" className="composer-picker-option is-clear" role="option" aria-selected={selected === null} onClick={() => { onSelect(null); setOpen(false); setQuery('') }}>No trend selected</button>
+            {matches.map((trend) => (
+              <button key={trend.id} type="button" className="composer-picker-option" data-testid={`composer-trend-option-${trend.id}`} role="option" aria-selected={trend.id === selectedId} onClick={() => { onSelect(trend.id); setOpen(false); setQuery('') }}>
+                <PlatformIcon platform={trend.platform} size={18} />
+                <span><strong>{trend.keyword}</strong><small>{trend.category} · {trend.platform}</small></span>
+              </button>
+            ))}
+            {matches.length === 0 && <p className="composer-picker-empty">No matching trends.</p>}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function OfferingPicker({
+  offerings,
+  selectedId,
+  onSelect,
+}: {
+  offerings: BusinessOffering[]
+  selectedId: string | null
+  onSelect: (id: string | null) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const selected = offerings.find((offering) => offering.id === selectedId) ?? null
+  const matches = offerings.filter((offering) => `${offering.name} ${offering.positioning}`.toLowerCase().includes(query.toLowerCase()))
+
+  return (
+    <div className="composer-picker" data-testid="composer-offering-picker">
+      <button type="button" className="composer-picker-button" data-testid="composer-offering" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
+        {selected ? <span className="composer-picker-value"><span className="composer-product-mark">B</span><span><strong>{selected.name}</strong><small>{selected.positioning}</small></span></span> : <span>Select an offering…</span>}
+        <span aria-hidden="true">⌄</span>
+      </button>
+      {open && (
+        <div className="composer-picker-menu">
+          <input className="composer-picker-search" autoFocus value={query} placeholder="Search offerings…" onChange={(event) => setQuery(event.target.value)} />
+          <div className="composer-picker-options" role="listbox" aria-label="Offerings">
+            <button type="button" className="composer-picker-option is-clear" role="option" aria-selected={selected === null} onClick={() => { onSelect(null); setOpen(false); setQuery('') }}>No offering selected</button>
+            {matches.map((offering) => (
+              <button key={offering.id} type="button" className="composer-picker-option" data-testid={`composer-offering-option-${offering.id}`} role="option" aria-selected={offering.id === selectedId} onClick={() => { onSelect(offering.id); setOpen(false); setQuery('') }}>
+                <span className="composer-product-mark">B</span>
+                <span><strong>{offering.name}</strong><small>{offering.positioning}</small></span>
+              </button>
+            ))}
+            {matches.length === 0 && <p className="composer-picker-empty">No matching offerings.</p>}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function Briefs() {
   const app = useAppState()
   const trends = trendStore.use()
@@ -155,39 +233,15 @@ export function Briefs() {
 
         <div className="composer-body">
           <div className="composer-picks">
-            <label className="field">
+            <div className="field">
               <span className="field-label">Trend</span>
-              <select
-                data-testid="composer-trend"
-                value={app.selectedTrendId ?? ''}
-                onChange={(e) => dispatch({ type: 'selectTrend', trendId: e.target.value || null })}
-              >
-                <option value="">Select a trend…</option>
-                {trends.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.keyword} · {t.platform} · {t.category}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <TrendPicker trends={trends} selectedId={app.selectedTrendId} onSelect={(trendId) => dispatch({ type: 'selectTrend', trendId })} />
+            </div>
 
-            <label className="field">
+            <div className="field">
               <span className="field-label">Offering</span>
-              <select
-                data-testid="composer-offering"
-                value={app.selectedOfferingId ?? ''}
-                onChange={(e) =>
-                  dispatch({ type: 'selectOffering', offeringId: e.target.value || null })
-                }
-              >
-                <option value="">Select an offering…</option>
-                {offerings.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <OfferingPicker offerings={offerings} selectedId={app.selectedOfferingId} onSelect={(offeringId) => dispatch({ type: 'selectOffering', offeringId })} />
+            </div>
           </div>
 
           {!bothSelected ? (
