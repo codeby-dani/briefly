@@ -43,6 +43,8 @@ assert.match(css, /prefers-reduced-motion: reduce/)
 
 const tokens = readFileSync('src/index.css', 'utf8')
 assert.match(tokens, /--bg: #e6eed6/)
+assert.match(tokens, /--surface: #edf1dc/)
+assert.match(tokens, /--surface-high: #dde2c6/)
 assert.match(tokens, /--accent: #a72608/)
 assert.match(tokens, /--text-h: #090c02/)
 

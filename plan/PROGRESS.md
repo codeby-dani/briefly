@@ -893,3 +893,10 @@ an active tooltip. A manual 30d → 7d interaction exposed a stale active-point
 index; `safeChartIndex()` and its regression check guard against the changed
 series length. Both windows now render their correct point counts in the
 in-app preview, which has been left on the default 30-day view.
+
+### 2026-09-04 01:32 WITA — beige surface hierarchy
+
+The surface hierarchy was adjusted after visual review: the page remains
+`#E6EED6`, cards now use the more dominant beige `#EDF1DC`, and inner wells
+stay ash `#DDE2C6`. Oxidized iron remains limited to actions and data emphasis.
+The browser check recorded these computed values directly from the live preview.
