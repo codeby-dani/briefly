@@ -16,11 +16,8 @@ evidence and are intentionally blank.
 
 ## Elevator pitch
 
-Anglebook is a content-marketing workspace where a human researches trends,
-manages business context, and reviews briefs while an AI agent can read the
-same view state and write structured results directly back into the app through
-WebMCP. Instead of rebuilding context through copy-paste, the agent gets only
-the tools that make sense for the screen the human is currently using.
+Anglebook lets content teams research trends, bring in business context, and
+co-write briefs with an AI agent that sees and acts on the same app state.
 
 ## Description
 
