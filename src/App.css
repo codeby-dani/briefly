@@ -2508,6 +2508,20 @@
   }
 }
 
+@media (max-width: 640px) {
+  .calendar-insights {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-cell {
+    min-height: 86px;
+  }
+
+  .calendar-plan-meta {
+    display: none;
+  }
+}
+
 @media (max-width: 600px) {
   .topbar {
     gap: 8px;
@@ -2611,6 +2625,17 @@
   margin-top: 12px;
 }
 
+.calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 276px;
+  gap: 18px;
+  align-items: start;
+}
+
+.calendar-main-card {
+  min-width: 0;
+}
+
 .calendar-weekday {
   font-family: var(--mono);
   font-size: 11px;
@@ -2622,7 +2647,7 @@
 }
 
 .calendar-cell {
-  min-height: 84px;
+  min-height: 112px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -2669,6 +2694,117 @@
 
 .calendar-cell.is-today .calendar-daynum {
   color: var(--accent);
+}
+
+.calendar-plan {
+  display: grid;
+  gap: 3px;
+  padding: 5px 6px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 7px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-h);
+  overflow: hidden;
+}
+
+.calendar-plan.plan-in_progress { border-left-color: var(--warn); }
+.calendar-plan.plan-published { border-left-color: var(--ok); }
+
+.calendar-plan-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--outline);
+  font-size: 8px;
+  line-height: 10px;
+
+  span:last-child {
+    margin-left: auto;
+    color: var(--accent);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+}
+
+.calendar-plan-title {
+  overflow: hidden;
+  color: var(--text-h);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-insights {
+  display: grid;
+  gap: 14px;
+}
+
+.calendar-insight-card {
+  gap: 10px;
+  padding: 16px;
+
+  h3 { margin: 0; color: var(--text-h); font-size: 14px; }
+}
+
+.calendar-insight-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  span { color: var(--ok-deep); background: var(--ok-bg); border-radius: 999px; padding: 3px 6px; font-size: 9px; font-weight: 700; }
+}
+
+.calendar-capacity {
+  color: var(--text-h);
+  font-family: var(--heading);
+  font-size: 28px;
+
+  small { margin-left: 4px; color: var(--outline); font-family: var(--sans); font-size: 11px; font-weight: 500; }
+}
+
+.calendar-capacity-bar {
+  display: block;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-highest);
+
+  i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+}
+
+.calendar-channel-list,
+.calendar-upcoming-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calendar-channel-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text);
+  font-size: 11px;
+
+  span { display: inline-flex; align-items: center; gap: 6px; text-transform: capitalize; }
+  strong { color: var(--text-h); font-size: 10px; }
+}
+
+.calendar-upcoming-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  > span { display: grid; gap: 2px; min-width: 0; }
+  strong { overflow: hidden; color: var(--text-h); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+  small { color: var(--outline); font-size: 10px; }
 }
 
 /* Chips are the only thing in a cell, so they truncate rather than reflow the
@@ -2819,6 +2955,14 @@
 }
 
 @media (max-width: 900px) {
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-insights {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .schedule-form {
     grid-template-columns: 1fr;
   }

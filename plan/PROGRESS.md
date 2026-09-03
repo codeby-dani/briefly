@@ -954,3 +954,11 @@ overview now carries the shared social coverage strip; Platform mix and each
 content row use the existing platform icon set. The live route check recorded
 the Performance page, visible social coverage, six table platform icons, and
 zero remaining demo badges.
+
+### 2026-09-04 03:08 WITA — Content Calendar editorial plan
+
+The Content Calendar now presents six cross-platform editorial plan cards with
+platform icons, scheduling times, and clear status treatments. A companion
+insights column provides monthly capacity, per-channel planning, and upcoming
+posts. These are visual planning prompts only; schedules created by users or
+agents still remain the sole persisted and editable calendar data.

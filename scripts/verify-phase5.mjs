@@ -96,6 +96,8 @@ const emptyMarkup = renderToStaticMarkup(createElement(Calendar))
 assert.match(emptyMarkup, /data-testid="calendar-grid"/)
 assert.match(emptyMarkup, new RegExp(`data-testid="calendar-day-${today}"`))
 assert.equal(emptyMarkup.includes('data-testid="schedule-chip-'), false)
+assert.match(emptyMarkup, /data-testid="calendar-plan-/)
+assert.match(emptyMarkup, /data-testid="calendar-insights"/)
 
 const scheduled = await execute(scheduleBriefTool(), { briefId: brief.id, date: today })
 assert.equal(scheduled.ok, true)
