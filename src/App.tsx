@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import { ROUTES } from './types'
 import type { Route } from './types'
@@ -88,6 +88,32 @@ const WORKSPACES = [
 function Sidebar({ route }: { route: Route }) {
   const primaryRoutes = ROUTES.filter((name) => name !== 'products')
 
+  // The switcher is presentational for now: there is one real workspace and
+  // the other two are labels. It still needs real state, because a menu that
+  // cannot be dismissed except by picking something is a trap — Escape and a
+  // click outside both close it.
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState(WORKSPACES[0]!.id)
+  const [workspaceOpen, setWorkspaceOpen] = useState(false)
+  const switcherRef = useRef<HTMLDivElement>(null)
+
+  const activeWorkspace = WORKSPACES.find((w) => w.id === activeWorkspaceId) ?? WORKSPACES[0]!
+
+  useEffect(() => {
+    if (!workspaceOpen) return
+    const onPointerDown = (event: PointerEvent) => {
+      if (!switcherRef.current?.contains(event.target as Node)) setWorkspaceOpen(false)
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setWorkspaceOpen(false)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [workspaceOpen])
+
   return (
     <aside className="sidebar" aria-label="Sections">
       <div className="sidebar-top">
@@ -96,7 +122,7 @@ function Sidebar({ route }: { route: Route }) {
           <span className="brand-sr-only">Briefly</span>
         </div>
 
-        <div className="workspace-switcher">
+        <div className="workspace-switcher" ref={switcherRef}>
           <button
             type="button"
             className="workspace workspace-button"
