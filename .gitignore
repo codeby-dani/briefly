@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# Left behind by the Netlify → Vercel move in Phase 0. Local build cache, never committed.
+.netlify/

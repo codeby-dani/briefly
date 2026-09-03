@@ -18,6 +18,7 @@ import { navigate, readAppState } from '../store/router'
 import { readBriefs } from '../store/briefs'
 import { readProducts } from '../store/products'
 import { readTrends } from '../store/trends'
+import { activeFilters, visibleTrends } from '../store/trendView'
 import { readWatchlist } from '../store/watchlist'
 import { traced } from './trace'
 
@@ -34,11 +35,10 @@ export interface AppStateSnapshot {
 /**
  * The snapshot, built from the stores at call time.
  *
- * `visibleTrendCount` and `activeFilters` describe the Trends view. Until Phase
- * 2 lands search, filter and sort there is nothing filtering anything, so the
- * count is the whole table and the filter map is empty — which is the truth,
- * not a stub. The shape is the contract and does not change when Phase 2 makes
- * these two fields interesting.
+ * `visibleTrendCount` and `activeFilters` describe the Trends view, and since
+ * Phase 2 they are read from the same selector the table renders from. An
+ * agent that has just connected asks this first, and the answer has to be the
+ * table on screen rather than a plausible reconstruction of it.
  */
 export function readAppSnapshot(): AppStateSnapshot {
   const app = readAppState()
@@ -54,8 +54,8 @@ export function readAppSnapshot(): AppStateSnapshot {
       briefs: readBriefs().length,
       watchlist: readWatchlist().length,
     },
-    visibleTrendCount: trends.length,
-    activeFilters: {},
+    visibleTrendCount: visibleTrends().length,
+    activeFilters: activeFilters(),
   }
 }
 

@@ -5,7 +5,7 @@ import type { Route } from './types'
 import { globalTools } from './tools/global'
 import { bindHashListener, navigate, useAppState } from './store/router'
 import { Dashboard } from './routes/Dashboard'
-import { CorpusCheck } from './routes/CorpusCheck'
+import { Trends } from './routes/Trends'
 import { PendingRoute } from './routes/Pending'
 import { ToolSurfacePanel, UnsupportedBrowserNotice, installBridge, useTools } from './webmcp'
 
@@ -76,13 +76,11 @@ export default function App() {
 }
 
 function RouteView({ route }: { route: Route }) {
-  if (route === 'dashboard') {
-    return (
-      <>
-        <Dashboard />
-        <CorpusCheck />
-      </>
-    )
-  }
+  if (route === 'dashboard') return <Dashboard />
+  // Phase 2 replaced the Phase 0 corpus-check panel on the dashboard with the
+  // real drawer here, per plan/phases/phase-2-trends.md. The deploy smoke test
+  // it existed for — a poster and an mp4 loading from the deployed origin — is
+  // now done by opening any clip-backed trend.
+  if (route === 'trends') return <Trends />
   return <PendingRoute route={route} />
 }

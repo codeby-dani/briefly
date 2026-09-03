@@ -41,7 +41,16 @@ interface Trend {
   aiSummary: string | null  // null until something writes it
   aiSummarySource: SummarySource
   suggestedAngles: string[] // written alongside aiSummary; [] until then
+  cached: CachedAnalysis | null  // the committed fallback analyze_trend serves
+                                 // with no key; null on trends with no clips
   demo: true                // every trend is seeded; the badge reads from this
+}
+
+interface CachedAnalysis {  // § Seed Data asks for one of these per clip-backed
+  summary: string           // trend. It is one nested record rather than four
+  suggestedAngles: string[] // loose fields so the four values that have to
+  model: string             // travel together cannot be written apart.
+  generatedAt: string       // ISO date
 }
 
 interface Sample {
@@ -333,8 +342,10 @@ result into `Trend.aiSummary` with `aiSummarySource: 'model'`. This is a real
 model call over the seeded corpus — the data is invented, the reasoning is not.
 
 Without a configured key the function returns `503 llm_unavailable`; the tool
-then falls back to the fixture's committed summary and reports
-`source: 'cached'`. `force: true` skips the cache and requires the key.
+then falls back to `Trend.cached` and reports `source: 'cached'`. A trend whose
+`cached` is `null` — every trend with no clips — has nothing to fall back to,
+so the tool passes the function's `llm_unavailable` straight through rather
+than inventing one. `force: true` skips the cache and requires the key.
 
 The `hint` on failure names `write_trend_summary` as the alternative. An agent
 told only that something failed retries it; an agent told what to do instead
@@ -438,9 +449,20 @@ out: { ok: true, from, to } | { ok: false, reason, currentStatus }
   declining an angle rather than always agreeing.
 - **30 days of analytics** with a weekday/weekend rhythm, so "best posting time"
   shows a real shape rather than noise.
-- **One committed summary per clip-backed trend**, used as the `cached`
-  fallback when `analyze_trend` runs without a key. Written by the same model
-  the live path uses, recorded with its model id and date.
+- **One committed summary per clip-backed trend**, in `Trend.cached`, used as
+  the fallback when `analyze_trend` runs without a key. Recorded with the id of
+  the model that wrote it and the date. 12 of the 24 trends carry one; the
+  other 12 have no clips, so there is nothing to ground an analysis in and
+  `cached` is `null` — `analyze_trend` on those returns
+  `{ ok: false, error: 'llm_unavailable' }` with the `write_trend_summary`
+  hint, which is the honest answer rather than an invented paragraph.
+
+  These were **not** written by Gemini. The live path's key (B6) was not
+  available at build time, and inventing a Gemini model id next to text Gemini
+  never produced would be exactly the dishonesty the `cached` label exists to
+  prevent. They were written by `claude-opus-5` at build time from the clip
+  transcripts, and `Trend.cached.model` says so verbatim — the UI renders that
+  string, so a judge reads the real provenance.
 
 ## The Clip Corpus
 

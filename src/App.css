@@ -441,3 +441,404 @@
     padding-right: 312px;
   }
 }
+
+/* ---------------------------------------------------------------------- *
+ * Trends — controls, table, drawer. Phase 2.
+ *
+ * Everything here uses the tokens in index.css and names no colour of its
+ * own, for the reason recorded at the top of that file: the palette came out
+ * of the Stitch design system and a hardcoded hex here would be the first
+ * place the app and the design file drift.
+ * ---------------------------------------------------------------------- */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: flex-end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 118px;
+
+  > span {
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  input,
+  select {
+    font: inherit;
+    font-size: 13.5px;
+    color: var(--text-h);
+    background: var(--surface-high);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 7px 9px;
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+  }
+}
+
+.field-wide {
+  flex: 1 1 240px;
+}
+
+.control-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-bottom: 2px;
+}
+
+/* The table. A grid rather than a <table>, because the sparkline column is a
+ * graphic and the star is a control — neither is tabular data, and a grid
+ * keeps the row a single flex context for the open button to fill. */
+.trend-head,
+.trend-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px 78px 96px 72px 36px;
+  align-items: center;
+  gap: 10px;
+}
+
+.trend-head {
+  padding: 0 8px 8px;
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.7;
+
+  > span,
+  > button {
+    text-align: right;
+  }
+
+  > .th-keyword {
+    text-align: left;
+  }
+}
+
+.th-sort {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    color: var(--text-h);
+  }
+
+  &.is-current {
+    color: var(--accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.trend-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.trend-row {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  border-radius: 6px;
+
+  &:hover {
+    background: var(--surface-high);
+  }
+
+  &.is-open {
+    background: var(--accent-bg);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+}
+
+.trend-open {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  min-width: 0;
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+}
+
+.td-volume,
+.td-growth,
+.td-seen {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.star {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text);
+  padding: 2px;
+
+  &.is-on {
+    color: var(--warn);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* ---------------------------------------------------------------------- *
+ * The drawer.
+ * ---------------------------------------------------------------------- */
+
+.drawer {
+  border-color: var(--accent-border);
+
+  h3 {
+    font-size: 15px;
+    margin: 4px 0 0;
+  }
+
+  h4 {
+    font-size: 13.5px;
+    margin: 8px 0 0;
+  }
+}
+
+.drawer-close {
+  margin-left: auto;
+}
+
+.drawer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 20px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.drawer-main,
+.drawer-side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.samples {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sample {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--surface-high);
+  border-radius: 6px;
+  font-size: 13.5px;
+}
+
+.sample-author {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+}
+
+.sample-engagement {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  opacity: 0.7;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip.is-static {
+  cursor: default;
+
+  &:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+}
+
+/* ---------------------------------------------------------------------- *
+ * The summary block, and its provenance label.
+ *
+ * The four sources get four different colours because "a cached summary must
+ * not look like a fresh one" is a Phase 2 task, not a nicety.
+ * ---------------------------------------------------------------------- */
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--surface-high);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+}
+
+.summary-text {
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.angles {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.summary-error {
+  font-size: 13px;
+  color: var(--danger);
+  margin: 0;
+}
+
+.summary-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  textarea {
+    font: inherit;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-h);
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 8px 10px;
+    resize: vertical;
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+  }
+}
+
+.badge-source {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.badge-source-agent {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.badge-source-model {
+  color: var(--ok);
+  background: rgba(79, 224, 207, 0.16);
+  border-color: rgba(79, 224, 207, 0.4);
+}
+
+/* Cached is deliberately the drabbest of the four: it is the one that must
+ * never be mistaken for something that just happened. */
+.badge-source-cached {
+  color: var(--text);
+  background: var(--surface-bright);
+  border-color: var(--border-strong);
+}
+
+.badge-source-human {
+  color: var(--warn);
+  background: rgba(240, 162, 39, 0.16);
+  border-color: rgba(240, 162, 39, 0.4);
+}
+
+/* Narrow viewports. The six-column grid needs about 700px before the keyword
+ * column starts losing to the numbers, and below that a judge on a laptop in
+ * a split window gets a horizontally scrolling page — which reads as broken
+ * long before anyone notices which column overflowed. So the row becomes two
+ * lines and the date, which is already in the row's own subtitle, drops out. */
+@media (max-width: 720px) {
+  .trend-head {
+    display: none;
+  }
+
+  .trend-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+  }
+
+  .trend-open {
+    flex: 1 1 100%;
+  }
+
+  .td-seen {
+    display: none;
+  }
+
+  .td-volume,
+  .td-growth {
+    text-align: left;
+  }
+
+  .star {
+    margin-left: auto;
+  }
+}
