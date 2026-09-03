@@ -6,7 +6,7 @@ Everything is plain JSON. No migrations — a version mismatch reseeds.
 ```
 td:version      schema version, integer
 td:trends       Trend[]        seeded, read-only to the user
-td:products     Product[]      user-owned, full CRUD
+td:business-profile  BusinessProfile  one user-owned profile with structured offerings
 td:briefs       Brief[]        user- and agent-owned
 td:watchlist    string[]       trend ids
 td:schedule     ScheduleEntry[]  Phase 5, cuttable
@@ -86,14 +86,26 @@ interface Clip {
   signals: ClipSignals
 }
 
-interface Product {
+interface BusinessOffering {
   id: string
   name: string
-  description: string
+  positioning: string
   usp: string[]
   priceIdr: number
-  dos: string[]             // things the brand will say
-  donts: string[]           // things the brand will not say
+  approvedClaims: string[]
+  prohibitedClaims: string[]
+}
+
+interface BusinessProfile {
+  name: string
+  description: string
+  industry: string
+  targetAudiences: string[]
+  brandVoices: string[]
+  contentGoals: string[]
+  approvedClaims: string[]
+  prohibitedClaims: string[]
+  offerings: BusinessOffering[]
   updatedAt: string
 }
 
@@ -103,7 +115,7 @@ interface Brief {
   id: string
   title: string
   trendId: string
-  productId: string
+  offeringId: string
   platform: Platform
   status: BriefStatus
   hook: string
@@ -202,14 +214,14 @@ Not stored, but it is a state machine and the whole product depends on it:
 ```
 route=trends                 ─► 6 tools + 2 global
 route=trends & trendOpen     ─► 10 tools + 2 global
-route=products               ─► 3 tools + 2 global
-route=products & productOpen ─► 5 tools + 2 global
-trendSelected & productSelected ─► + get_brief_context, save_brief
+route=products               ─► 1 tool + 2 global
+route=products & profileEdit ─► 5 tools + 2 global
+trendSelected & offeringSelected ─► + get_brief_context, save_brief
 route=briefs                 ─► 2 tools + 2 global (+1 when a brief is open)
 ```
 
 `get_brief_context` and `save_brief` are conditioned on *selection*, not route,
-so they survive navigating between Trends and Products while composing.
+so they survive navigating between Trends and Profile while composing.
 
 ## Tool Contracts
 
@@ -219,8 +231,8 @@ Input schemas abbreviated; the full JSON Schema lives beside each tool.
 
 ```
 in:  {}
-out: { route, selectedTrendId, selectedProductId, openBriefId,
-       counts: { trends, products, briefs, watchlist },
+out: { route, selectedTrendId, selectedOfferingId, openBriefId,
+       counts: { trends, offerings, briefs, watchlist },
        visibleTrendCount, activeFilters }
 ```
 
@@ -356,45 +368,49 @@ judge with no agent connected still sees the analysis happen; this tool exists
 because an agent that is already connected should not be asked to wait on a
 second model round-trip through a serverless function it does not need.
 
-### `list_products` / `get_product` → readOnly
+### `get_business_profile` → readOnly, untrustedContent
 
 ```
-list: {} → { count, products: [{ id, name, positioning }] }
-get:  { productId } → { ...Product }   // untrustedContent
+in:  {}
+out: { ...BusinessProfile } // including structured offerings
 ```
 
-### `create_product`
+### `update_business_profile`
 
 ```
-in:  { name, description, usp[], priceIdr, dos[], donts[] }
-out: { ok: true, productId }
-```
-
-### `update_product` → destructive, idempotent
-
-```
-in:  { productId, ...partial fields }
+in:  { ...partial shared profile fields }
 out: { ok: true, updated: [field names] }
 ```
 
-Named fields only. An omitted field is left alone — the opposite of
-`filter_trends`, and both descriptions must say which they are.
-
-### `delete_product` → destructive
+### `add_business_offering`
 
 ```
-in:  { productId }   // must equal the currently open product
-out: { ok: true } | { ok: false, reason: 'product is not open' }
+in:  { name, positioning, priceIdr, usp[], approvedClaims[], prohibitedClaims[] }
+out: { ok: true, offeringId }
+```
+
+### `update_business_offering`
+
+```
+in:  { offeringId, ...partial offering fields }
+out: { ok: true, updated: [field names] }
+```
+
+### `remove_business_offering`
+
+```
+in:  { offeringId }
+out: { ok: true } | { ok: false, reason: 'offering not found' }
 ```
 
 ### `get_brief_context` → readOnly, untrustedContent
 
 ```
 in:  {}
-out: { trend: {...}, product: {...}, platform, existingBriefs: [{id,title,hook}] }
+out: { trend: {...}, businessProfile: {...}, offering: {...}, platform, existingBriefs: [{id,title,hook}] }
 ```
 
-`existingBriefs` for the same trend+product pair is included so the agent can
+`existingBriefs` for the same trend+offering pair is included so the agent can
 avoid repeating an angle already in the library.
 
 ### `save_brief`
@@ -431,11 +447,7 @@ out: { ok: true, from, to } | { ok: false, reason, currentStatus }
   are shaped, not random — a trend with +680% growth has a visible hockey stick.
 - **12 clips** in `clips.ts`, with their media in `public/media/`. See the
   corpus section below.
-- **4 products** with genuinely different positioning, including a full
-  do-and-do-not list. One product maps to each clip-backed category, so the
-  brief composer always has a real transcript behind it. One of them is
-  deliberately a poor fit for the top trend, so the demo can show the agent
-  declining an angle rather than always agreeing.
+- **One business profile** with shared guardrails and detailed, editable offerings.
 - **30 days of analytics** with a weekday/weekend rhythm, so "best posting time"
   shows a real shape rather than noise.
 - **One committed summary per clip-backed trend**, used as the `cached`

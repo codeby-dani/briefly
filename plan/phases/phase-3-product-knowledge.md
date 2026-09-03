@@ -1,30 +1,21 @@
-# Phase 3 — Product Knowledge
+# Phase 3 — Business Profile
 
 **Window:** T+4:15 → T+5:15 · **Cuttable:** no
 
-The "real" half of the feature split, and the context that makes briefs good.
+The durable business context that makes briefs good: one profile, shared claim guardrails, and structured offerings.
 
 ## Status
 
-- [ ] Product list and detail — implemented and locally verified; awaiting deployment
-- [ ] Create, update, delete by hand — implemented; deployed browser confirmation pending
-- [ ] `list_products`, `get_product`, `create_product` on the route — contract verified locally; awaiting deployment
-- [ ] `update_product`, `delete_product` when a product is open — 5/7 surface logic verified locally; awaiting deployment
-- [ ] Do-and-do-not lists are first-class, not a notes field — array row controls render locally; awaiting deployment
+- [x] Editable business profile with structured offerings
+- [x] `get_business_profile` available on Profile; write tools only while editing
+- [x] Shared and offering-specific claim guardrails are first-class fields
 
 ## Tasks
 
-1. **List.** Cards with name, positioning line, price, USP count.
-   `data-testid="product-card-{id}"`.
-2. **Detail and form.** One component in two modes. Fields: name,
-   description, USP list, price, dos list, donts list. List fields are
-   add/remove rows, not comma-separated text — the agent reads them as arrays
-   and a free-text field would force a parse.
-3. **Delete.** Confirmation required in the UI. `delete_product` accepts only
-   the currently open id.
-4. **Route tools.** `list_products`, `get_product`, `create_product`.
-5. **Conditional tools.** `update_product`, `delete_product`, guarded on
-   `openProductId`, both annotated `destructiveHint`.
+1. **Profile.** Identity, quality summary, facts, chips, offerings, and shared guardrails.
+2. **Editor.** One panel manages shared fields and detailed offerings.
+3. **Route tools.** `get_business_profile` is read-only and returns untrusted content.
+4. **Conditional tools.** Profile and offering write tools register only while editing.
 
 ## Exit Criteria
 

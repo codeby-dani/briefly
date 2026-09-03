@@ -40,7 +40,7 @@ export default function App() {
           <div>
             <h1>Anglebook</h1>
             <p className="tagline">
-              Trend research, product knowledge and briefs — one shared workspace for people
+              Trend research, business context and briefs — one shared workspace for people
               and agents.
             </p>
           </div>
@@ -61,7 +61,7 @@ export default function App() {
                 navigate(name)
               }}
             >
-              {name}
+              {name === 'products' ? 'Profile' : name}
             </a>
           ))}
         </nav>

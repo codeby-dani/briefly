@@ -7,12 +7,12 @@
  * that has never shipped, and a half-migrated store is worse than a fresh one.
  */
 
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
 export const KEYS = {
   version: 'td:version',
   trends: 'td:trends',
-  products: 'td:products',
+  businessProfile: 'td:business-profile',
   briefs: 'td:briefs',
   watchlist: 'td:watchlist',
   schedule: 'td:schedule',
@@ -20,7 +20,7 @@ export const KEYS = {
 } as const
 
 /** Keys that are wiped when the schema version moves. `td:events` is not one — the log survives a reseed on purpose. */
-const SEEDED_KEYS = [KEYS.trends, KEYS.products, KEYS.briefs, KEYS.watchlist, KEYS.schedule, KEYS.analytics]
+const SEEDED_KEYS = [KEYS.trends, KEYS.businessProfile, KEYS.briefs, KEYS.watchlist, KEYS.schedule, KEYS.analytics, 'td:products']
 
 /**
  * Every read and write is wrapped, because a private window with storage

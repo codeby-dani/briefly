@@ -2,7 +2,7 @@
  * Hash router and selection state, in one reducer.
  *
  * Six routes and no library, per the scope reductions in
- * plan/01-architecture.md. Selection (`selectedTrendId`, `selectedProductId`,
+ * plan/01-architecture.md. Selection (`selectedTrendId`, `selectedOfferingId`,
  * `openBriefId`) lives in the same reducer as the route because the tool guards
  * read both together — `get_brief_context` and `save_brief` are conditioned on
  * *selection*, not route, so they survive navigating between Trends and
@@ -23,7 +23,8 @@ import type { Route } from '../types'
 export interface AppState {
   route: Route
   selectedTrendId: string | null
-  selectedProductId: string | null
+  selectedOfferingId: string | null
+  isBusinessProfileEditing: boolean
   openBriefId: string | null
 }
 
@@ -31,7 +32,8 @@ export type RouterAction =
   | { type: 'hash'; hash: string }
   | { type: 'navigate'; route: Route }
   | { type: 'selectTrend'; trendId: string | null }
-  | { type: 'selectProduct'; productId: string | null }
+  | { type: 'selectOffering'; offeringId: string | null }
+  | { type: 'setBusinessProfileEditing'; editing: boolean }
   | { type: 'openBrief'; briefId: string | null }
 
 const INITIAL_ROUTE: Route = 'dashboard'
@@ -52,8 +54,10 @@ export function reduce(state: AppState, action: RouterAction): AppState {
       return action.route === state.route ? state : { ...state, route: action.route }
     case 'selectTrend':
       return state.selectedTrendId === action.trendId ? state : { ...state, selectedTrendId: action.trendId }
-    case 'selectProduct':
-      return state.selectedProductId === action.productId ? state : { ...state, selectedProductId: action.productId }
+    case 'selectOffering':
+      return state.selectedOfferingId === action.offeringId ? state : { ...state, selectedOfferingId: action.offeringId }
+    case 'setBusinessProfileEditing':
+      return state.isBusinessProfileEditing === action.editing ? state : { ...state, isBusinessProfileEditing: action.editing }
     case 'openBrief':
       return state.openBriefId === action.briefId ? state : { ...state, openBriefId: action.briefId }
   }
@@ -62,7 +66,8 @@ export function reduce(state: AppState, action: RouterAction): AppState {
 let state: AppState = {
   route: routeFromHash(typeof location === 'undefined' ? '' : location.hash),
   selectedTrendId: null,
-  selectedProductId: null,
+  selectedOfferingId: null,
+  isBusinessProfileEditing: false,
   openBriefId: null,
 }
 

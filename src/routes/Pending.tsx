@@ -39,13 +39,13 @@ const PENDING: Record<Exclude<Route, 'dashboard'>, PendingSection> = {
     ],
   },
   products: {
-    title: 'Product Knowledge',
+    title: 'Profile',
     phase: 'Phase 3',
     blurb:
-      'Four seeded products with a do-and-do-not list each, and full CRUD. This is the ' +
+      'One editable business profile with structured offerings and shared claim guardrails. This is the ' +
       'brand context an agent reads before it writes anything — as data, never as ' +
       'instructions to itself.',
-    tools: ['list_products', 'get_product', 'create_product', 'update_product', 'delete_product'],
+    tools: ['get_business_profile', 'update_business_profile', 'add_business_offering', 'update_business_offering', 'remove_business_offering'],
   },
   briefs: {
     title: 'Briefs',
