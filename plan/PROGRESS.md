@@ -936,3 +936,12 @@ updates only the active sidebar label and closes the menu, deliberately leaving
 the dashboard route and its data untouched. The browser interaction check
 confirmed the menu opened, Growth Team became active, and the route remained
 `dashboard`.
+
+### 2026-09-04 02:33 WITA — dashboard social coverage
+
+Dashboard demo-data badges were removed from the audience, growth, and top
+trending cards. A social-signal coverage strip now shows the four channels
+represented in the application data—Instagram, TikTok, YouTube, and X—and each
+top-trending row carries its source icon beside its platform label. The live
+dashboard check recorded four source icons and no remaining dashboard demo
+badges.

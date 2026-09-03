@@ -9,18 +9,19 @@
  */
 
 import { useState } from 'react'
-import { DemoBadge } from '../components/Badge'
 import { LineChart } from '../components/LineChart'
+import { PlatformIcon } from '../components/PlatformIcon'
 import { Sparkline } from '../components/Sparkline'
 import { analyticsStore } from '../store/analytics'
 import { briefStore } from '../store/briefs'
 import { trendStore } from '../store/trends'
 import { dispatch, navigate, useAppState } from '../store/router'
-import type { Trend } from '../types'
+import type { Platform, Trend } from '../types'
 import { AnimatedNumber } from '../components/AnimatedNumber'
 import { useToolSurface } from '../webmcp'
 
 const ID = new Intl.NumberFormat('en-US')
+const SOCIAL_SOURCES: Platform[] = ['instagram', 'tiktok', 'youtube', 'x']
 
 function compact(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
@@ -86,7 +87,7 @@ export function Dashboard() {
             <p className="eyebrow">Audience pulse</p>
             <h2>Last 30 days</h2>
           </div>
-          <DemoBadge what="Every figure in this card" />
+          <SocialSourceStrip />
         </div>
         <div className="kpis">
           <Kpi label="Reach" value={compact(analytics.reach)} rawValue={analytics.reach} formatter={compact} note="Audience signals" icon="reach" spark={kpiSparks.reach} />
@@ -102,7 +103,6 @@ export function Dashboard() {
             <p className="eyebrow">Momentum</p>
             <h2>Follower growth</h2>
           </div>
-          <DemoBadge what="This series" />
           <div className="toggle" role="group" aria-label="Chart window">
             {([7, 30] as const).map((days) => (
               <button
@@ -132,7 +132,6 @@ export function Dashboard() {
               <p className="eyebrow">Signals to act on</p>
               <h2>Top trending</h2>
             </div>
-            <DemoBadge what="Volume, growth and the spike shape" />
           </div>
           <ul className="rows" data-testid="dashboard-trend-list">
             {top5.map((trend) => (
@@ -218,7 +217,7 @@ function Kpi({
       </span>
       <div className="kpi-foot">
         <span>{note}</span>
-        {spark && <Sparkline points={spark} label={`${label}, illustrative demo direction`} testId={`kpi-spark-${label.toLowerCase().replace(/\s+/g, '-')}`} />}
+        {spark && <Sparkline points={spark} label={`${label}, seven-day direction`} testId={`kpi-spark-${label.toLowerCase().replace(/\s+/g, '-')}`} />}
       </div>
     </div>
   )
@@ -235,13 +234,29 @@ function MetricIcon({ name }: { name: keyof typeof ICONS }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d={ICONS[name]} strokeLinecap="round" strokeLinejoin="round" /></svg>
 }
 
+function SocialSourceStrip() {
+  return (
+    <div className="social-source-strip" data-testid="social-source-strip" aria-label="Social channels represented">
+      <span className="social-source-label">Social signal coverage</span>
+      <span className="social-source-icons">
+        {SOCIAL_SOURCES.map((platform) => (
+          <span className="social-source-icon" key={platform}>
+            <PlatformIcon platform={platform} size={16} />
+          </span>
+        ))}
+      </span>
+      <span className="social-source-count">4 channels</span>
+    </div>
+  )
+}
+
 function TrendRow({ trend }: { trend: Trend }) {
   return (
     <li className="row" data-testid={`trend-row-${trend.id}`}>
       <div className="row-main">
         <span className="row-title">{trend.keyword}</span>
         <span className="muted small">
-          {trend.platform} · {trend.category} · {ID.format(trend.volume)} mentions
+          <span className="trend-source"><PlatformIcon platform={trend.platform} size={14} />{trend.platform}</span> · {trend.category} · {ID.format(trend.volume)} mentions
         </span>
       </div>
 
