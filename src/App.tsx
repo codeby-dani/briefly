@@ -5,11 +5,12 @@ import type { Route } from './types'
 import { globalTools } from './tools/global'
 import { composerTools } from './tools/briefs'
 import { bindHashListener, navigate, useAppState } from './store/router'
+import { Calendar } from './routes/Calendar'
 import { Dashboard } from './routes/Dashboard'
-import { PendingRoute } from './routes/Pending'
 import { Trends } from './routes/Trends'
 import { Products } from './routes/Products'
 import { Briefs } from './routes/Briefs'
+import { Performance } from './routes/Performance'
 import { ToolSurfacePanel, UnsupportedBrowserNotice, installBridge, useTools } from './webmcp'
 
 /**
@@ -89,9 +90,23 @@ function RouteView({ route }: { route: Route }) {
   // removed it, as its phase file instructs: the deployed-media exit criterion
   // is now checked by opening any clip-backed trend, which is a real surface
   // rather than a scaffold a judge has to be told to ignore.
-  if (route === 'dashboard') return <Dashboard />
-  if (route === 'trends') return <Trends />
-  if (route === 'products') return <Products />
-  if (route === 'briefs') return <Briefs />
-  return <PendingRoute route={route} />
+  //
+  // Phase 5 took the last two placeholders. `routes/Pending.tsx` is gone with
+  // them rather than left behind unreferenced: its own header said it existed
+  // to be honest about what had not been built, and a module that now describes
+  // nothing is the opposite of that.
+  switch (route) {
+    case 'dashboard':
+      return <Dashboard />
+    case 'trends':
+      return <Trends />
+    case 'products':
+      return <Products />
+    case 'briefs':
+      return <Briefs />
+    case 'calendar':
+      return <Calendar />
+    case 'performance':
+      return <Performance />
+  }
 }

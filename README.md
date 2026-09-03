@@ -22,11 +22,12 @@ surface, and every line under `src/` are new work from that window. The only
 reused material is the author's own cc0 clip corpus described under
 [Media](#media), not application code or a pre-existing product.
 
-> **Status: Phases 1–4 of 7 are built; the live URL is behind them.** Trends,
-> Product Knowledge and the brief composer and library all exist, and all 21
-> tools are written and driven. The deployed bundle currently predates Trends
-> and Products, so those two routes show placeholders on the live URL until the
-> next deploy. Phase 5 (Calendar and Performance) is pre-designated as cuttable.
+> **Status: Phases 1–5 of 7 are built; the live URL is behind them.** Trends,
+> Product Knowledge, the brief composer and library, and now the Calendar and
+> Performance routes all exist, and all 23 tools are written and driven. The
+> deployed bundle currently predates Trends and Products, so several routes show
+> older content on the live URL until the next deploy. Phase 5 was
+> pre-designated as cuttable and was not cut.
 > Progress and what is actually done live in
 > [plan/PROGRESS.md](plan/PROGRESS.md) — that file, not this one, is the
 > authority on state.

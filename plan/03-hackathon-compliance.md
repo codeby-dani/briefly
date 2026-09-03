@@ -39,7 +39,7 @@ Audio is required by the rules. Captions alone do not satisfy requirement 5.
 not just a deploy chore.** Measured on the public origin 2026-09-03 23:00, the
 deployed bundle predates Phase 2: `/trends` and `/products` render "coming in
 Phase 2 / Phase 3" placeholders and the tool surface stays at 2 there. A judge
-following requirement 1 or 2 today would find 6 of the 21 tools and two of the
+following requirement 1 or 2 today would find 6 of the 23 tools and two of the
 five real features. Phases 2 and 3 exist and are verified locally; they are
 simply not on the origin, because the merged `main` could not compile until the
 repair recorded in `PROGRESS.md`. Deploy before doing either browser check —
@@ -97,7 +97,7 @@ general claim of quality.
 > "Thoroughness and skill in using WebMCP with genuine, non-trivial
 > implementation."
 
-The answer is the state-dependent tool surface. 21 tools that register and
+The answer is the state-dependent tool surface. 23 tools that register and
 unregister as the human navigates and selects, driven by `AbortSignal`
 lifecycles, rendered live from the `toolchange` event. Not a fixed list bolted
 on at page load.

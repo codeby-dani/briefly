@@ -9,10 +9,23 @@ no calendar.
 
 ## Status
 
-- [ ] Monthly calendar grid, briefs placed by date
-- [ ] Assign a brief to date + platform + PIC
-- [ ] Performance route: overview cards, per-content table, best posting time
-- [ ] `schedule_brief` and `list_schedule`
+`[x]` requires deployment (plan/README.md § Progress Tracking Rules). Everything
+below is code-complete and verified on a local production build; none of it is
+on the deployed origin, so every box stays `[ ]` with an inline note.
+
+- [ ] Monthly calendar grid, briefs placed by date — built, verified on
+      `localhost:4173`; waiting on a push to `main`
+- [ ] Assign a brief to date + platform + PIC — built, both by hand and by
+      `schedule_brief`; waiting on a push to `main`
+- [ ] Performance route: overview cards, per-content table, best posting time —
+      built, plus platform mix and trend-versus-result; waiting on a push
+- [ ] `schedule_brief` and `list_schedule` — registered, surface 4 on the
+      Calendar route locally; waiting on a push
+- [~] Drag and drop — SKIPPED, cut by this file's own task list: an hour of
+      pointer-event handling for what a click already delivers
+- [~] Weekly view — SKIPPED, this file scopes it "only if it is free"; it was
+      not free
+- [~] PDF export — SKIPPED, cut by this file's own task list; CSV ships
 
 ## Tasks — Calendar
 

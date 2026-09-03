@@ -187,7 +187,23 @@ export interface Brief {
   updatedAt: string
 }
 
-/** Phase 5, cuttable. Declared here so the store keys are complete. */
+/**
+ * Phase 5. The schedule status machine is `planned ⇄ in_progress ⇄ published`
+ * with free movement in both directions — plan/02-data-model.md § Schedule
+ * status says so explicitly, and the reason given there is that real teams move
+ * things back. It is deliberately *not* the brief machine, which is forward-only.
+ *
+ * Array first, union second, same as PLATFORMS and BRIEF_STATUSES, so the tool
+ * schema and the type system read from one list.
+ */
+export const SCHEDULE_STATUSES = ['planned', 'in_progress', 'published'] as const
+
+export type ScheduleStatus = (typeof SCHEDULE_STATUSES)[number]
+
+export function isScheduleStatus(value: unknown): value is ScheduleStatus {
+  return typeof value === 'string' && (SCHEDULE_STATUSES as readonly string[]).includes(value)
+}
+
 export interface ScheduleEntry {
   id: string
   briefId: string
@@ -195,7 +211,7 @@ export interface ScheduleEntry {
   date: string
   platform: Platform
   pic: string
-  status: 'planned' | 'in_progress' | 'published'
+  status: ScheduleStatus
 }
 
 export interface AnalyticsContent {
