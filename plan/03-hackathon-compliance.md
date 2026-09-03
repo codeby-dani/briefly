@@ -20,8 +20,9 @@ rejected uploads at the wire before, and there is no appeal.
 
 | # | Requirement | Satisfied by | State |
 |---|-------------|--------------|-------|
-| 1 | Working live URL, reachable in ChatGPT's in-app browser | Netlify deploy, Phase 0 | `[ ]` |
+| 1 | Working live URL, reachable in ChatGPT's in-app browser | Vercel deploy, Phase 0 | `[ ]` |
 | 2 | Same URL working in Chrome 149+ with `#enable-webmcp-testing` | Same deploy, verified separately | `[ ]` |
+| 2b | *Not required by the rules:* same tools reachable by Claude and any other JS-capable agent | `window.__td` bridge, `src/webmcp/bridge.ts` | `[ ]` |
 | 3 | Public repo on GitHub/GitLab/Bitbucket | This repo, made public in Phase 7 | `[ ]` |
 | 4 | Open-source licence, visible | `LICENSE` at repo root | `[x]` |
 | 5 | Demo video under 3:00, **with audio**, public on YouTube | `99-demo-script.md` | `[ ]` |
@@ -47,7 +48,9 @@ as such.
 
 - [x] Repo history begins at `ebe1b8a Initial commit: TrendDashboard`, within
       the window. No prior work exists to disambiguate.
-- [ ] README states this explicitly, so a judge is not left to infer it.
+- [ ] README states this explicitly, so a judge is not left to infer it. Phase 7
+      owns the final wording; the Phase 0 README states the status and the media
+      provenance but not yet the creation-window argument.
 
 ### Media provenance
 
@@ -57,9 +60,12 @@ author. Every clip is `cc0` and self-generated: script written by the author,
 voiced with macOS text-to-speech, over generated footage. **No third-party
 media is used anywhere in this project.**
 
-- [ ] README credits ClipBrief as the corpus source with a link
-- [ ] `Clip.sourceNote` renders in the UI beside every player, not only in JSON
-- [ ] `LICENSE` covers the repo; clip licence is recorded per-clip as `cc0`
+- [x] README credits ClipBrief as the corpus source with a link — in the repo;
+      the repo itself goes public in Phase 7
+- [x] `Clip.sourceNote` renders in the UI beside every player, not only in JSON —
+      `.source-note` in the clip card, Phase 0
+- [x] `LICENSE` covers the repo; clip licence is recorded per-clip as `cc0` —
+      every record in `src/fixtures/clips.ts` carries `license: 'cc0'`
 
 Reusing the author's own prior corpus is asset reuse, not project reuse. The
 application, the tool surface and every line of `src/` are new work inside the
@@ -134,18 +140,31 @@ present itself.
 |------------|---------|
 | WebMCP disabled if `document.domain` is set | `[x]` never set |
 | Origin isolation required | `[x]` single origin, static deploy |
-| Gated by the `tools` Permissions Policy, default `self` | `[ ]` verify Netlify does not override |
+| Gated by the `tools` Permissions Policy, default `self` | `[ ]` verify Vercel does not override |
 | Function and page share one origin — no CORS, no cross-origin fetch from a tool | `[ ]` verify `/api/analyze` resolves same-origin on the deploy |
-| No secret reachable from the client bundle | `[ ]` `GEMINI_API_KEY` set in Netlify env only; grep the built bundle for it in Phase 6 |
-| Chrome needs 149+ and the testing flag | `[x]` `UnsupportedBrowserNotice` explains both paths |
+| No secret reachable from the client bundle | `[x]` no key in the repo (`git grep -i AIza` clean); the variable is read only in `api/analyze.ts`, which never reaches the bundle. Re-grep `dist/` in Phase 6 |
+| Chrome needs 149+ and the testing flag | `[x]` `UnsupportedBrowserNotice` explains all three paths |
+| WebMCP reaches only ChatGPT's browser and flagged Chrome | `[x]` `window.__td` bridge carries the same tools to Claude and any other JS-capable agent — additive, never a substitute for requirements 1 and 2 |
 | `getTools()` returns `inputSchema` as a JSON string | `[x]` `parseSchema()` |
 | No `unregisterTool` — abort the signal | `[x]` `useTool` uses `AbortController` |
 
 ## Hosting
 
-Approved platforms include Netlify. `netlify.toml` is committed. Netlify also
-carries a $500 cash sponsor prize, which is not a reason to choose it, but it
-is not a reason against.
+**Vercel**, deployed from GitHub: a push to `main` is the deploy. `vercel.json`
+is committed — SPA rewrite that excludes `/api`, and immutable cache headers on
+`/media`. The function is `api/analyze.ts`, routed by its file path.
+
+- [ ] **Confirm Vercel is on the rules' approved-hosting list before submitting.**
+      The earlier draft of this file recorded Netlify as approved and named its
+      $500 sponsor prize. Switching hosts drops that prize and re-opens the
+      approval question, and neither is something to discover on the form. If
+      Vercel is not approved, the port back is `vercel.json` → `netlify.toml`
+      and `api/` → `netlify/functions/`; the handler itself is web-standard
+      `Request`/`Response` and moves unchanged, which is why it was written that
+      way.
+
+The single secret, `GEMINI_API_KEY`, lives in Vercel's project environment
+variables and never in the repo.
 
 ## Text Description — Draft
 
@@ -180,6 +199,12 @@ the deadline never arrives with a blank field.
 > offered a tool that cannot currently succeed. A live inspector panel renders
 > the surface from the spec's `toolchange` event, so you can watch it follow the
 > human's selection rather than take our word for it.
+>
+> Every tool is also reachable at `window.__td` for agents without a WebMCP
+> browser — Claude among them — from the same definition and the same executor,
+> so the two paths cannot drift. The spec path is the real one where it exists;
+> the bridge is what keeps the argument from depending on which agent the visitor
+> happens to have.
 >
 > **Scope, stated honestly.** The dataset is fictional and labelled as such.
 > Trend volumes, growth rates and account analytics are invented and carry a

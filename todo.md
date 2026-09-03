@@ -32,7 +32,7 @@ Every scope decision below is downstream of that number. This is not a
 | Devpost registration | `[ ]` BLOCKING |
 | Repo + open-source licence | `[x]` MIT `LICENSE` present at repo root |
 | WebMCP runtime verified | `[x]` `document.modelContext`, verified 2026-09-02 |
-| Hosting target | `[x]` Netlify — `netlify.toml` already committed |
+| Hosting target | `[x]` **Vercel** — `vercel.json` committed, deployed from GitHub. Was Netlify; changed 2026-09-03 21:20. Confirm Vercel is on the approved-hosting list (see `plan/03-hackathon-compliance.md`) |
 | Product scope frozen | `[x]` See "Scope Freeze" below |
 | Demo video | `[ ]` BLOCKING — under 3 min, audio required |
 
@@ -88,7 +88,7 @@ pre-existing project *meaningfully extended* with WebMCP and documented as such.
 - [x] **Origin isolation required.** WebMCP is disabled on any page that sets
       `document.domain`. We never set it.
 - [ ] **Permissions-Policy `tools` header checked on the deployed origin.**
-      Defaults to `self`, which is what we want, but confirm Netlify does not
+      Defaults to `self`, which is what we want, but confirm Vercel does not
       strip or override it. TODO
 
 ## 5. Scope Freeze
@@ -143,9 +143,9 @@ the moment anyone looks closely.
 
 - [x] **Revised 19:50 — the agent is still the model, with one scoped
       exception.** Brief generation has no server path: `save_brief` is
-      agent-only. One tool, `analyze_trend`, calls Gemini through a Netlify
+      agent-only. One tool, `analyze_trend`, calls Gemini through a Vercel
       Function so a judge with no agent connected still sees an analysis
-      appear. Key lives in Netlify's env UI, never in the repo. Superseded
+      appear. Key lives in Vercel's project env, never in the repo. Superseded
       wording kept below for the record.
       > ~~No backend, no LLM API key in the page. The agent *is* the model.
       > Removes hosting cost, and is a stronger WebMCP story than calling an
@@ -187,7 +187,10 @@ the moment anyone looks closely.
 ## 9. Outstanding Minimal Tasks
 
 - [ ] Public repo visibility flipped on before submitting
-- [ ] README rewritten from the Vite template to the actual project
-- [ ] `data-testid` on every element the demo touches
-- [ ] Netlify deploy verified from a cold browser, not just localhost
+- [x] README rewritten from the Vite template to the actual project — Phase 0.
+      Phase 7 still adds the creation-window provenance paragraph
+- [ ] `data-testid` on every element the demo touches — on for everything built
+      so far (shell, panel rows, clip player, badges); the rest go on as each
+      component is built, never in a later pass
+- [ ] Vercel deploy verified from a cold browser, not just localhost
 - [ ] Submission entered on Devpost **by T-30m**, not at the deadline

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { bridgeTools, registerBridgeTool, subscribeToBridge } from './bridge'
 import type { JSONSchema, RegisteredTool, ToolAnnotations } from './types'
 
 export interface ToolSpec {
@@ -7,6 +8,18 @@ export interface ToolSpec {
   inputSchema: JSONSchema
   execute: (input: any, context: { signal: AbortSignal }) => unknown | Promise<unknown>
   annotations?: ToolAnnotations
+}
+
+/**
+ * Registration logging, per plan/04-observability.md.
+ *
+ * "The agent says it cannot see the tool" is half the failure space, and the
+ * surface count in the line is the cheapest check that the state machine in
+ * 02-data-model.md is behaving.
+ */
+function logRegistration(sign: '+' | '-', name: string) {
+  const surface = bridgeTools().length
+  console.log(`[webmcp] ${sign} ${name}  (surface: ${surface})`)
 }
 
 /** True once we know whether this browser speaks WebMCP. */
@@ -47,34 +60,50 @@ export function useTool(spec: ToolSpec | null | false | undefined): void {
 
   useEffect(() => {
     if (!identity) return
-    const mc = document.modelContext
-    if (!mc) return
 
     const current = staticPart.current
     if (!current) return
 
     const controller = new AbortController()
+    const execute = (input: any, context: { signal: AbortSignal }) => {
+      const fn = executeRef.current
+      if (!fn) throw new Error(`Tool "${current.name}" is no longer mounted.`)
+      return fn(input, context)
+    }
 
-    mc.registerTool(
-      {
-        name: current.name,
-        description: current.description,
-        inputSchema: current.inputSchema,
-        annotations: current.annotations,
-        execute: (input, context) => {
-          const fn = executeRef.current
-          if (!fn) throw new Error(`Tool "${current.name}" is no longer mounted.`)
-          return fn(input, context)
-        },
-      },
-      { signal: controller.signal },
-    ).catch((err: unknown) => {
-      if (controller.signal.aborted) return
-      console.error(`[webmcp] registerTool("${current.name}") failed:`, err)
+    // The bridge always gets the tool, so an agent without WebMCP still has a
+    // way in. See bridge.ts — one definition, two doors.
+    const unregisterBridge = registerBridgeTool({
+      name: current.name,
+      description: current.description,
+      inputSchema: current.inputSchema,
+      annotations: current.annotations,
+      execute,
     })
+    logRegistration('+', current.name)
 
-    // Aborting is how the spec says to unregister.
-    return () => controller.abort()
+    document.modelContext
+      ?.registerTool(
+        {
+          name: current.name,
+          description: current.description,
+          inputSchema: current.inputSchema,
+          annotations: current.annotations,
+          execute,
+        },
+        { signal: controller.signal },
+      )
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) return
+        console.error(`[webmcp] registerTool("${current.name}") failed:`, err)
+      })
+
+    return () => {
+      // Aborting is how the spec says to unregister.
+      controller.abort()
+      unregisterBridge()
+      logRegistration('-', current.name)
+    }
   }, [identity])
 }
 
@@ -87,32 +116,50 @@ export function useTools(specs: Array<ToolSpec | null | false | undefined>): voi
   ref.current = specs
 
   useEffect(() => {
-    const mc = document.modelContext
-    if (!mc) return
     const controller = new AbortController()
+    const cleanups: Array<() => void> = []
 
     ref.current.forEach((spec, i) => {
       if (!spec) return
-      mc.registerTool(
-        {
+      const execute = (input: any, context: { signal: AbortSignal }) => {
+        const live = ref.current[i]
+        if (!live) throw new Error(`Tool "${spec.name}" is no longer available.`)
+        return live.execute(input, context)
+      }
+
+      cleanups.push(
+        registerBridgeTool({
           name: spec.name,
           description: spec.description,
           inputSchema: spec.inputSchema,
           annotations: spec.annotations,
-          execute: (input, context) => {
-            const live = ref.current[i]
-            if (!live) throw new Error(`Tool "${spec.name}" is no longer available.`)
-            return live.execute(input, context)
+          execute,
+        }),
+      )
+      logRegistration('+', spec.name)
+
+      document.modelContext
+        ?.registerTool(
+          {
+            name: spec.name,
+            description: spec.description,
+            inputSchema: spec.inputSchema,
+            annotations: spec.annotations,
+            execute,
           },
-        },
-        { signal: controller.signal },
-      ).catch((err: unknown) => {
-        if (controller.signal.aborted) return
-        console.error(`[webmcp] registerTool("${spec.name}") failed:`, err)
-      })
+          { signal: controller.signal },
+        )
+        .catch((err: unknown) => {
+          if (controller.signal.aborted) return
+          console.error(`[webmcp] registerTool("${spec.name}") failed:`, err)
+        })
     })
 
-    return () => controller.abort()
+    return () => {
+      controller.abort()
+      cleanups.forEach((fn) => fn())
+      ref.current.forEach((spec) => spec && logRegistration('-', spec.name))
+    }
   }, [identity])
 }
 
@@ -129,8 +176,22 @@ export function useToolSurface(): RegisteredTool[] {
 
   useEffect(() => {
     const mc = document.modelContext
-    if (!mc) return
     let alive = true
+
+    // No WebMCP: render the bridge registry instead of an empty panel. The
+    // surface is the same either way, and a judge in ordinary Chrome should be
+    // able to see what an agent would be offered.
+    if (!mc) {
+      const refresh = () => {
+        if (alive) setTools(bridgeTools())
+      }
+      refresh()
+      const unsubscribe = subscribeToBridge(refresh)
+      return () => {
+        alive = false
+        unsubscribe()
+      }
+    }
 
     const refresh = () => {
       mc.getTools()
@@ -147,4 +208,18 @@ export function useToolSurface(): RegisteredTool[] {
   }, [])
 
   return tools
+}
+
+export type SurfaceSource = 'webmcp' | 'bridge'
+
+/**
+ * Which door the panel is currently rendering.
+ *
+ * `webmcp` means `document.modelContext` answered. `bridge` means it did not,
+ * and the tools shown are the ones reachable at `window.__td` — real tools an
+ * agent that can run JavaScript can still call, not a placeholder.
+ */
+export function useSurfaceSource(): SurfaceSource {
+  const { supported } = useWebMCPSupport()
+  return supported ? 'webmcp' : 'bridge'
 }

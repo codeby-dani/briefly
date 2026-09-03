@@ -35,8 +35,13 @@ loses an hour discovering it was wrong. In a ten-hour window that is ten percent
 of the project.
 
 `[x]` requires deployment because this is a hackathon with a live-URL
-requirement. Code that is merged but not on the Netlify origin does not count
+requirement. Code that is merged but not on the deployed origin does not count
 toward the submission and must not be marked complete.
+
+Deployment is Vercel, wired to GitHub: a push to `main` is the deploy. So "code
+committed" and "deployed" are one step apart rather than two, but they are still
+not the same step, and a box goes to `[x]` only after the live URL has been
+looked at.
 
 ## Phase Structure
 
@@ -65,8 +70,8 @@ If the schedule slips, cut in this order and do not improvise a different order
 under pressure:
 
 1. Phase 5 entirely — Calendar, then Performance
-2. `analyze_trend` and the Netlify Function — the demo runs on the agent path,
-   which needs neither
+2. `analyze_trend` and the `/api/analyze` function — the demo runs on the agent
+   path, which needs neither
 3. Trend detail drawer — the table alone carries the demo
 4. Brief duplicate and export
 5. Dashboard charts — KPI cards alone are enough
@@ -84,8 +89,8 @@ time than it saves.
   context and accepts writes. `analyze_trend` is the only tool that calls a
   model server-side, and it exists so a judge with no agent connected sees the
   analysis happen. Brief generation has no model path — `save_brief` is
-  agent-only and stays that way. The key lives in Netlify's env UI and **never
-  in this repo**.
+  agent-only and stays that way. The key lives in Vercel's project environment
+  variables and **never in this repo**.
 - **Every agent-writable field is also hand-editable.** A judge who opens the
   live URL in a browser without WebMCP must see a working app, not a dead one.
 - **Tool registration follows app state.** A tool that cannot be executed in

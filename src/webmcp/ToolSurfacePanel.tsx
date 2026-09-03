@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { parseSchema } from './types'
-import { useToolSurface, useWebMCPSupport } from './useTool'
+import { useSurfaceSource, useToolSurface } from './useTool'
 
 const GHOST_MS = 1100
 const FLASH_MS = 1100
@@ -15,7 +15,8 @@ const FLASH_MS = 1100
  */
 export function ToolSurfacePanel({ defaultOpen = true }: { defaultOpen?: boolean }) {
   const tools = useToolSurface()
-  const { supported, checked } = useWebMCPSupport()
+  const source = useSurfaceSource()
+  const supported = source === 'webmcp'
   const [open, setOpen] = useState(defaultOpen)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [fresh, setFresh] = useState<Set<string>>(new Set())
@@ -50,14 +51,12 @@ export function ToolSurfacePanel({ defaultOpen = true }: { defaultOpen?: boolean
     }
   }, [tools])
 
-  if (!checked) return null
-
   return (
-    <aside style={S.panel} aria-label="Agent tool surface">
+    <aside style={S.panel} aria-label="Agent tool surface" data-testid="tool-surface">
       <button style={S.header} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
         <span style={S.dot(supported)} aria-hidden />
         <span style={S.title}>Agent tool surface</span>
-        <span style={S.count}>{supported ? tools.length : '—'}</span>
+        <span style={S.count}>{tools.length}</span>
         <span style={S.chevron(open)} aria-hidden>›</span>
       </button>
 
@@ -65,12 +64,13 @@ export function ToolSurfacePanel({ defaultOpen = true }: { defaultOpen?: boolean
         <div style={S.body}>
           {!supported && (
             <p style={S.empty}>
-              WebMCP is not enabled in this browser, so no tools are visible.
-              See the notice on the page for how to turn it on.
+              WebMCP is off in this browser, so these tools are served through the
+              bridge instead: <code style={S.inlineCode}>window.__td</code>. Any agent
+              that can run JavaScript here — Claude included — can call them.
             </p>
           )}
 
-          {supported && tools.length === 0 && ghosts.length === 0 && (
+          {tools.length === 0 && ghosts.length === 0 && (
             <p style={S.empty}>No tools registered right now.</p>
           )}
 
@@ -79,7 +79,7 @@ export function ToolSurfacePanel({ defaultOpen = true }: { defaultOpen?: boolean
               const isNew = fresh.has(tool.name)
               const isOpen = expanded === tool.name
               return (
-                <li key={tool.name} style={S.item(isNew)}>
+                <li key={tool.name} style={S.item(isNew)} data-testid={`tool-row-${tool.name}`}>
                   <button
                     style={S.itemBtn}
                     onClick={() => setExpanded(isOpen ? null : tool.name)}
@@ -165,6 +165,7 @@ const S = {
   }),
   body: { overflowY: 'auto' as const, padding: 6 },
   empty: { margin: 0, padding: '10px 8px', opacity: 0.55, lineHeight: 1.5 },
+  inlineCode: { fontFamily: MONO, color: '#f0a227' },
   list: { listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' as const, gap: 2 },
   item: (isNew: boolean) => ({
     borderRadius: 5,

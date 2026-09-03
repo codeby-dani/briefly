@@ -7,7 +7,21 @@ export type {
   ToolDefinition,
 } from './types'
 export { parseSchema } from './types'
-export type { ToolSpec } from './useTool'
-export { useTool, useTools, useToolSurface, useWebMCPSupport } from './useTool'
+export type { ToolSpec, SurfaceSource } from './useTool'
+export {
+  useSurfaceSource,
+  useTool,
+  useTools,
+  useToolSurface,
+  useWebMCPSupport,
+} from './useTool'
+export type { BridgeTool, BridgeToolInfo, TrendDashboardBridge } from './bridge'
+export {
+  bridgeTools,
+  callBridgeTool,
+  installBridge,
+  registerBridgeTool,
+  subscribeToBridge,
+} from './bridge'
 export { ToolSurfacePanel } from './ToolSurfacePanel'
 export { UnsupportedBrowserNotice } from './UnsupportedBrowserNotice'

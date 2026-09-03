@@ -6,21 +6,59 @@ A single-page React app, plus one serverless function. No database.
 
 ```
 ChatGPT in-app browser  ──┐
-                          ├─► document.modelContext ─► React tool layer ─┬─► stores ─► localStorage
-Chrome 149+ (flag on)  ───┘                                              │      ▲
-                                                                         │      └── UI reads/writes
-                                                      analyze_trend only │
-                                                                         ▼
-                                                  /api/analyze (Netlify Function)
-                                                                         │
-                                              key set ──► Gemini free tier ──► summary
-                                              no key  ──► 503 ──► committed summary in fixtures
+                          ├─► document.modelContext ──┐
+Chrome 149+ (flag on)  ───┘                           │
+                                                      ├─► React tool layer ─┬─► stores ─► localStorage
+Claude / any JS-capable  ─► window.__td (bridge) ─────┘                     │      ▲
+agent, and the panel                                                        │      └── UI reads/writes
+                                                       analyze_trend only   │
+                                                                            ▼
+                                                     /api/analyze (Vercel Function)
+                                                                            │
+                                                 key set ──► Gemini free tier ──► summary
+                                                 no key  ──► 503 ──► committed summary in fixtures
 ```
 
 The connected agent talks to the page through `document.modelContext`. The page
 talks to itself through a small set of stores. Exactly one path crosses a
 network boundary after the initial asset load: `analyze_trend`, and only when
 called.
+
+## Two Doors Onto One Tool Set
+
+`document.modelContext` is a Chrome 149+ feature behind a flag, shipped enabled
+in exactly one browser today. Designing only for it would mean Claude — and every
+other agent that is not ChatGPT's in-app browser — has no way to reach this app
+at all, which is a strange position for a project whose whole argument is that
+pages should hand their capability to whatever agent the human brought.
+
+So every tool registers twice. `useTool` writes each spec into
+`document.modelContext` when it exists, and *always* into a local registry
+exposed at `window.__td` (`src/webmcp/bridge.ts`):
+
+```js
+window.__td.describe()                      // what this surface is, in words
+window.__td.listTools()                     // name, description, schema, annotations
+await window.__td.callTool(name, input)     // same executor the WebMCP path calls
+window.__td.onChange(fn)                    // registration changes, no polling
+```
+
+The important property is that there is **one definition of each tool and two
+ways to reach it**. The bridge does not re-declare anything; it holds the same
+`execute` closure, over the same page state, wrapped by the same trace logger. A
+tool cannot behave differently depending on which door was used, because there is
+nothing that could differ.
+
+What the bridge is not: an implementation of the WebMCP spec, or a claim to be
+one. It has no `AbortSignal` lifecycle of its own beyond registration, no
+`toolchange` event, no origin exposure model. A browser with the real API uses
+the real API; `useSurfaceSource()` reports which is live and the panel says so on
+screen. The bridge is the fallback, and it is honest about being one.
+
+It also pays for itself twice. The inspector panel renders the bridge registry
+when WebMCP is off, so a judge in ordinary Chrome sees the real surface instead
+of an empty box — and a Playwright script can drive every tool in Phase 6's E2E
+pass without a flagged browser.
 
 See `../docs/diagrams/architecture.drawio` for the drawn version, and
 `../docs/diagrams/brief-flow.drawio` for the human–agent loop.
@@ -41,8 +79,8 @@ any of it, and this is the path the demo shows.
 Under the original plan that judge saw empty fields with a note explaining what
 they were waiting for — honest, but it makes the central feature unobservable
 to whoever is scoring Execution. So one tool, `analyze_trend`, posts the trend
-and its clip transcripts to a Netlify Function that calls Gemini's free tier and
-writes a real analysis back into the page.
+and its clip transcripts to a serverless function that calls Gemini's free tier
+and writes a real analysis back into the page.
 
 This is the reversal of the earlier decision, and it is worth being precise
 about what is and is not being given up:
@@ -76,9 +114,8 @@ still sees a working editor.
 **Cost and blast radius.** Gemini's free tier is 20 requests per day per model
 and needs no card. The function is one file, ~60 lines, and every failure mode
 in it returns a structured `{ ok: false, error, hint }` that degrades to tier 3.
-If Netlify Functions turn out to misbehave on the deploy, the mitigation is to
-delete the function and ship tiers 1 and 3 — which is the original architecture,
-intact.
+If the function turns out to misbehave on the deploy, the mitigation is to
+delete it and ship tiers 1 and 3 — which is the original architecture, intact.
 
 ## Layers
 
@@ -90,7 +127,7 @@ intact.
 | Routes | `src/routes/` | Dashboard, Trends, Products, Briefs, Calendar, Performance |
 | Fixtures | `src/fixtures/` | Seeded trends and analytics (`demo data`); the clip corpus (`measured`) |
 | Media | `public/media/` | 12 cc0 clips: mp4, poster, 6 caption tracks. 8.8MB |
-| Function | `netlify/functions/analyze.ts` | The only server-side code. Gemini call, or 503 |
+| Function | `api/analyze.ts` | The only server-side code. Gemini call, or 503 |
 
 `src/webmcp/` already exists and is complete. It is not to be rewritten during
 the sprint.
@@ -248,7 +285,7 @@ teaches the agent to correct itself; throwing an opaque error does not.
 
 | Reduction | Instead | Why |
 |-----------|---------|-----|
-| No backend except one function | `localStorage` + `netlify/functions/analyze.ts` | No accounts, no privacy surface. One secret, scoped to one endpoint, degrading to a committed fallback |
+| No backend except one function | `localStorage` + `api/analyze.ts` | No accounts, no privacy surface. One secret, scoped to one endpoint, degrading to a committed fallback |
 | No router library | Hash route in a reducer | Zero deps; six routes do not need more |
 | No chart library | Hand-rolled SVG sparklines and bars | A chart lib is ~100KB and an hour of API learning |
 | No component library | The existing CSS plus the panel's tokens | Consistency with the inspector matters more than breadth |
@@ -263,12 +300,13 @@ the WebMCP story, which is the point of choosing them.
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Netlify origin strips or overrides the `tools` Permissions-Policy | Fatal — no tools | Verify on the deployed origin in Phase 0, not Phase 6 |
+| The host strips or overrides the `tools` Permissions-Policy | Fatal — no tools | Verify on the deployed origin in Phase 0, not Phase 6 |
 | ChatGPT in-app browser behaves differently from flagged Chrome | Demo fails on camera | Phase 0 exit criteria require both, before any feature work |
+| The agent on hand is Claude, which has no WebMCP-native browser | Tools unreachable for it | `window.__td` bridge — same tools, same executors, no flag. Verified in Phase 0 |
 | `localStorage` empty on the judge's first visit | App looks broken | Seed fixtures on first run; verify in a private window |
 | Agent calls tools faster than React commits | Torn reads | Executors read from the store, never from render-scope state |
 | Schedule slips past T+8:30 | No submission | Phase 5 is pre-designated as the cut; PROGRESS.md tracks it hourly |
-| Netlify Function fails to deploy or `GEMINI_API_KEY` is unset | `analyze_trend` dead | Tier 3 fallback returns the committed summary; the agent path never touched the function. Verify in Phase 0 |
+| The function fails to deploy or `GEMINI_API_KEY` is unset | `analyze_trend` dead | Tier 3 fallback returns the committed summary; the agent path never touched the function. Verify in Phase 0 |
 | Gemini free-tier quota exhausted mid-demo (20/day/model) | Live call 429s | `lib/llm` retries with backoff, then degrades to `cached`. Do the demo take on the agent path, which needs no quota |
-| `GEMINI_API_KEY` committed to the repo by accident | Key leak in a public repo | Key lives only in Netlify's env UI. `.env.local` is gitignored before the function is written, not after |
+| `GEMINI_API_KEY` committed to the repo by accident | Key leak in a public repo | Key lives only in Vercel's environment variables. `.env.local` is gitignored before the function is written, not after |
 | 8.8MB of media slows first paint on the judge's connection | App looks broken | Posters are jpg and load eagerly; mp4 is `preload="none"` and only fetched on `play_clip` or a click |

@@ -122,7 +122,10 @@ In order, because this is the failure that ends demos and the order matters:
 
 1. **Is `document.modelContext` defined?** If not, the browser is wrong.
    `UnsupportedBrowserNotice` should already be visible — if it is not, the
-   support check itself is broken.
+   support check itself is broken. This is not fatal on its own: check
+   `window.__td.listTools()`, which serves the same tools to any agent that can
+   run JavaScript here. If the bridge has them and `modelContext` does not, the
+   problem is the browser, not the app.
 2. **Does the console show `+` lines?** No lines means registration never ran;
    the tool spec is probably `null` because a state guard is wrong.
 3. **Does the surface count match `02-data-model.md`?** A mismatch localises
@@ -132,7 +135,7 @@ In order, because this is the failure that ends demos and the order matters:
 5. **Is the `tools` Permissions Policy intact on the deployed origin?** It
    defaults to `self`, which is correct, but a host that sends its own
    `Permissions-Policy` header can strip it. This is why Phase 0 verifies on
-   the Netlify origin rather than on localhost.
+   the deployed origin rather than on localhost.
 
 ## What Not To Build
 

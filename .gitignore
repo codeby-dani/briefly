@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Secrets. Keys live in Netlify's env UI, never in the repo.
+.env
+.env.local
+.env.*.local

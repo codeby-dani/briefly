@@ -37,7 +37,8 @@ Finish by:
    surface rows, blockers, and a new Session Log entry (append, never rewrite).
 3. Checking off the phase file's Status boxes — `[x]` only if deployed,
    `[~]` with an inline reason if deliberately skipped, `[ ]` otherwise.
-4. Listing anything only I can do (Netlify env, ChatGPT browser check, recording).
+4. Listing anything only I can do (push to GitHub, Vercel env, ChatGPT browser
+   check, recording).
 
 Do not mark anything `[x]` that is not deployed. Do not report done on a phase
 whose exit criteria you have not each addressed.
