@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import { readEvents, subscribeToEvents } from '../tools/trace'
 import type { ToolEvent } from '../tools/trace'
 import { bridgeTools, subscribeToBridge } from './bridge'
@@ -33,6 +33,17 @@ const LOG_SHOWN = 40
  *
  * Colours read through `var(--panel-*)` with dark fallbacks, so the panel picks
  * up the app's palette without hardcoding it and still renders standalone.
+ *
+ * Shape: a small always-present pill in the corner, and a sheet that floats
+ * above it. Closed, the pill is all there is — the route underneath gets the
+ * whole viewport, which it did not when the collapsed panel was a full-width
+ * header bar clipping the cards behind it. The sheet is an overlay with an
+ * explicit close, not a region of the layout, so nothing reflows when it opens.
+ *
+ * The sheet stays mounted and animates on `transform`/`opacity` so it moves in
+ * both directions; unmounting it on close would make the exit instant. It is
+ * held out of the accessibility tree and out of hit-testing while closed, and
+ * `visibility` flips only once the exit transition has run.
  */
 export function ToolSurfacePanel({ defaultOpen = true }: { defaultOpen?: boolean }) {
   const tools = useToolSurface()
@@ -42,69 +53,111 @@ export function ToolSurfacePanel({ defaultOpen = true }: { defaultOpen?: boolean
   const [tab, setTab] = useState<'surface' | 'ask' | 'log'>('surface')
   const [expanded, setExpanded] = useState<string | null>(null)
 
+  // Honour the OS setting rather than animating regardless. Read once per mount
+  // and again if the user changes it while the page is open.
+  const calm = useReducedMotion()
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open])
+
   return (
-    <aside style={S.panel} aria-label="Agent tool surface" data-testid="tool-surface">
-      <button style={S.header} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <span style={S.title}>Tools an agent can use here</span>
-        <span style={S.chevron(open)} aria-hidden>
-          ›
-        </span>
-      </button>
+    <>
+      <section
+        style={S.sheet(open, calm)}
+        aria-label="Agent tool surface"
+        aria-hidden={!open}
+        data-testid="tool-surface"
+        data-open={open}
+      >
+        <div style={S.header}>
+          <span style={S.title}>Tools an agent can use here</span>
+          <button
+            style={S.close}
+            onClick={() => setOpen(false)}
+            aria-label="Close the tool surface"
+            data-testid="surface-close"
+          >
+            ✕
+          </button>
+        </div>
 
-      {open && (
-        <>
-          <div style={S.tabs} role="tablist" aria-label="Panel view">
-            <button
-              style={S.tab(tab === 'surface')}
-              role="tab"
-              aria-selected={tab === 'surface'}
-              onClick={() => setTab('surface')}
-              data-testid="panel-tab-surface"
-            >
-              Tools
-            </button>
-            <button
-              style={S.tab(tab === 'ask')}
-              role="tab"
-              aria-selected={tab === 'ask'}
-              onClick={() => setTab('ask')}
-              data-testid="panel-tab-ask"
-            >
-              Try asking
-            </button>
-            <button
-              style={S.tab(tab === 'log')}
-              role="tab"
-              aria-selected={tab === 'log'}
-              onClick={() => setTab('log')}
-              data-testid="panel-tab-log"
-            >
-              Event log
-            </button>
-          </div>
+        <div style={S.tabs} role="tablist" aria-label="Panel view">
+          <button
+            style={S.tab(tab === 'surface')}
+            role="tab"
+            aria-selected={tab === 'surface'}
+            onClick={() => setTab('surface')}
+            data-testid="panel-tab-surface"
+          >
+            Tools
+          </button>
+          <button
+            style={S.tab(tab === 'ask')}
+            role="tab"
+            aria-selected={tab === 'ask'}
+            onClick={() => setTab('ask')}
+            data-testid="panel-tab-ask"
+          >
+            Try asking
+          </button>
+          <button
+            style={S.tab(tab === 'log')}
+            role="tab"
+            aria-selected={tab === 'log'}
+            onClick={() => setTab('log')}
+            data-testid="panel-tab-log"
+          >
+            Event log
+          </button>
+        </div>
 
-          <div style={S.body}>
-            {tab === 'surface' && (
-              <SurfaceTab
-                tools={tools}
-                supported={supported}
-                expanded={expanded}
-                setExpanded={setExpanded}
-              />
-            )}
-            {tab === 'ask' && <AskTab supported={supported} />}
-            {tab === 'log' && <LogTab />}
-          </div>
-        </>
-      )}
+        <div style={S.body}>
+          {tab === 'surface' && (
+            <SurfaceTab
+              tools={tools}
+              supported={supported}
+              expanded={expanded}
+              setExpanded={setExpanded}
+            />
+          )}
+          {tab === 'ask' && <AskTab supported={supported} />}
+          {tab === 'log' && <LogTab />}
+        </div>
+      </section>
 
-      <p style={S.status} data-testid="surface-status">
+      <button
+        style={S.statusPill(open, calm)}
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        data-testid="surface-status"
+      >
         <span style={S.dot(supported)} aria-hidden />
         {supported ? 'WebMCP active' : 'Bridge active'} · {tools.length}{' '}
         {tools.length === 1 ? 'tool' : 'tools'}
-      </p>
-    </aside>
+      </button>
+    </>
   )
+}
+
+/** True when the OS asks for less motion. Live, not read once at import. */
+function useReducedMotion(): boolean {
+  const [calm, setCalm] = useState(false)
+
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setCalm(query.matches)
+    const onChange = (event: MediaQueryListEvent) => setCalm(event.matches)
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [])
+
+  return calm
 }
 
 /**
@@ -453,38 +506,107 @@ function json(value: unknown): string {
 const MONO = 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace'
 const SANS = 'Inter, system-ui, "Segoe UI", Roboto, sans-serif'
 
+/** Enter is a touch slower than exit, which is the usual asymmetry for a sheet. */
+const IN_MS = 260
+const OUT_MS = 190
+/* Decelerating, so the sheet settles rather than stopping dead. */
+const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)'
+
 const S = {
-  panel: {
+  /**
+   * The floating sheet. Always mounted; `open` drives transform and opacity so
+   * the exit animates too.
+   *
+   * `visibility` is what actually removes it from hit-testing and from the
+   * accessibility tree, and it must not flip until the exit has finished — so
+   * its transition is delayed by the exit duration when closing and immediate
+   * when opening. `pointerEvents` covers the interval in between.
+   */
+  sheet: (open: boolean, calm: boolean) => ({
     position: 'fixed' as const,
     right: 16,
-    bottom: 16,
+    bottom: 62,
     width: 340,
-    maxHeight: '78vh',
+    maxWidth: 'calc(100vw - 32px)',
+    maxHeight: 'min(72vh, 640px)',
     display: 'flex',
     flexDirection: 'column' as const,
     background: 'var(--panel-bg, #14181f)',
     color: 'var(--panel-fg, #e7ebf1)',
     border: '1px solid var(--panel-line, #2a323d)',
-    borderRadius: 12,
-    boxShadow: '0 12px 40px -16px rgba(11,28,48,0.28)',
+    borderRadius: 14,
+    boxShadow: '0 18px 50px -18px rgba(11,28,48,0.34), 0 2px 8px rgba(11,28,48,0.06)',
     fontFamily: SANS,
     fontSize: 12,
     zIndex: 900,
     overflow: 'hidden',
-  },
+    transformOrigin: 'bottom right',
+    opacity: open ? 1 : 0,
+    transform: open ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.97)',
+    visibility: (open ? 'visible' : 'hidden') as 'visible' | 'hidden',
+    pointerEvents: (open ? 'auto' : 'none') as 'auto' | 'none',
+    transition: calm
+      ? 'none'
+      : [
+          `opacity ${open ? IN_MS : OUT_MS}ms ${EASE}`,
+          `transform ${open ? IN_MS : OUT_MS}ms ${EASE}`,
+          `visibility 0s linear ${open ? 0 : OUT_MS}ms`,
+        ].join(', '),
+  }),
+  /**
+   * The pill, which is the whole component when the sheet is shut.
+   *
+   * It stays in place across the transition — the sheet grows out of its top
+   * edge rather than the pill moving aside — so the corner does not jump.
+   */
+  statusPill: (open: boolean, calm: boolean) => ({
+    position: 'fixed' as const,
+    right: 16,
+    bottom: 16,
+    zIndex: 901,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 7,
+    padding: '8px 13px',
+    borderRadius: 999,
+    border: '1px solid var(--panel-line, #2a323d)',
+    background: 'var(--panel-bg, #14181f)',
+    color: 'var(--panel-fg, #e7ebf1)',
+    boxShadow: open
+      ? '0 2px 8px rgba(11,28,48,0.08)'
+      : '0 8px 24px -10px rgba(11,28,48,0.28), 0 1px 3px rgba(11,28,48,0.06)',
+    fontFamily: SANS,
+    fontSize: 10.5,
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase' as const,
+    fontVariantNumeric: 'tabular-nums' as const,
+    cursor: 'pointer',
+    transition: calm ? 'none' : `box-shadow ${IN_MS}ms ${EASE}`,
+  }),
   header: {
     display: 'flex',
     alignItems: 'center',
     gap: 8,
     width: '100%',
-    padding: '11px 12px',
-    background: 'transparent',
-    border: 0,
+    padding: '11px 8px 11px 12px',
+    boxSizing: 'border-box' as const,
     borderBottom: '1px solid var(--panel-line, #2a323d)',
+  },
+  close: {
+    flexShrink: 0,
+    width: 24,
+    height: 24,
+    display: 'grid',
+    placeItems: 'center' as const,
+    borderRadius: 6,
+    border: 0,
+    background: 'transparent',
     color: 'inherit',
-    font: 'inherit',
+    fontFamily: SANS,
+    fontSize: 12,
+    lineHeight: 1,
+    opacity: 0.55,
     cursor: 'pointer',
-    textAlign: 'left' as const,
   },
   tabs: {
     display: 'flex',
@@ -527,19 +649,6 @@ const S = {
     display: 'inline-block',
   }),
   body: { overflowY: 'auto' as const, padding: 6 },
-  status: {
-    margin: 0,
-    padding: '8px 12px',
-    borderTop: '1px solid var(--panel-line, #2a323d)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 7,
-    fontSize: 10.5,
-    letterSpacing: '0.04em',
-    textTransform: 'uppercase' as const,
-    opacity: 0.8,
-    fontVariantNumeric: 'tabular-nums' as const,
-  },
   empty: { margin: 0, padding: '10px 8px', opacity: 0.7, lineHeight: 1.55, fontSize: 11 },
   inlineCode: { fontFamily: MONO, color: 'var(--panel-warn, #f0a227)', background: 'transparent' },
   list: {

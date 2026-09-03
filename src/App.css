@@ -301,11 +301,14 @@
   background: var(--ok);
 }
 
+/* Bottom padding clears the floating status pill so the last card in a route is
+   never trapped under it. It was 112px for the old collapsed panel, which was a
+   full-width bar; the pill is a third of that height. */
 .app-main {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 24px 24px 112px;
+  padding: 24px 24px 72px;
   flex: 1 1 auto;
   min-width: 0;
 }
