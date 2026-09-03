@@ -178,10 +178,15 @@ export function useToolSurface(): RegisteredTool[] {
     const mc = document.modelContext
     let alive = true
 
-    // No WebMCP: render the bridge registry instead of an empty panel. The
-    // surface is the same either way, and a judge in ordinary Chrome should be
-    // able to see what an agent would be offered.
-    if (!mc) {
+    // Some WebMCP hosts support registration without exposing EventTarget.
+    // Keep native registration enabled, but use our live registry for the
+    // inspector when native discovery or change notifications are unavailable.
+    if (
+      !mc ||
+      typeof mc.getTools !== 'function' ||
+      typeof mc.addEventListener !== 'function' ||
+      typeof mc.removeEventListener !== 'function'
+    ) {
       const refresh = () => {
         if (alive) setTools(bridgeTools())
       }
