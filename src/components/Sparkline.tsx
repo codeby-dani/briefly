@@ -1,6 +1,6 @@
 /** A 14-point trend spike, small enough to sit inside a list row. Same reasoning as LineChart: no library. */
 
-export function Sparkline({ points, label }: { points: number[]; label: string }) {
+export function Sparkline({ points, label, testId }: { points: number[]; label: string; testId?: string }) {
   if (points.length < 2) return null
 
   const width = 64
@@ -18,7 +18,7 @@ export function Sparkline({ points, label }: { points: number[]; label: string }
     .join(' ')
 
   return (
-    <svg className="sparkline" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label}>
+    <svg className="sparkline" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label} data-testid={testId}>
       <path d={d} />
     </svg>
   )

@@ -16,12 +16,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { DemoBadge, MeasuredBadge } from '../components/Badge'
 import { LineChart } from '../components/LineChart'
+import { PlatformIcon } from '../components/PlatformIcon'
 import { clipsForIds } from '../fixtures/clips'
 import { dispatch } from '../store/router'
 import { selectClip, usePlayer } from '../store/player'
 import { clearTrendSummary, writeTrendSummary } from '../store/trends'
 import { runAnalysis } from '../tools/trends'
 import type { AnalyzeResult } from '../tools/trends'
+import { PLATFORM_LABEL } from '../types'
 import type { Clip, SummarySource, Trend } from '../types'
 
 const SUMMARY_MAX = 800
@@ -46,11 +48,16 @@ export function TrendDetail({ trend }: { trend: Trend }) {
 
   return (
     <section className="card drawer" data-testid="trend-detail" ref={ref}>
-      <div className="card-head">
-        <h2>{trend.keyword}</h2>
-        <span className="badge badge-pending">
-          {trend.platform} · {trend.category}
+      <div className="drawer-head">
+        <span className="drawer-mark">
+          <PlatformIcon platform={trend.platform} size={20} />
         </span>
+        <div className="drawer-title">
+          <h2>{trend.keyword}</h2>
+          <p className="muted small">
+            {PLATFORM_LABEL[trend.platform]} · {trend.category} · first seen {trend.firstSeen}
+          </p>
+        </div>
         <button
           type="button"
           className="chip drawer-close"
@@ -61,61 +68,72 @@ export function TrendDetail({ trend }: { trend: Trend }) {
         </button>
       </div>
 
-      <p className="muted small">
-        Closing this removes four tools from the agent surface —{' '}
-        <code>get_trend_detail</code>, <code>write_trend_summary</code>,{' '}
-        <code>play_clip</code> and <code>analyze_trend</code>. Watch the panel.
-      </p>
-
+      {/* The panels are two columns of stacked blocks rather than one long
+          left column with a short right one. The old grid put the chart and
+          the player in one column and a two-line summary in the other, which
+          left half the drawer empty below the fold — the layout read as
+          broken before anything in it was read. */}
       <div className="drawer-grid">
-        <div className="drawer-main">
-          <div className="card-head">
-            <h3>14-day spike</h3>
-            <DemoBadge what="This series" />
-          </div>
-          <LineChart points={trend.spike} label={`${trend.keyword}, 14-day spike`} />
-
+        <div className="drawer-col">
           {clips.length > 0 ? (
             <ClipPanel clips={clips} />
           ) : (
-            <p className="muted small" data-testid="no-clips">
-              No clips are attached to this trend. The corpus covers beauty, food, fitness
-              and tech; <em>fashion</em> and <em>finance</em> ship without video on purpose,
-              so this branch of the drawer is exercised before the demo rather than during
-              it. The samples below are all there is to read here.
-            </p>
+            <section className="panel">
+              <div className="panel-head">
+                <h3>Clip</h3>
+              </div>
+              <p className="muted small" data-testid="no-clips">
+                No clips are attached to this trend. The corpus covers beauty, food, fitness
+                and tech; <em>fashion</em> and <em>finance</em> ship without video on purpose,
+                so this branch of the drawer is exercised before the demo rather than during
+                it. The samples are all there is to read here.
+              </p>
+            </section>
           )}
-
-          <div className="card-head">
-            <h3>Samples</h3>
-            <DemoBadge what="Every engagement count below" />
-          </div>
-          <ul className="samples">
-            {trend.samples.map((sample) => (
-              <li key={`${sample.author}-${sample.text.slice(0, 12)}`} className="sample">
-                <span className="sample-author">{sample.author}</span>
-                <span className="sample-text">{sample.text}</span>
-                <span className="sample-engagement">
-                  {new Intl.NumberFormat('en-US').format(sample.engagement)} engagements
-                </span>
-              </li>
-            ))}
-          </ul>
+          <section className="panel">
+            <div className="panel-head">
+              <h3>14-day spike</h3>
+              <DemoBadge what="This series" />
+            </div>
+            <LineChart points={trend.spike} label={`${trend.keyword}, 14-day spike`} />
+          </section>
         </div>
 
-        <div className="drawer-side">
-          <h3>Related</h3>
-          <div className="chips">
-            {trend.relatedKeywords.map((keyword) => (
-              <span key={keyword} className="chip is-static">{keyword}</span>
-            ))}
-          </div>
-
+        <div className="drawer-col">
           {/* Keyed on the trend, so a different trend remounts the block. A
               half-typed analysis belongs to the trend it was typed under, and
               resetting that in an effect would be a second render for
               something React can do by identity. */}
           <SummaryBlock key={trend.id} trend={trend} />
+
+          <section className="panel">
+            <div className="panel-head">
+              <h3>Samples</h3>
+              <DemoBadge what="Every engagement count below" />
+            </div>
+            <ul className="samples">
+              {trend.samples.map((sample) => (
+                <li key={`${sample.author}-${sample.text.slice(0, 12)}`} className="sample">
+                  <span className="sample-author">{sample.author}</span>
+                  <span className="sample-text">{sample.text}</span>
+                  <span className="sample-engagement">
+                    {new Intl.NumberFormat('en-US').format(sample.engagement)} engagements
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="panel">
+            <div className="panel-head">
+              <h3>Related</h3>
+            </div>
+            <div className="chips">
+              {trend.relatedKeywords.map((keyword) => (
+                <span key={keyword} className="chip is-static">{keyword}</span>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     </section>
@@ -152,8 +170,8 @@ function ClipPanel({ clips }: { clips: Clip[] }) {
   }, [player.playToken, player.clipId, player.seekS, clip.id])
 
   return (
-    <>
-      <div className="card-head">
+    <section className="panel">
+      <div className="panel-head">
         <h3>Clip</h3>
         <MeasuredBadge what="Every signal under the player" />
       </div>
@@ -189,7 +207,6 @@ function ClipPanel({ clips }: { clips: Clip[] }) {
             <div><dt>segments</dt><dd>{clip.signals.segments}</dd></div>
             <div><dt>transcript</dt><dd>{clip.signals.transcriptSource}</dd></div>
           </dl>
-          <p className="source-note">{clip.sourceNote}</p>
         </div>
       </div>
 
@@ -207,7 +224,7 @@ function ClipPanel({ clips }: { clips: Clip[] }) {
           ))}
         </div>
       )}
-    </>
+    </section>
   )
 }
 
@@ -232,8 +249,8 @@ function SummaryBlock({ trend }: { trend: Trend }) {
   }
 
   return (
-    <div className="summary" data-testid="trend-summary">
-      <div className="card-head">
+    <section className="panel summary" data-testid="trend-summary">
+      <div className="panel-head">
         <h3>Why is this rising?</h3>
         {trend.aiSummarySource && (
           <span
@@ -351,6 +368,6 @@ function SummaryBlock({ trend }: { trend: Trend }) {
           </div>
         </form>
       )}
-    </div>
+    </section>
   )
 }

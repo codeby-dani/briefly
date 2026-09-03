@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "verify:brand": "node scripts/verify-brand.mjs",
+    "verify:dashboard": "vite build --ssr scripts/verify-dashboard.mjs --outDir .verify-dashboard --emptyOutDir && node .verify-dashboard/verify-dashboard.js",
     "lint": "oxlint",
     "preview": "vite preview"
   },

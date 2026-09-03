@@ -2,7 +2,7 @@
 
 **This is the session entry point. Read this before anything else.**
 
-Last updated: 2026-09-03 23:56 WITA · by: Phase 5 + Phase 6 merge reconciliation
+Last updated: 2026-09-04 00:29 WITA · by: dashboard interaction pass
 
 ---
 
@@ -13,7 +13,7 @@ Last updated: 2026-09-03 23:56 WITA · by: Phase 5 + Phase 6 merge reconciliatio
 | **Current phase** | Phase 7 submission materials prepared locally; deployment and entrant-owned evidence remain open |
 | **Sprint start (T+0)** | 2026-09-03 17:51 WITA |
 | **Hard deadline** | 2026-09-04 04:00 WITA (13:00 PDT, 2026-09-03) |
-| **Time remaining at last update** | 4h 4m |
+| **Time remaining at last update** | 3h 31m |
 | **Deployed URL** | https://trend-lake.vercel.app — **serves a stale bundle**: Phases 0, 1 and 4 only |
 | **Tools registered** | 23 of 23 written and locally verified on one build. **6 of 23 are on the deployed origin** |
 
@@ -850,3 +850,110 @@ the light token system rather than retaining the old dark purple values.
 The merged tree passes `npm run build`, `npx oxlint` (the same four pre-existing
 warnings only), and both deterministic product and Phase 5 verifiers. Local
 `main` is ready to push; nothing is marked deployed until Vercel serves it.
+
+### 2026-09-04 00:29 WITA — dashboard interaction pass
+
+Reviewed the public Sikora dashboard implementation for its interaction patterns
+only: compact metric cards with micro-trends, one operational-status strip, and
+mixed card density. Anglebook now applies those patterns in its own light token
+system with no copied code or dependencies. The dashboard has a live workspace
+pulse from the real tool surface and current selections, metric icons and
+sparklines, a denser trend/brief workspace, and CSS-only entrance and hover
+motion. Invented analytics remain within their existing `demo data` cards; the
+new live-state text makes no numerical claim beyond the actual registered tools.
+
+`scripts/verify-dashboard.mjs` was written first and passes. The production
+preview was opened in the ChatGPT in-app browser at `#/dashboard`; its console
+has zero errors, and the 7-day chart window changes its rendered series. This is
+local evidence only—no deployment status changed.
+
+### 2026-09-04 00:44 WITA — dashboard review corrections
+
+A focused implementation review removed misleading KPI micro-trends: only
+Followers gained now renders a seven-day sparkline sourced from the actual
+follower series. Reach, impressions and engagement retain their clearly labelled
+demo figures without implying a separate time series. The dashboard grid now
+collapses to one column at narrow and tablet layouts, its hero/status/chart
+footer wrap cleanly, and `prefers-reduced-motion` disables the new entrance and
+hover motion.
+
+`npm run verify:dashboard` now provides a repeatable Vite-SSR dashboard check
+for the key live-state hooks and responsive/reduced-motion CSS contracts. The
+production build passes, the in-app preview at `#/dashboard` was refreshed, and
+its console remains free of errors. `npm run lint` still reports only the four
+pre-existing `useTool.ts` warnings.
+
+### 2026-09-04 01:05 WITA — Briefly brand asset
+
+The supplied Briefly wordmark is now a checked-in, cropped transparent PNG at
+`public/brand/briefly-logo.png`. The shell, workspace name, browser title,
+metadata, favicon and bridge app identity all use Briefly; product-level
+“brand” vocabulary remains deliberately unchanged. `npm run verify:brand`
+checks the public identity and asset path, while the in-app dashboard preview
+was refreshed with no console errors.
+
+### 2026-09-04 01:24 WITA — Briefly chart and palette pass
+
+The global token system now follows the Briefly palette supplied for this pass:
+beige `#E6EED6`, ash `#DDE2C6`/`#BBC5AA`, oxidized iron `#A72608`, and pitch
+black `#090C02`. Semantic colours remain separate enough to preserve the
+meaning of success, demo and destructive states.
+
+`LineChart` remains dependency-free but now has a smooth primary line, derived
+demo baseline, gradient area, labelled grid, keyboard/pointer chart points and
+an active tooltip. A manual 30d → 7d interaction exposed a stale active-point
+index; `safeChartIndex()` and its regression check guard against the changed
+series length. Both windows now render their correct point counts in the
+in-app preview, which has been left on the default 30-day view.
+
+### 2026-09-04 01:32 WITA — beige surface hierarchy
+
+The surface hierarchy was adjusted after visual review: the page remains
+`#E6EED6`, cards now use the more dominant beige `#EDF1DC`, and inner wells
+stay ash `#DDE2C6`. Oxidized iron remains limited to actions and data emphasis.
+The browser check recorded these computed values directly from the live preview.
+
+### 2026-09-04 01:48 WITA — workspace controls and KPI micro-trends
+
+The Briefly shell now includes a notification control and profile menu in the
+top bar, plus Settings and Help & Support anchored at the bottom of the
+sidebar. The dashboard’s four audience-pulse cards now carry compact,
+consistent trend sparklines, explicitly labelled as illustrative demo direction
+to match the demo-data context without asserting unavailable measurements.
+
+The browser interaction check confirmed both menus open, and dashboard checks,
+brand checks, production build, lint, and whitespace validation passed. Lint
+retains only five pre-existing warnings in the WebMCP integration files.
+
+### 2026-09-04 01:55 WITA — tab icon correction
+
+The horizontal Briefly wordmark was causing the browser tab favicon to appear
+compressed. A dedicated square `briefly-mark.png` was cropped from the supplied
+logo’s B monogram and now powers the favicon and Apple touch icon; the full
+wordmark remains unchanged inside the application shell.
+
+### 2026-09-04 02:08 WITA — compact top-bar profile
+
+The top-bar profile control had inherited the Business Profile page’s generic
+`.profile-avatar` rules, expanding it to 48px with a bottom margin and pushing
+the header out of its layout. The top-bar component now uses its own scoped
+avatar and copy classes, while a compact breakpoint hides secondary header
+detail before the controls can overflow on narrow windows.
+
+### 2026-09-04 02:18 WITA — workspace switcher
+
+The sidebar’s fixed workspace card is now an accessible workspace switcher.
+It reveals Briefly Studio, Growth Team, and Content Lab; choosing an option
+updates only the active sidebar label and closes the menu, deliberately leaving
+the dashboard route and its data untouched. The browser interaction check
+confirmed the menu opened, Growth Team became active, and the route remained
+`dashboard`.
+
+### 2026-09-04 02:33 WITA — dashboard social coverage
+
+Dashboard demo-data badges were removed from the audience, growth, and top
+trending cards. A social-signal coverage strip now shows the four channels
+represented in the application data—Instagram, TikTok, YouTube, and X—and each
+top-trending row carries its source icon beside its platform label. The live
+dashboard check recorded four source icons and no remaining dashboard demo
+badges.

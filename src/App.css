@@ -110,33 +110,63 @@
   height: 64px;
   display: flex;
   align-items: center;
-  gap: 10px;
   padding: 0 20px;
   flex-shrink: 0;
 }
 
 .brand-mark {
-  width: 30px;
-  height: 30px;
+  width: 126px;
+  height: auto;
   flex-shrink: 0;
 }
 
-.brand-name {
-  font-family: var(--heading);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--text-h);
+.brand-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.workspace-switcher {
+  position: relative;
+  z-index: 2;
+  margin: 0 16px 12px;
 }
 
 .workspace {
   display: flex;
   align-items: center;
   gap: 9px;
-  margin: 0 16px 12px;
   padding: 8px;
   border-radius: var(--r);
   background: var(--surface-high);
+}
+
+.workspace-button {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+
+  .nav-icon {
+    margin-left: auto;
+  }
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background: var(--surface-bright);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 }
 
 .workspace-avatar {
@@ -173,11 +203,59 @@
   }
 }
 
+.workspace-menu {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  display: grid;
+  gap: 3px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.workspace-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+
+  &:hover,
+  &.is-active {
+    background: var(--surface-high);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+}
+
 .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: 0 16px;
+}
+
+.sidebar-utility {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: auto 16px 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 
 /* label-lg on a pill. The current item takes the reference's filled treatment
@@ -297,6 +375,96 @@
   flex-shrink: 0;
 }
 
+.topbar-menu-wrap {
+  position: relative;
+}
+
+.topbar-icon-button,
+.profile-button {
+  border: 0;
+  color: var(--text-h);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.topbar-icon-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.profile-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 4px 8px 4px 5px;
+  border-radius: 999px;
+}
+
+.topbar-profile-avatar {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-on);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.topbar-profile-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 13px;
+  text-align: left;
+
+  strong { font-size: 11px; }
+  small { color: var(--outline); font-size: 9px; }
+}
+
+.topbar-popover {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 154px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  color: var(--text);
+  font-size: 11px;
+}
+
+.profile-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong { color: var(--text-h); font-size: 12px; }
+  span { color: var(--outline); }
+}
+
 .sync-pill {
   display: inline-flex;
   align-items: center;
@@ -345,7 +513,7 @@
 
 .card {
   background: var(--surface);
-  border: 0;
+  border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 20px 22px;
   box-shadow: var(--shadow);
@@ -426,20 +594,187 @@
  * Dashboard.
  * ---------------------------------------------------------------------- */
 
+.dashboard-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 6px 2px 2px;
+  animation: dashboard-in 360ms ease-out both;
+
+  h1 {
+    max-width: 680px;
+    margin-top: 4px;
+  }
+}
+
+.dashboard-hero-copy {
+  max-width: 590px;
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.dashboard-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.dashboard-live,
+.workspace-pulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dashboard-live {
+  color: var(--ok-deep);
+  background: var(--ok-bg);
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 700;
+
+  span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 14%, transparent);
+  }
+}
+
+.workspace-pulse {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 18px 0;
+  padding: 11px 14px;
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--ok-bg) 48%, var(--surface));
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  font-size: 12.5px;
+  animation: dashboard-in 420ms 60ms ease-out both;
+
+  strong {
+    color: var(--ok-deep);
+  }
+}
+
+.pulse-icon {
+  color: var(--ok);
+  font-size: 15px;
+}
+
+.pulse-separator {
+  color: var(--border-strong);
+}
+
+.dashboard-kpis,
+.dashboard-growth-card,
+.dashboard-grid {
+  animation: dashboard-in 420ms ease-out both;
+}
+
+.dashboard-growth-card {
+  animation-delay: 80ms;
+}
+
+.dashboard-grid {
+  animation-delay: 140ms;
+}
+
 .kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
   gap: 12px;
 }
 
+.social-source-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 5px 8px 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-high);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.social-source-label,
+.social-source-count {
+  white-space: nowrap;
+}
+
+.social-source-count {
+  color: var(--outline);
+  font-weight: 500;
+}
+
+.social-source-icons {
+  display: flex;
+  align-items: center;
+  padding-left: 2px;
+}
+
+.social-source-icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-left: -3px;
+  border: 2px solid var(--surface-high);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
 .kpi {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   background: var(--surface-high);
-  border: 0;
+  border: 1px solid var(--border);
   border-radius: var(--r);
   padding: 14px 16px;
+  min-height: 122px;
+  box-sizing: border-box;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+
+  &:hover {
+    background: var(--surface-bright);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+  }
+}
+
+.kpi-topline,
+.kpi-foot {
+  display: flex;
+  align-items: center;
+}
+
+.kpi-topline {
+  gap: 8px;
+}
+
+.metric-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  color: var(--accent);
+  background: var(--accent-bg);
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .kpi-label {
@@ -459,6 +794,36 @@
   letter-spacing: -0.02em;
   color: var(--text-h);
   font-variant-numeric: tabular-nums;
+  animation: number-pop 450ms ease-out both;
+}
+
+@keyframes number-pop {
+  0% {
+    opacity: 0.2;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kpi-foot {
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  color: var(--text);
+  font-size: 11px;
+}
+
+.kpi .sparkline {
+  width: 64px;
+  height: 22px;
+
+  path {
+    stroke: var(--accent);
+    stroke-width: 2.2;
+  }
 }
 
 .toggle {
@@ -469,27 +834,262 @@
 
 .line-chart {
   width: 100%;
-  height: 140px;
+  height: auto;
+  display: block;
   overflow: visible;
+}
+
+.line-chart-grid line {
+  stroke: var(--border);
+  stroke-dasharray: 3 5;
+  stroke-width: 1;
+}
+
+.line-chart-grid text {
+  fill: var(--outline);
+  font-family: var(--mono);
+  font-size: 9px;
 }
 
 .line-chart-line {
   fill: none;
-  stroke: var(--accent-hi);
-  stroke-width: 2.5;
+  stroke: var(--accent);
+  stroke-width: 2.8;
   stroke-linejoin: round;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
 }
 
-.line-chart-area {
-  fill: var(--accent-bg);
-  stroke: none;
-  opacity: 0.7;
+.line-chart-baseline {
+  fill: none;
+  stroke: var(--indigo);
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0.82;
+  vector-effect: non-scaling-stroke;
 }
 
-.line-chart-dot {
-  fill: var(--accent-hi);
+.line-chart-area {
+  stroke: none;
+}
+
+.line-chart-crosshair {
+  stroke: var(--accent-border);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.85;
+}
+
+.line-chart-active-dot {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 2.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.line-chart-hit {
+  fill: transparent;
+  cursor: crosshair;
+
+  &:focus {
+    outline: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+  }
+}
+
+.line-chart-tooltip rect {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  filter: drop-shadow(0 4px 7px rgba(9, 12, 2, 0.12));
+}
+
+.line-chart-tooltip text {
+  fill: var(--text);
+  font-family: var(--sans);
+  font-size: 9px;
+}
+
+.line-chart-tooltip .line-chart-tooltip-title {
+  fill: var(--text-h);
+  font-family: var(--heading);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 11px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  small {
+    color: var(--outline);
+    font-size: 10px;
+  }
+}
+
+.chart-key {
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.chart-key-baseline {
+  background: repeating-linear-gradient(90deg, var(--indigo) 0 5px, transparent 5px 8px);
+}
+
+.chart-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  font-size: 11px;
+
+  span:first-child {
+    color: var(--ok-deep);
+    font-weight: 600;
+  }
+
+  i {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 5px;
+    border-radius: 50%;
+    background: var(--ok);
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.dashboard-trends-card .row {
+  transition: background 150ms ease, padding 150ms ease;
+
+  &:hover {
+    background: var(--surface-high);
+    padding-inline: 10px;
+    border-radius: var(--r-sm);
+  }
+}
+
+.brief-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  min-height: 210px;
+  box-sizing: border-box;
+  padding: 22px;
+  border-radius: var(--r);
+  background: linear-gradient(135deg, var(--accent-bg), var(--surface-high));
+
+  strong {
+    color: var(--text-h);
+    font-family: var(--heading);
+    font-size: 17px;
+  }
+
+  p {
+    max-width: 280px;
+    color: var(--text);
+  }
+
+  .button {
+    margin-top: auto;
+  }
+}
+
+.brief-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  color: var(--accent);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  font-size: 18px;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-hero-actions,
+  .workspace-pulse,
+  .chart-foot {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pulse-separator {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-hero,
+  .workspace-pulse,
+  .dashboard-kpis,
+  .dashboard-growth-card,
+  .dashboard-grid {
+    animation: none;
+  }
+
+  .kpi,
+  .dashboard-trends-card .row {
+    transition: none;
+  }
+
+  .kpi:hover,
+  .dashboard-trends-card .row:hover {
+    transform: none;
+  }
+}
+
+@keyframes dashboard-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .sparkline {
@@ -532,6 +1132,13 @@
   gap: 2px;
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.trend-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  text-transform: capitalize;
 }
 
 .row-title {
@@ -645,13 +1252,6 @@
     font-size: 13px;
     color: var(--text-h);
   }
-}
-
-.source-note {
-  font-size: 12px;
-  color: var(--text);
-  border-left: 2px solid var(--accent-border);
-  padding-left: 10px;
 }
 
 .clip-picker {
@@ -866,52 +1466,217 @@
  * Briefs — composer and library.
  * ---------------------------------------------------------------------- */
 
+/* The composer runs the full width of the route with the library under it, so
+   the form gets two columns instead of one long stack of one-line inputs. It
+   splits on the card's own width, not the window's — the sidebar rail is
+   already out of the measurement here. */
+.composer-card {
+  container-type: inline-size;
+  container-name: composer;
+}
+
+.composer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* The two picks are the brief's context, not two more of its fields, so they sit
+   in their own tile above the form rather than reading as its first row. */
 .composer-picks {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  padding: 13px 14px;
+  border-radius: var(--r);
+  background: var(--bg);
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }
 }
 
+/* Bottom-aligned: a label that wraps to two lines ("Hashtags — space or comma
+   separated") would otherwise push its own input a line lower than the one
+   beside it. */
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  align-items: end;
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }
 }
 
+/* Title is a sentence, platform is a short enum — an even split wastes the half
+   the enum sits in. */
+.field-row-wide {
+  grid-template-columns: minmax(0, 2fr) minmax(120px, 1fr);
+}
+
 .brief-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.brief-fields {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  min-width: 0;
 }
 
+.brief-form textarea {
+  min-height: 148px;
+}
+
+@container composer (min-width: 720px) {
+  .brief-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* The outline takes the height of the column of short fields beside it, so
+     the form reads as two columns rather than one column with a box parked
+     next to it. */
+  .brief-form > [data-field='outline'] {
+    align-self: stretch;
+  }
+
+  .brief-form > [data-field='outline'] textarea {
+    height: 100%;
+  }
+}
+
+/* Pinned under the scrolling body as the card's footer, so Save sits in the
+   same place whether the form is empty or full. */
 .form-actions {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  flex-shrink: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+/* The library now sits in a column whose width depends on the layout it is in,
+   so its controls and rows measure themselves against the card, not the page. */
+.library-card {
+  container-type: inline-size;
+  container-name: library;
 }
 
 .library-controls {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
+  margin-bottom: 2px;
+}
 
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
+@container library (min-width: 380px) {
+  .library-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .library-controls .search {
+    grid-column: 1 / -1;
   }
 }
 
+@container library (min-width: 620px) {
+  .library-controls {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .library-controls .search {
+    grid-column: auto;
+  }
+}
+
+/* Two fixed lines: what the brief is on the first — title, status, author and
+   the control that moves it on — and what it is about on the second. The old
+   row put the title, both pills and the button in one wrapping flex line, so
+   the button landed somewhere different on every card depending on the length
+   of the title. */
 .brief-row {
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 12px;
+  margin-inline: -12px;
+  border-radius: var(--r);
+  transition: background 120ms ease;
+
+  &:hover {
+    background: var(--bg);
+  }
+}
+
+/* The divider is drawn on the row above rather than as a border, so it stays
+   put while the hover fill runs the full width of the padded row. */
+.brief-row + .brief-row {
+  box-shadow: 0 -1px 0 var(--border);
+}
+
+.brief-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
   flex-wrap: wrap;
+}
+
+.brief-row-head .row-title {
+  flex: 1 1 240px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.brief-row-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Quieter than the same pills elsewhere: here they annotate a title rather than
+   head a card, and at full size they read louder than the title itself. */
+.brief-row-tags .status,
+.brief-row-tags .authored {
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+}
+
+.brief-row-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+}
+
+.brief-row-facts {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text);
+  min-width: 0;
+}
+
+/* Underlined in the text's own colour, not accent blue: two links inside a run
+   of muted meta text turned the line into three competing colours, and the
+   heavy hairline underneath them read as an input's baseline. */
+.brief-row-facts .link {
+  color: var(--text);
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 2px;
+}
+
+.brief-row-facts .link:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
 }
 
 .brief-row.is-new {
@@ -955,6 +1720,12 @@
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.brief-row-head .chip {
+  font-size: 11.5px;
+  padding: 4px 12px;
 }
 
 /* ---------------------------------------------------------------------- *
@@ -1218,89 +1989,64 @@
   padding-bottom: 2px;
 }
 
-/* The table. A grid rather than a <table>, because the sparkline column is a
- * graphic and the star is a control — neither is tabular data, and a grid
- * keeps the row a single flex context for the open button to fill. */
-.trend-head,
-.trend-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 92px 78px 96px 72px 36px;
+/* The card grid.
+ *
+ * Phase 6 replaced the six-column table with cards, because a trend is a piece
+ * of video before it is a row of numbers: the frame it came from and the
+ * platform badge on it say in one glance what "tiktok · beauty" in 11px grey
+ * never said. The numbers did not leave — they sit under the frame, where the
+ * eye lands second. */
+
+.grid-sort {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
-.trend-head {
-  padding: 0 8px 8px;
-  border-bottom: 1px solid var(--border-strong);
+.grid-sort-label {
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text);
-
-  > span,
-  > button {
-    text-align: right;
-  }
-
-  > .th-keyword {
-    text-align: left;
-  }
 }
 
-.th-sort {
-  font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  background: none;
-  border: 0;
-  color: inherit;
-  cursor: pointer;
-  padding: 0;
-
-  &:hover {
-    color: var(--text-h);
-  }
-
-  &.is-current {
-    color: var(--accent);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-}
-
-.trend-rows {
+.trend-cards {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+  gap: 14px;
 }
 
-.trend-row {
-  padding: 9px 8px;
-  border-bottom: 1px solid var(--border);
-  border-radius: var(--r-sm);
+.trend-card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  overflow: hidden;
+  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 
   &:hover {
-    background: var(--surface-high);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
   }
 
   &.is-open {
-    background: var(--accent-bg);
-    box-shadow: inset 2px 0 0 var(--accent);
+    border-color: var(--accent-border);
+    box-shadow: 0 0 0 1px var(--accent-border), var(--shadow-md);
   }
 }
 
 .trend-open {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  align-items: flex-start;
+  align-items: stretch;
   text-align: left;
+  width: 100%;
   background: none;
   border: 0;
   color: inherit;
@@ -1311,17 +2057,159 @@
 
   &:focus-visible {
     outline: 2px solid var(--accent);
-    outline-offset: 3px;
+    outline-offset: -2px;
   }
+}
+
+/* The thumbnail. 4:5 rather than the clip's own 9:16, so a wall of cards keeps
+ * a readable row height; the poster is cropped, never letterboxed. */
+.thumb {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 4 / 5;
+  background: var(--surface-high);
+  overflow: hidden;
+}
+
+.thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* The generated cover for a trend with no clip. It copies the corpus posters —
+ * white display type, centred, over a dark gradient — so a clipless trend
+ * looks like a trend rather than like an image that failed to load. */
+.thumb-plate {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  overflow: hidden;
+}
+
+.thumb-plate-word {
+  font-family: var(--heading);
+  font-size: clamp(14px, 2.6cqw + 8px, 20px);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  text-align: center;
+  text-transform: lowercase;
+  color: #fff;
+  text-shadow: 0 2px 10px rgb(0 0 0 / 0.45);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+/* The platform badge. White disc, brand-coloured mark: the same treatment the
+ * platforms use on their own surfaces, and the only thing on the card that
+ * carries a non-system colour. */
+.thumb-platform {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.28);
+}
+
+.platform-icon {
+  display: block;
+}
+
+.thumb-tag {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #fff;
+  background: rgb(0 0 0 / 0.6);
+  padding: 2px 7px;
+  border-radius: 999px;
+  backdrop-filter: blur(2px);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px 12px;
+  min-width: 0;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.growth-pill {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ok-deep);
+  background: var(--ok-bg);
+  border: 1px solid var(--ok-border);
+  border-radius: 999px;
+  padding: 1px 8px;
+
+  &.is-down {
+    color: var(--danger-deep);
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+  }
+}
+
+.trend-card .row-title {
+  font-family: var(--heading);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+  line-height: 1.3;
+}
+
+.card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
 }
 
 .td-volume,
 .td-growth,
 .td-seen {
-  text-align: right;
   font-family: var(--mono);
   font-size: 12.5px;
   font-variant-numeric: tabular-nums;
+}
+
+/* The star floats over the thumbnail rather than sitting in the body, so the
+ * card body stays one uninterrupted click target for the drawer. */
+.trend-card > .star {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.86);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  color: #55555f;
 }
 
 .star {
@@ -1343,13 +2231,24 @@
   }
 }
 
-/* The drawer. */
+/* The drawer.
+ *
+ * Two columns of stacked panels, not one long column and one short one. The
+ * Phase 2 layout put the chart and the player on the left and a two-line
+ * summary on the right, so the right half of the drawer was empty from the
+ * summary down — half a screen of nothing beside the thing a judge came to
+ * read. The blocks are now dealt into whichever column is shorter by hand:
+ * spike and clip left, summary, related and samples right. */
 .drawer {
-  box-shadow: var(--shadow-md), inset 3px 0 0 var(--accent);
+  box-shadow: var(--shadow-md);
+  gap: 14px;
 
   h3 {
-    font-size: 15px;
-    margin: 4px 0 0;
+    font-family: var(--heading);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin: 0;
   }
 
   h4 {
@@ -1361,26 +2260,104 @@
   }
 }
 
+.drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-mark {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--surface-high);
+  border: 1px solid var(--border);
+}
+
+.drawer-title {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
 .drawer-close {
   margin-left: auto;
+  flex: none;
 }
 
 .drawer-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
 
   @media (max-width: 900px) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.drawer-main,
-.drawer-side {
+.drawer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Every block in the drawer is the same object: a tinted plate with one
+ * heading row. Before this they were bare headings floating on the card, which
+ * is why nothing in the drawer looked grouped with anything else. */
+.panel {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 14px 16px;
+  background: var(--surface-high);
+  border-radius: var(--r);
   min-width: 0;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Inside a drawer column the player has about half the width it had, so the
+ * video narrows and the signal tiles drop to two across rather than wrapping
+ * into a ragged three-and-one. */
+.drawer .clip {
+  gap: 14px;
+}
+
+.drawer .clip-player {
+  width: 156px;
+}
+
+.drawer .clip-meta {
+  flex: 1 1 180px;
+  gap: 8px;
+}
+
+.drawer .signals {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+
+  > div {
+    padding: 6px 8px;
+  }
 }
 
 .samples {
@@ -1436,13 +2413,7 @@
  * not look like a fresh one" is a Phase 2 task, not a nicety. */
 
 .summary {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
-  padding: 14px 16px;
-  background: var(--surface-high);
-  border: 0;
-  border-radius: var(--r);
 }
 
 .summary-text {
@@ -1576,38 +2547,42 @@
   }
 }
 
-/* The six-column trend grid needs about 700px before the keyword column starts
- * losing to the numbers, and below that a judge in a split window gets a
- * horizontally scrolling page — which reads as broken long before anyone
- * notices which column overflowed. So the row becomes two lines and the date,
- * already in the row's own subtitle, drops out. */
+@media (max-width: 600px) {
+  .topbar {
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .topbar-search {
+    min-width: 0;
+    padding-inline: 9px;
+  }
+
+  .sync-pill,
+  .topbar-profile-copy {
+    display: none;
+  }
+
+  .topbar-right {
+    gap: 6px;
+  }
+
+  .profile-button {
+    padding: 4px;
+  }
+}
+
+/* The card grid reflows on its own down to one column, so the only thing the
+ * narrow breakpoint has to do is stop the cards from getting so wide that a
+ * 4:5 thumbnail eats the fold. */
 @media (max-width: 720px) {
-  .trend-head {
-    display: none;
+  .trend-cards {
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 10px;
   }
 
-  .trend-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 12px;
-  }
-
-  .trend-open {
-    flex: 1 1 100%;
-  }
-
-  .td-seen {
-    display: none;
-  }
-
-  .td-volume,
-  .td-growth {
-    text-align: left;
-  }
-
-  .star {
-    margin-left: auto;
+  .grid-sort {
+    gap: 6px;
   }
 }
 

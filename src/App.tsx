@@ -79,6 +79,12 @@ const NAV_LABEL: Record<Route, string> = {
   performance: 'Performance',
 }
 
+const WORKSPACES = [
+  { id: 'briefly', initials: 'BR', name: 'Briefly Studio', description: 'Shared human + agent workspace' },
+  { id: 'growth', initials: 'GT', name: 'Growth Team', description: 'Campaign and audience signals' },
+  { id: 'content', initials: 'CL', name: 'Content Lab', description: 'Brief experiments and publishing' },
+]
+
 function Sidebar({ route }: { route: Route }) {
   const primaryRoutes = ROUTES.filter((name) => name !== 'products')
 
@@ -86,18 +92,48 @@ function Sidebar({ route }: { route: Route }) {
     <aside className="sidebar" aria-label="Sections">
       <div className="sidebar-top">
         <div className="sidebar-brand">
-          <img className="brand-mark" src="/brand/anglebook-mark.svg" alt="" aria-hidden="true" />
-          <span className="brand-name">Anglebook</span>
+          <img className="brand-mark" src="/brand/briefly-logo.png" alt="" aria-hidden="true" />
+          <span className="brand-sr-only">Briefly</span>
         </div>
 
-        <div className="workspace">
-          <span className="workspace-avatar" aria-hidden="true">
-            AB
-          </span>
-          <span className="workspace-text">
-            <strong>Anglebook Studio</strong>
-            <span>Shared human + agent workspace</span>
-          </span>
+        <div className="workspace-switcher">
+          <button
+            type="button"
+            className="workspace workspace-button"
+            aria-label="Switch workspace"
+            aria-expanded={workspaceOpen}
+            aria-haspopup="listbox"
+            data-testid="workspace-switcher"
+            onClick={() => setWorkspaceOpen((open) => !open)}
+          >
+            <span className="workspace-avatar" aria-hidden="true">{activeWorkspace.initials}</span>
+            <span className="workspace-text">
+              <strong>{activeWorkspace.name}</strong>
+              <span>{activeWorkspace.description}</span>
+            </span>
+            <NavIcon name="chevron" size={16} />
+          </button>
+          {workspaceOpen && (
+            <div className="workspace-menu" role="listbox" aria-label="Available workspaces">
+              {WORKSPACES.map((workspace) => (
+                <button
+                  key={workspace.id}
+                  type="button"
+                  className={`workspace-option${workspace.id === activeWorkspaceId ? ' is-active' : ''}`}
+                  role="option"
+                  aria-selected={workspace.id === activeWorkspaceId}
+                  data-testid={`workspace-option-${workspace.id}`}
+                  onClick={() => {
+                    setActiveWorkspaceId(workspace.id)
+                    setWorkspaceOpen(false)
+                  }}
+                >
+                  <span className="workspace-avatar" aria-hidden="true">{workspace.initials}</span>
+                  <span className="workspace-text"><strong>{workspace.name}</strong><span>{workspace.description}</span></span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <nav className="sidebar-nav">
@@ -152,6 +188,8 @@ function TopBar() {
   // and calling the tool land in one store, so the human and the agent cannot
   // be looking at two different result sets.
   const [draft, setDraft] = useState('')
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
   const value = route === 'trends' ? view.query : draft
 
   return (
@@ -188,6 +226,35 @@ function TopBar() {
           <span className="sync-dot" aria-hidden="true" />
           {source === 'webmcp' ? 'WebMCP connected' : 'Bridge: window.__td'}
         </span>
+        <div className="topbar-menu-wrap">
+          <button
+            type="button"
+            className="topbar-icon-button"
+            aria-label="Notifications"
+            aria-expanded={notificationsOpen}
+            data-testid="topbar-notifications"
+            onClick={() => setNotificationsOpen((open) => !open)}
+          >
+            <NavIcon name="bell" size={19} />
+            <span className="notification-dot" aria-hidden />
+          </button>
+          {notificationsOpen && <div className="topbar-popover notification-popover" role="status">You’re all caught up.</div>}
+        </div>
+        <div className="topbar-menu-wrap">
+          <button
+            type="button"
+            className="profile-button"
+            aria-label="Open profile menu"
+            aria-expanded={profileOpen}
+            data-testid="topbar-profile"
+            onClick={() => setProfileOpen((open) => !open)}
+          >
+            <span className="topbar-profile-avatar" aria-hidden>AR</span>
+            <span className="topbar-profile-copy"><strong>Aarief</strong><small>Workspace owner</small></span>
+            <NavIcon name="chevron" size={16} />
+          </button>
+          {profileOpen && <div className="topbar-popover profile-popover"><strong>Aarief</strong><span>Briefly workspace</span></div>}
+        </div>
         <button
           type="button"
           className="button button-primary"
