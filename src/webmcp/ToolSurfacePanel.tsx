@@ -53,7 +53,7 @@ export function ToolSurfacePanel({ defaultOpen = true }: { defaultOpen?: boolean
   if (!checked) return null
 
   return (
-    <aside style={S.panel} aria-label="Agent tool surface">
+    <aside style={S.panel} aria-label="Agent tool surface" data-testid="tool-surface">
       <button style={S.header} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
         <span style={S.dot(supported)} aria-hidden />
         <span style={S.title}>Agent tool surface</span>
@@ -79,7 +79,7 @@ export function ToolSurfacePanel({ defaultOpen = true }: { defaultOpen?: boolean
               const isNew = fresh.has(tool.name)
               const isOpen = expanded === tool.name
               return (
-                <li key={tool.name} style={S.item(isNew)}>
+                <li key={tool.name} style={S.item(isNew)} data-testid={`tool-row-${tool.name}`}>
                   <button
                     style={S.itemBtn}
                     onClick={() => setExpanded(isOpen ? null : tool.name)}

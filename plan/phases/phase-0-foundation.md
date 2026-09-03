@@ -7,14 +7,26 @@ Taken out of Phase 6's polish budget, not out of Phases 2–4.
 
 ## Status
 
-- [ ] Vite starter content removed from `App.tsx`
+Nothing here is `[x]`, because nothing is deployed yet and `[x]` means
+deployed. The annotations say how far each item actually got, so the next
+session does not re-do work that is already in the tree.
+
+- [ ] Vite starter content removed from `App.tsx` — done in code, not deployed
 - [ ] App shell renders with `ToolSurfacePanel` and `UnsupportedBrowserNotice`
-- [ ] One throwaway tool registers and is visible in the panel
-- [ ] Deployed to Netlify, live URL recorded in `PROGRESS.md`
+      — done in code; verified through `netlify dev`, not on the origin
+- [ ] One throwaway tool registers and is visible in the panel — `get_app_state`
+      is written and wired; **unverified**, no WebMCP-capable browser available
+      to this session
+- [ ] Deployed to Netlify, live URL recorded in `PROGRESS.md` — **blocked**,
+      the Netlify CLI on this machine is not authenticated
 - [ ] Tool surface confirmed on the **deployed origin** in both environments
+      — blocked on the deploy
 - [ ] 12 clips copied into `public/media/`, `src/fixtures/clips.ts` generated
-- [ ] `/api/analyze` returns a structured 503 with no key set
+      — done and committed; 12 mp4 + 12 jpg + 6 vtt, 8.8MB
+- [ ] `/api/analyze` returns a structured 503 with no key set — confirmed
+      through `netlify dev`, not yet on the deployed origin
 - [ ] `GEMINI_API_KEY` set in Netlify env; `/api/analyze` returns 200
+      — blocked on B6 and on the deploy
 
 ## Why This Is First
 

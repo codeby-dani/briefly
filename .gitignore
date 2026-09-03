@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Secrets. `*.local` above already covers .env.local; these are explicit so a
+# stray .env is never one typo away from a public repo.
+.env
+.env.*
+!.env.example
+
+# Netlify CLI
+.netlify
+
+# Netlify CLI scratch (netlify dev writes this for its edge runtime)
+deno.lock
