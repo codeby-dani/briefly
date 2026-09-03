@@ -121,6 +121,17 @@ function Sidebar({ route, collapsed, onToggle }: { route: Route; collapsed: bool
         <div className="sidebar-brand">
           <img className="brand-mark" src="/brand/briefly-logo.png" alt="" aria-hidden="true" />
           <span className="brand-sr-only">Briefly</span>
+          <button
+            type="button"
+            className="sidebar-toggle-inner"
+            aria-label={collapsed ? 'Show sidebar' : 'Hide sidebar'}
+            aria-expanded={!collapsed}
+            data-testid="sidebar-collapse-inner"
+            onClick={onToggle}
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <NavIcon name="panel-left" size={16} />
+          </button>
         </div>
 
         <div className="workspace-switcher" ref={switcherRef}>

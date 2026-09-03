@@ -14,7 +14,7 @@
 
 import type { Route } from '../types'
 
-export type IconName = Route | 'search' | 'sync' | 'settings' | 'help' | 'bell' | 'chevron'
+export type IconName = Route | 'search' | 'sync' | 'settings' | 'help' | 'bell' | 'chevron' | 'panel-left'
 
 const PATHS: Record<IconName, string> = {
   // home
@@ -36,6 +36,8 @@ const PATHS: Record<IconName, string> = {
   help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zm-2.1-11.4a2.1 2.1 0 1 1 3.1 2.2c-.6.4-1 .9-1 1.7M12 17.2h.01',
   bell: 'M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4',
   chevron: 'm7 10 5 5 5-5',
+  // sidebar panel collapse / expand — a square with a left column
+  'panel-left': 'M3 5h18M3 19h18M3 5v14M9 5v14',
 }
 
 export function NavIcon({ name, size = 20 }: { name: IconName; size?: number }) {
