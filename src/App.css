@@ -319,7 +319,7 @@
 
 .card {
   background: var(--surface);
-  border: 0;
+  border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 20px 22px;
   box-shadow: var(--shadow);
@@ -503,7 +503,7 @@
   flex-direction: column;
   gap: 6px;
   background: var(--surface-high);
-  border: 0;
+  border: 1px solid var(--border);
   border-radius: var(--r);
   padding: 14px 16px;
   min-height: 122px;
@@ -559,6 +559,18 @@
   letter-spacing: -0.02em;
   color: var(--text-h);
   font-variant-numeric: tabular-nums;
+  animation: number-pop 450ms ease-out both;
+}
+
+@keyframes number-pop {
+  0% {
+    opacity: 0.2;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .kpi-foot {
@@ -582,7 +594,8 @@
 
 .line-chart {
   width: 100%;
-  height: 210px;
+  height: auto;
+  display: block;
   overflow: visible;
 }
 

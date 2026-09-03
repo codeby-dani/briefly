@@ -17,6 +17,7 @@ import { briefStore } from '../store/briefs'
 import { trendStore } from '../store/trends'
 import { dispatch, navigate, useAppState } from '../store/router'
 import type { Trend } from '../types'
+import { AnimatedNumber } from '../components/AnimatedNumber'
 import { useToolSurface } from '../webmcp'
 
 const ID = new Intl.NumberFormat('en-US')
@@ -82,10 +83,10 @@ export function Dashboard() {
           <DemoBadge what="Every figure in this card" />
         </div>
         <div className="kpis">
-          <Kpi label="Reach" value={compact(analytics.reach)} note="Audience signals" icon="reach" />
-          <Kpi label="Impressions" value={compact(analytics.impressions)} note="Content discovery" icon="impressions" />
-          <Kpi label="Engagement rate" value={`${analytics.engagementRate}%`} note="Quality signal" icon="engagement" />
-          <Kpi label="Followers gained" value={compact(followersGained)} note="30-day movement" icon="followers" spark={analytics.followerGrowth.slice(-7)} />
+          <Kpi label="Reach" value={compact(analytics.reach)} rawValue={analytics.reach} formatter={compact} note="Audience signals" icon="reach" />
+          <Kpi label="Impressions" value={compact(analytics.impressions)} rawValue={analytics.impressions} formatter={compact} note="Content discovery" icon="impressions" />
+          <Kpi label="Engagement rate" value={`${analytics.engagementRate}%`} rawValue={analytics.engagementRate} formatter={(v) => `${v.toFixed(1)}%`} note="Quality signal" icon="engagement" />
+          <Kpi label="Followers gained" value={compact(followersGained)} rawValue={followersGained} formatter={compact} note="30-day movement" icon="followers" spark={analytics.followerGrowth.slice(-7)} />
         </div>
       </section>
 
@@ -180,12 +181,16 @@ export function Dashboard() {
 function Kpi({
   label,
   value,
+  rawValue,
+  formatter,
   note,
   icon,
   spark,
 }: {
   label: string
   value: string
+  rawValue?: number
+  formatter?: (v: number) => string
   note: string
   icon: keyof typeof ICONS
   spark?: number[]
@@ -198,7 +203,13 @@ function Kpi({
         </span>
         <span className="kpi-label">{label}</span>
       </div>
-      <span className="kpi-value">{value}</span>
+      <span className="kpi-value">
+        {rawValue !== undefined ? (
+          <AnimatedNumber value={rawValue} formatter={formatter} />
+        ) : (
+          value
+        )}
+      </span>
       <div className="kpi-foot">
         <span>{note}</span>
         {spark && <Sparkline points={spark} label={`${label}, seven-day direction`} />}

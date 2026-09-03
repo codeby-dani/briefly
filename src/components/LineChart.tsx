@@ -27,11 +27,11 @@ function movingAverage(points: number[]) {
 }
 
 /** A dependency-free SVG chart with an accessible demo comparison series. */
-export function LineChart({ points, height = 210, label }: { points: number[]; height?: number; label: string }) {
+export function LineChart({ points, height = 145, label }: { points: number[]; height?: number; label: string }) {
   const [activeIndex, setActiveIndex] = useState(points.length - 1)
   const gradientId = `chart-fill-${useId().replace(/:/g, '')}`
   const width = 720
-  const pad = { top: 18, right: 18, bottom: 30, left: 38 }
+  const pad = { top: 14, right: 18, bottom: 26, left: 38 }
 
   if (points.length < 2) return null
 
@@ -56,7 +56,7 @@ export function LineChart({ points, height = 210, label }: { points: number[]; h
 
   return (
     <div className="chart-visual">
-      <svg className="line-chart" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label={`${label} — ${points.length} demo points, from ${min} to ${max}`} data-testid="line-chart">
+      <svg className="line-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label} — ${points.length} demo points, from ${min} to ${max}`} data-testid="line-chart">
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.3" />
