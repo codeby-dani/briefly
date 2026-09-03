@@ -2,7 +2,7 @@
 
 **This is the session entry point. Read this before anything else.**
 
-Last updated: 2026-09-03 22:35 WITA · by: Phase 2 build session
+Last updated: 2026-09-03 22:40 WITA · by: Phase 2 build session, then a `todo.md` sweep
 
 ---
 

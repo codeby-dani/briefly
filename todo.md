@@ -26,6 +26,11 @@ At the time this file was written there were **10 hours 05 minutes** remaining.
 Every scope decision below is downstream of that number. This is not a
 13-day plan compressed; it is a 10-hour plan with a roadmap attached.
 
+Last swept **2026-09-03 22:40 WITA**, after the Phase 2 build — **5h 20m left**.
+This file holds *decisions*; `plan/PROGRESS.md` holds *state* and is the
+authority on where the build actually is. Where the two could disagree, believe
+PROGRESS.
+
 | Area | State |
 |------|-------|
 | Eligibility | `[ ]` BLOCKING |
@@ -97,11 +102,18 @@ The feature list on the whiteboard is a product; ten hours is a demo. Split:
 
 ### Real (implemented, agent-callable)
 
-- [x] Product Knowledge base — full CRUD, persisted
-- [x] Search, filter, sort across trends and briefs
-- [x] Brief generation — hook, outline, tone, CTA, hashtags, target audience
-- [x] Trend "why is this rising" summary
-- [x] Brief library with status transitions
+These are `[x]` as *scope decisions* — the question this file asks is "is this in
+or out", and all five are in. Build state is `plan/PROGRESS.md`'s job, and the
+note beside each is a convenience, not a second source of truth.
+
+- [x] Product Knowledge base — full CRUD, persisted · *Phase 3, not started*
+- [x] Search, filter, sort across trends and briefs · *trends done in Phase 2;
+      briefs in Phase 4*
+- [x] Brief generation — hook, outline, tone, CTA, hashtags, target audience ·
+      *Phase 4, not started*
+- [x] Trend "why is this rising" summary · *built in Phase 2 — four sources,
+      `agent` / `model` / `cached` / `human`, each labelled on screen*
+- [x] Brief library with status transitions · *Phase 4, not started*
 
 ### Mocked (seeded fixtures, labelled `demo data` in the UI)
 
@@ -115,6 +127,11 @@ The feature list on the whiteboard is a product; ten hours is a demo. Split:
 - [x] Clip duration, file size, word count, words per minute
 - [x] Hook end time and hook word count, segment count and mean length
 - [x] All of it re-derivable by anyone who clones the repo and runs the script
+
+Rendered as of Phase 2 in the trend drawer under the player
+(`clip-signals-{clipId}`), with the `measured` badge on that section head and
+`demo data` on the spike chart and the samples beside it — two claims, two
+colours, never both on one value.
 
 The 12 clips themselves are cc0 and self-generated, copied from
 github.com/aliefauzan/ClipBrief. They carry **no** view, like or share counts:
@@ -161,7 +178,12 @@ the moment anyone looks closely.
       differentiator is visible on camera rather than asserted in narration.
 - [ ] **Fallback path when no agent is connected.** Every agent-writable field
       needs a hand-editable equivalent, or the app looks broken to a judge who
-      opens it in plain Chrome. TODO — Phase 1.
+      opens it in plain Chrome. Built for everything that exists: the trend
+      summary has a *Write it yourself* textarea that saves as `human`, a *Run
+      analysis* button that takes the same `runAnalysis()` path `analyze_trend`
+      takes, and a *Clear*. The action is hand-driveable, not only the text.
+      Still `[ ]` because nothing is deployed, and because Phases 3–4 add
+      agent-writable fields that do not exist yet — re-check when they land.
 
 ## 7. Design and Assets
 
@@ -197,7 +219,12 @@ the moment anyone looks closely.
 - [x] README rewritten from the Vite template to the actual project — Phase 0.
       Phase 7 still adds the creation-window provenance paragraph
 - [ ] `data-testid` on every element the demo touches — on for everything built
-      so far (shell, panel rows, clip player, badges); the rest go on as each
-      component is built, never in a later pass
-- [ ] Vercel deploy verified from a cold browser, not just localhost
+      so far (shell, panel rows, badges, and as of Phase 2 the whole Trends
+      surface: `trend-row-{id}`, `trend-detail`, `trend-summary`,
+      `summary-source`, `clip-player`, `clip-signals-{clipId}`, plus the search,
+      filter, sort and watchlist controls). The rest go on as each component is
+      built, never in a later pass
+- [ ] Vercel deploy verified from a cold browser, not just localhost —
+      **BLOCKING three phases now.** Phases 0, 1 and 2 are all code-complete and
+      all verified on `localhost:4173`; none can close until this happens
 - [ ] Submission entered on Devpost **by T-30m**, not at the deadline
