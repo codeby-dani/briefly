@@ -9,7 +9,7 @@ const bridge = readFileSync('src/webmcp/bridge.ts', 'utf8')
 
 assert.match(app, /src="\/brand\/briefly-logo\.png"/)
 assert.match(app, />Briefly<\/span>/)
-assert.match(app, />Briefly Studio<\/strong>/)
+assert.match(app, /name: 'Briefly Studio'/)
 assert.match(document, /Briefly turns trend research/)
 assert.match(document, /<title>Briefly — trends into briefs<\/title>/)
 assert.match(document, /href="\/brand\/briefly-mark\.png"/)
