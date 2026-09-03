@@ -40,7 +40,27 @@ type Listener = () => void
 const tools = new Map<string, BridgeTool>()
 const listeners = new Set<Listener>()
 
+/**
+ * The public view of the registry, recomputed on change rather than on read.
+ *
+ * `bridgeTools()` is read from `useSyncExternalStore`, which compares snapshots
+ * by identity and re-renders forever if every call hands back a fresh array.
+ * Recomputing here — once per registration change — keeps that identity stable
+ * between changes.
+ */
+let snapshot: BridgeToolInfo[] = []
+
+function recompute() {
+  snapshot = [...tools.values()].map((tool) => ({
+    name: tool.name,
+    description: tool.description,
+    inputSchema: tool.inputSchema,
+    annotations: tool.annotations ?? {},
+  }))
+}
+
 function emit() {
+  recompute()
   listeners.forEach((fn) => fn())
 }
 
@@ -60,12 +80,7 @@ export function registerBridgeTool(tool: BridgeTool): () => void {
 }
 
 export function bridgeTools(): BridgeToolInfo[] {
-  return [...tools.values()].map((tool) => ({
-    name: tool.name,
-    description: tool.description,
-    inputSchema: tool.inputSchema,
-    annotations: tool.annotations ?? {},
-  }))
+  return snapshot
 }
 
 export function subscribeToBridge(fn: Listener): () => void {
