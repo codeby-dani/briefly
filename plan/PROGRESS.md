@@ -2,8 +2,7 @@
 
 **This is the session entry point. Read this before anything else.**
 
-Last updated: 2026-09-03 23:40 WITA · by: Phase 5 build on branch `phase5` —
-Calendar, Performance, and the last two of 23 tools
+Last updated: 2026-09-03 23:56 WITA · by: Phase 5 + Phase 6 merge reconciliation
 
 ---
 
@@ -11,23 +10,17 @@ Calendar, Performance, and the last two of 23 tools
 
 | | |
 |---|---|
-| **Current phase** | Phase 5 is code-complete on branch `phase5`, on top of the reconciled tree. Nothing new is deployed |
+| **Current phase** | Phases 5 and 6 are merged locally; browser E2E and deployment remain open |
 | **Sprint start (T+0)** | 2026-09-03 17:51 WITA |
 | **Hard deadline** | 2026-09-04 04:00 WITA (13:00 PDT, 2026-09-03) |
-| **Time remaining at last update** | 4h 20m |
+| **Time remaining at last update** | 4h 4m |
 | **Deployed URL** | https://trend-lake.vercel.app — **serves a stale bundle**: Phases 0, 1 and 4 only |
 | **Tools registered** | 23 of 23 written and locally verified on one build. **6 of 23 are on the deployed origin** |
 
 ## Next Task
 
-**Merge `phase5` into `main` and push — the push is the deploy.** The merge
-repair from the last entry is now committed upstream and `main` compiles;
-`phase5` was cut from it and touches `src/App.tsx` and `src/types.ts`, which are
-the two files that collided last time. The merge was re-verified on this branch
-*after* fast-forwarding to `origin/main`: `npm run build` exits 0 and the surface
-counts on all six routes are 2 / 8 / 5 / 4 / **4** / 2 with 12 on an open trend.
-The calendar count is the one that moved, and it moved because Phase 5 put two
-tools there.
+**Push local `main` — the push is the deploy.** Re-drive the surface counts and
+the two required browser checks on the resulting public origin.
 
 The live origin is still running a bundle from before Phase 2 and **every claim
 for Phases 2, 3 and 5 below is a local claim** until that push lands. After it:
@@ -91,7 +84,7 @@ moved 1 → 2 so a warm `localStorage` reseeds instead of serving trends with no
 | 3 | Product Knowledge | T+4:15 → T+5:15 | `[ ]` | 5 / 5 locally · **0 deployed** — not on the live bundle |
 | 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 6 / 7 locally · 6 / 7 **deployed and re-verified on the live origin** · criterion 2 needs a live agent |
 | 5 | Calendar and Performance | T+6:45 → T+7:45 | `[ ]` | 4 / 4 locally · **0 deployed** — not on the live bundle · was cuttable, not cut |
-| 6 | Polish and manual E2E | T+7:45 → T+8:30 | `[ ]` | 0 / 6 |
+| 6 | Polish and manual E2E | T+7:45 → T+8:30 | `[ ]` | 1 / 6 locally (description pass); no current local preview, agent E2E and deployment remain |
 | 7 | Demo and submission | T+8:30 → T+10:00 | `[ ]` | 0 / 6 |
 
 Phase 4 is the only phase with any criterion met on a public origin, and that is
@@ -119,14 +112,14 @@ survives". It survived. See `01-architecture.md` for contracts.
 | 10 | `write_trend_summary` | trend open | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
 | 11 | `play_clip` | trend open | 2 | `[ ]` locally verified at `seekS` 2 — **absent from the deployed bundle** |
 | 12 | `analyze_trend` | trend open | 2 | `[ ]` `cached` path re-verified locally (`claude-opus-5`); `model` path still never observed — see B6 |
-| 13 | `list_products` | products | 3 | `[ ]` locally verified, 4 seeded — **absent from the deployed bundle** |
-| 14 | `get_product` | products | 3 | `[ ]` locally verified — **absent from the deployed bundle** |
-| 15 | `create_product` | products | 3 | `[ ]` locally verified; rejects unknown fields by name — **absent from the deployed bundle** |
-| 16 | `update_product` | product open | 3 | `[ ]` locally verified — **absent from the deployed bundle** |
-| 17 | `delete_product` | product open | 3 | `[ ]` locally verified, round-trip 4 → 5 → 4 — **absent from the deployed bundle** |
+| 13 | `list_products` | products | 3 | `[ ]` locally verified, 4 seeded; agent description polished — **absent from the deployed bundle** |
+| 14 | `get_product` | products | 3 | `[ ]` locally verified; agent description polished — **absent from the deployed bundle** |
+| 15 | `create_product` | products | 3 | `[ ]` locally verified; returns new id and rejects unknown fields by name; agent description polished — **absent from the deployed bundle** |
+| 16 | `update_product` | product open | 3 | `[ ]` locally verified; idempotent partial update description polished — **absent from the deployed bundle** |
+| 17 | `delete_product` | product open | 3 | `[ ]` locally verified, round-trip 4 → 5 → 4; irreversible open-id guard description polished — **absent from the deployed bundle** |
 | 18 | `get_brief_context` | brief composer | 4 | `[ ]` **verified on the deployed origin** — full trend, product USP, 3-item do-not list |
 | 19 | `save_brief` | brief composer | 4 | `[ ]` locally re-verified: injected `status:'published'` still lands `draft` |
-| 20 | `search_briefs` | briefs | 4 | `[ ]` **registered on the deployed origin**; filters verified locally |
+| 20 | `search_briefs` | briefs | 4 | `[ ]` locally annotated `readOnly` + `untrustedContent`; filters verified locally, deployed bundle still needs this update |
 | 21 | `update_brief_status` | brief open | 4 | `[ ]` locally re-verified: forward-only, refusals carry `currentStatus` |
 | 22 | `schedule_brief` | calendar | 5 | `[ ]` locally verified, idempotent by briefId+date — **absent from the deployed bundle** |
 | 23 | `list_schedule` | calendar | 5 | `[ ]` locally verified, filters + resolved titles — **absent from the deployed bundle** |
@@ -778,3 +771,70 @@ recorded on a later date the Performance line chart and the calendar will be
 describing different weeks, and nothing in the app says so. It is not worth a
 fix before the submission; it is worth knowing before someone on camera points
 at both and calls them the same thirty days.
+
+### 2026-09-03 23:35 WITA — Phase 6 local polish and contract audit
+
+**Reskin reversed deliberately, dark → light.** The checked-in Stitch reference
+set `FE-design-stitch-reference/stitch_mcp_content_dashboard_ui/` is a complete
+seven-screen light Material-style system, while the older dark choice came from
+one earlier dashboard reference. The complete system wins: `src/index.css`,
+`src/App.css` and `src/App.tsx` now use its transcribed light tokens, fixed
+sidebar and sticky top bar. Cards use elevation rather than borders. The fake
+quota, notification, avatar and date controls from that reference were not
+copied: they would have put invented, unbadged numbers on screen.
+
+**Typography reversed deliberately too.** `index.html` now loads the reference
+faces, Plus Jakarta Sans and Inter, through Google Fonts with `display=swap`.
+The earlier decision not to fetch fonts protected the old dark implementation;
+the light reference explicitly depends on a display face, and the Vercel config
+does not block the request. Navigation uses inline SVG rather than the
+reference's Material Symbols font, whose failure mode displays ligature names
+as text.
+
+**A merge regression was repaired while reskinning.** The Phase 2/3/4 merge had
+dropped the Trends route's 33 selector families from `src/App.css`; they were
+recovered from `b75787b:src/App.css` and re-toned for the light system. Static
+inspection confirms 36 matching selector declarations, including the controls,
+trend grid, drawer, samples, summary, angles and source badges. The 900px
+sidebar strip, 720px two-line trend rows, focus-visible outlines, sticky product
+editor, guardrail legends and distinct human/agent brief chips are present in
+the current stylesheet. Status-chip contrast is 5.80:1 for both measured green
+and demo-data amber pairs.
+
+**Observability and contracts.** `ToolSurfacePanel` now ships Surface and Event
+log tabs backed by the existing `td:events` ring buffer through one
+`useSyncExternalStore`; no duplicate store was introduced. The product tool
+descriptions now state both when to use them and their effects, including the
+new id from `create_product`, idempotent partial updates, and irreversible
+open-id deletion. With approval, `search_briefs` now carries
+`untrustedContentHint`; its `01-architecture.md` and `02-data-model.md`
+contracts were updated together. The stale `(+1 when a brief is open)` clause
+was removed from the briefs surface state machine: code and the architecture
+table both expose exactly two route tools, with no brief-open tool.
+
+**Local limits, recorded rather than hidden.** The previous Browser-pane
+preview is no longer running and no app-provided preview launcher was available
+in this session, so the remaining visual screenshots, manual no-agent loop,
+console sweep and responsive interaction checks were not rerun. They remain
+open; nothing in Phase 6 is marked deployed. `npx oxlint`, the deterministic
+Phase 3 verifier and `npm run build` all pass on this tree.
+
+**Review follow-up.** A focused review found that `readEvents()` allocated a
+fresh array for every `useSyncExternalStore` snapshot. It now caches the parsed
+array by raw localStorage value; `scripts/verify-trace.mjs` proves snapshots
+stay referentially stable until storage changes. The observability test-id table
+now matches the shipped `event-{traceId}` locator, and the stale deadline
+remaining value above was corrected.
+
+### 2026-09-03 23:56 WITA — merge Phase 6 into current main
+
+`main` was first fast-forwarded to current `origin/main`, which had already
+merged Phase 5. The direct merge of `phase6` then conflicted in `App.tsx`,
+`index.css` and this progress file. The resolution preserves Phase 5's Calendar
+and Performance routes and its two schedule tools, while retaining the Phase 6
+shell, light palette and event-log work. The Performance ramp was retuned to
+the light token system rather than retaining the old dark purple values.
+
+The merged tree passes `npm run build`, `npx oxlint` (the same four pre-existing
+warnings only), and both deterministic product and Phase 5 verifiers. Local
+`main` is ready to push; nothing is marked deployed until Vercel serves it.

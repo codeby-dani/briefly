@@ -243,7 +243,7 @@ picks a product on camera and two tools appear.
 
 | Tool | Annotations | Notes |
 |------|-------------|-------|
-| `search_briefs` | `readOnly` | query + status/platform/date filters |
+| `search_briefs` | `readOnly`, `untrustedContent` | query + status/platform/date filters |
 | `update_brief_status` | `idempotent` | `draft → approved → published`, forward only |
 
 ### Calendar — Phase 5, cuttable

@@ -214,7 +214,7 @@ route=trends & trendOpen     ─► 10 tools + 2 global
 route=products               ─► 3 tools + 2 global
 route=products & productOpen ─► 5 tools + 2 global
 trendSelected & productSelected ─► + get_brief_context, save_brief
-route=briefs                 ─► 2 tools + 2 global (+1 when a brief is open)
+route=briefs                 ─► 2 tools + 2 global
 ```
 
 `get_brief_context` and `save_brief` are conditioned on *selection*, not route,
@@ -419,7 +419,7 @@ out: { ok: true, briefId, status: 'draft' }
 Always lands as `draft`. An agent cannot publish. That is a human decision and
 the constraint should be structural, not advisory.
 
-### `search_briefs` → readOnly
+### `search_briefs` → readOnly, untrustedContent
 
 ```
 in:  { query?, status?, platform?, from?, to? }

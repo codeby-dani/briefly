@@ -51,28 +51,30 @@ export function UnsupportedBrowserNotice() {
 
 const S = {
   bar: {
-    background: '#33260f',
-    color: '#f6d9a8',
-    borderBottom: '1px solid #5a4418',
-    fontSize: 13.5,
+    // Retoned in Phase 6 for the light Stitch palette. Reads through tokens so
+    // the notice tracks index.css rather than pinning its own amber.
+    background: 'var(--warn-bg, #ffeacc)',
+    color: 'var(--warn, #8a4b00)',
+    borderBottom: '1px solid var(--warn-border, #edbd7a)',
+    fontSize: 13,
     lineHeight: 1.55,
   },
   inner: {
-    maxWidth: 860,
-    margin: '0 auto',
-    padding: '14px 20px',
+    maxWidth: 900,
+    padding: '14px 24px',
     display: 'flex',
     flexDirection: 'column' as const,
     gap: 8,
   },
   lead: { margin: 0 },
-  strong: { color: '#ffce6a', fontWeight: 600 },
+  strong: { color: 'var(--warn, #8a4b00)', fontWeight: 700 },
   list: { margin: 0, paddingLeft: 20, display: 'flex', flexDirection: 'column' as const, gap: 5 },
   code: {
     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-    background: 'rgba(0,0,0,0.35)',
+    background: 'rgba(138, 75, 0, 0.12)',
+    color: 'inherit',
     padding: '1px 5px',
-    borderRadius: 3,
-    fontSize: 12.5,
+    borderRadius: 4,
+    fontSize: 12,
   },
 }

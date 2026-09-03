@@ -106,7 +106,7 @@ later pass — the later pass will not happen.
 | Brief status control | `brief-status-{id}` |
 | Tool surface panel | `tool-surface` |
 | Tool surface row | `tool-row-{name}` |
-| Event log row | `tool-event-{traceId}` |
+| Event log row | `event-{traceId}` |
 | Demo data badge | `demo-badge` |
 | Measured badge | `measured-badge` |
 | Clip player | `clip-player` |
