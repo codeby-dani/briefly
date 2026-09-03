@@ -2,23 +2,29 @@
   <title id="title">Briefly</title>
   <desc id="description">Briefly — turn a signal into a clear, confident brief.</desc>
   <defs>
-    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#f8f8f4"/>
-      <stop offset="1" stop-color="#e7eadf"/>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fcfdf9"/>
+      <stop offset="1" stop-color="#f2f4ec"/>
     </linearGradient>
     <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="1">
       <stop stop-color="#c43b12"/>
       <stop offset="1" stop-color="#8e1e0b"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="540" rx="24" fill="url(#canvas)"/>
-  <path d="M0 414C188 365 309 379 482 540H0Z" fill="#d8ded0" opacity=".8"/>
-  <path d="M0 0h360c-86 45-139 113-150 205C191 309 119 370 0 399Z" fill="#c8d0be" opacity=".85"/>
-  <path d="M0 432C163 319 271 323 379 203c47-53 76-117 88-203h103c-13 143-70 256-173 340C286 425 152 472 0 521Z" fill="url(#ribbon)"/>
-  <rect x="115" y="103" width="266" height="266" rx="52" fill="#fff" opacity=".84"/>
-  <image href="briefly-logo.png" x="119" y="116" width="258" height="145" preserveAspectRatio="xMidYMid slice"/>
-  <text x="500" y="220" fill="#171813" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="100" font-weight="700" letter-spacing="-4">Briefly</text>
-  <text x="504" y="303" fill="#485044" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="38" font-weight="500">Turn trend signals into</text>
-  <text x="504" y="362" fill="#a92d0d" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="38" font-weight="700">clear, confident briefs.</text>
-  <text x="504" y="424" fill="#667062" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="27" font-weight="500">One shared workspace for people and AI agents.</text>
+  <rect width="1200" height="540" rx="28" fill="url(#paper)"/>
+  <rect width="422" height="540" rx="28" fill="#e3e8da"/>
+  <path d="M0 438C110 405 183 417 307 540H0Z" fill="#d1d9c8"/>
+  <circle cx="332" cy="88" r="122" fill="#f7f8f2" opacity=".82"/>
+  <rect x="74" y="88" width="274" height="364" rx="34" fill="#fbfcf8"/>
+  <!-- Inline mark: GitHub blocks nested raster images when it renders SVGs in README files. -->
+  <g transform="translate(118 154) scale(.44)">
+    <path d="M0 0h218c50 0 90 40 90 90 0 21-8 42-22 58-22-42-64-68-112-68H62v93c0 26 13 49 34 63L0 282Z" fill="#c8d0be"/>
+    <path d="M62 332h112c48 0 90-27 112-68 15 17 23 38 23 60 0 50-40 90-90 90H0l96-46c-21-14-34-37-34-63Z" fill="#c8d0be"/>
+    <path d="M0 414c39-91 109-137 204-184 65-33 104-72 104-123 0-39-18-76-49-98 73 18 126 84 126 162 0 76-43 134-111 177C165 407 78 427 0 470Z" fill="url(#ribbon)"/>
+  </g>
+  <text x="510" y="145" fill="#a52b0b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" font-weight="700" letter-spacing="3">BRIEFLY</text>
+  <text x="510" y="236" fill="#171813" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="76" font-weight="750" letter-spacing="-3">Trend signals,</text>
+  <text x="510" y="317" fill="#171813" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="76" font-weight="750" letter-spacing="-3">made actionable.</text>
+  <rect x="512" y="361" width="68" height="6" rx="3" fill="#c3340d"/>
+  <text x="510" y="416" fill="#596355" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="500">A shared workspace for people and AI agents.</text>
 </svg>
