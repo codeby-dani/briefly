@@ -1,8 +1,22 @@
-# Anglebook
+# Briefly
 
-A content-marketing workspace where trend research, a business profile and brief
-writing happen in one place — and where a connected AI agent works the same
-surface the human does, over [WebMCP](https://github.com/webmachinelearning/webmcp).
+![License](https://img.shields.io/badge/License-MIT-7b2cbf?style=flat-square)
+![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646cff?style=flat-square&logo=vite&logoColor=white)
+![WebMCP](https://img.shields.io/badge/AI%20surface-WebMCP-a855f7?style=flat-square)
+![Gemini](https://img.shields.io/badge/Analysis-Gemini-4285f4?style=flat-square&logo=googlegemini&logoColor=white)
+![Live demo](https://img.shields.io/badge/Live%20demo-Vercel-111111?style=flat-square&logo=vercel&logoColor=white)
+![Challenge](https://img.shields.io/badge/Google%20x%20Devpost-WebMCP%20Challenge-0f7490?style=flat-square)
+
+<p align="center">
+  <img src="public/brand/briefly-readme-banner.svg" alt="Briefly — The model perceives. Code decides. You confirm." width="100%" />
+</p>
+
+> **briefly** · Turn trend research and business context into grounded content briefs.
+
+Briefly is a content-marketing workspace where trend research, a business profile,
+and brief writing happen in one place — and where a connected AI agent works the
+same surface the human does, over [WebMCP](https://github.com/webmachinelearning/webmcp).
 
 The page does not do the reasoning. It exposes what the human is looking at as
 tools, and the agent reads that context and writes results back into the app:
@@ -10,13 +24,9 @@ the brief lands in the library, not in a chat transcript.
 
 Built for [The WebMCP Challenge](https://webmcp.devpost.com).
 
-The name reflects the product's job: keep a durable book of content angles,
-grounded in both the trend a person is watching and the business context their
-agent can read. The source icon and raster exports live in `public/brand/`.
-
 Live app: [trend-lake.vercel.app](https://trend-lake.vercel.app)
 
-Anglebook was created during the WebMCP Challenge submission window. Its git
+Briefly was created during the WebMCP Challenge submission window. Its git
 history begins on 2026-09-03 with commit `ebe1b8a`; the application, WebMCP tool
 surface, and every line under `src/` are new work from that window. The only
 reused material is the author's own cc0 clip corpus described under
@@ -107,7 +117,7 @@ never blurred:
 ## Design
 
 The palette, type and radii come from a [Stitch](https://stitch.withgoogle.com)
-design system — *Anglebook Dark*: dark mode, Inter, 8px corners, generated
+design system — *Briefly Dark*: dark mode, Inter, 8px corners, generated
 from a `#aa3bff` seed with `#16171d` pinned as the neutral. A Dashboard screen
 was generated from it and the layout in `src/routes/` is built against that
 screen.
