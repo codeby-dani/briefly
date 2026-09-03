@@ -6,14 +6,27 @@ The first of the three phases that carry the judged surface.
 
 ## Status
 
-- [ ] Trend table: keyword, volume, growth %, platform, category, sparkline
-- [ ] Search, filter (platform, category, date range, min growth), sort
-- [ ] Detail drawer: spike chart, clip player, samples, related keywords, summary block
-- [ ] Six route-scoped tools registered
-- [ ] Four more tools register when a trend is open, and unregister when it closes
-- [ ] `write_trend_summary` renders into the drawer
-- [ ] `play_clip` starts the drawer's player
-- [ ] `analyze_trend` writes a `model` or `cached` summary, labelled as such
+`[x]` means deployed, per `plan/README.md`. Nothing is deployed yet — B2 is
+still open — so every box below is `[ ]` with the true state written beside it.
+All eight are code-complete and verified on `localhost:4173`.
+
+- [ ] Trend table: keyword, volume, growth %, platform, category, sparkline —
+      *built (`src/routes/Trends.tsx`), not deployed*
+- [ ] Search, filter (platform, category, date range, min growth), sort —
+      *built, agent and human write the same view state, not deployed*
+- [ ] Detail drawer: spike chart, clip player, samples, related keywords,
+      summary block — *built (`src/routes/TrendDetail.tsx`), not deployed*
+- [ ] Six route-scoped tools registered — *surface is 8 on Trends, verified,
+      not deployed*
+- [ ] Four more tools register when a trend is open, and unregister when it
+      closes — *12 open / 8 closed / 2 off-route, verified, not deployed*
+- [ ] `write_trend_summary` renders into the drawer — *verified without a
+      reload, not deployed*
+- [ ] `play_clip` starts the drawer's player — *verified, including the refusal
+      and the seek clamp, not deployed*
+- [ ] `analyze_trend` writes a `model` or `cached` summary, labelled as such —
+      *`cached` verified locally; the `model` path needs the deployed function
+      and `GEMINI_API_KEY` (B6), so it is unverified end to end*
 
 ## Tasks
 

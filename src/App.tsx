@@ -7,7 +7,6 @@ import { composerTools } from './tools/briefs'
 import { bindHashListener, navigate, useAppState } from './store/router'
 import { Dashboard } from './routes/Dashboard'
 import { CorpusCheck } from './routes/CorpusCheck'
-import { Briefs } from './routes/Briefs'
 import { PendingRoute } from './routes/Pending'
 import { ToolSurfacePanel, UnsupportedBrowserNotice, installBridge, useTools } from './webmcp'
 
@@ -91,9 +90,6 @@ function RouteView({ route }: { route: Route }) {
         <CorpusCheck />
       </>
     )
-  }
-  if (route === 'briefs') {
-    return <Briefs />
   }
   return <PendingRoute route={route} />
 }

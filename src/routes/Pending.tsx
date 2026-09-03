@@ -10,6 +10,9 @@
 
 import type { Route } from '../types'
 
+/** Every route that has not been built yet. Trends left this set in Phase 2. */
+export type PendingRouteName = Exclude<Route, 'dashboard' | 'trends'>
+
 interface PendingSection {
   title: string
   phase: string
@@ -17,27 +20,7 @@ interface PendingSection {
   tools: string[]
 }
 
-const PENDING: Record<Exclude<Route, 'dashboard'>, PendingSection> = {
-  trends: {
-    title: 'Trends',
-    phase: 'Phase 2',
-    blurb:
-      'The 24-trend table with search, filter and sort, plus the detail drawer with the ' +
-      'clip player and the full transcripts. The agent drives the same controls the human ' +
-      'would click.',
-    tools: [
-      'search_trends',
-      'filter_trends',
-      'sort_trends',
-      'list_visible_trends',
-      'open_trend',
-      'save_to_watchlist',
-      'get_trend_detail',
-      'write_trend_summary',
-      'play_clip',
-      'analyze_trend',
-    ],
-  },
+const PENDING: Record<PendingRouteName, PendingSection> = {
   products: {
     title: 'Product Knowledge',
     phase: 'Phase 3',
@@ -74,7 +57,7 @@ const PENDING: Record<Exclude<Route, 'dashboard'>, PendingSection> = {
   },
 }
 
-export function PendingRoute({ route }: { route: Exclude<Route, 'dashboard'> }) {
+export function PendingRoute({ route }: { route: PendingRouteName }) {
   const pending = PENDING[route]
 
   return (

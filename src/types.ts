@@ -6,15 +6,25 @@
  * Brief and Analytics arrive with the stores in Phase 1.
  */
 
+/**
+ * The enums are arrays first and unions second so a tool's `inputSchema` and
+ * the type system read from one list. A schema that offers an agent a platform
+ * the app does not have is a rejection the agent cannot see coming.
+ */
 export const PLATFORMS = ['tiktok', 'instagram', 'youtube', 'x'] as const
 
 export type Platform = (typeof PLATFORMS)[number]
 
-export function isPlatform(value: unknown): value is Platform {
-  return typeof value === 'string' && (PLATFORMS as readonly string[]).includes(value)
-}
+export const CATEGORIES = [
+  'beauty',
+  'food',
+  'fashion',
+  'tech',
+  'fitness',
+  'finance',
+] as const
 
-export type Category = 'beauty' | 'food' | 'fashion' | 'tech' | 'fitness' | 'finance'
+export type Category = (typeof CATEGORIES)[number]
 
 export const ROUTES = [
   'dashboard',
@@ -77,6 +87,24 @@ export interface Clip {
  */
 export type SummarySource = null | 'agent' | 'model' | 'cached' | 'human'
 
+/**
+ * The committed fallback `analyze_trend` serves when there is no key and no
+ * agent. plan/02-data-model.md § Seed Data asks for one per clip-backed trend.
+ *
+ * One nested record rather than four loose fields on `Trend`, because the four
+ * values have to travel together: a summary without the model id and the date
+ * beside it is a summary a judge cannot tell apart from a fresh one, and that
+ * is the single dishonesty this project cannot afford.
+ */
+export interface CachedAnalysis {
+  summary: string
+  suggestedAngles: string[]
+  /** The model that actually wrote it. Rendered verbatim in the drawer. */
+  model: string
+  /** ISO date. */
+  generatedAt: string
+}
+
 export interface Sample {
   author: string
   text: string
@@ -106,6 +134,12 @@ export interface Trend {
   aiSummary: string | null
   aiSummarySource: SummarySource
   suggestedAngles: string[]
+  /**
+   * The `cached` fallback for `analyze_trend`. `null` on the 12 trends with no
+   * clips: nothing grounds an analysis there, so the tool reports the failure
+   * rather than serving an invented paragraph.
+   */
+  cached: CachedAnalysis | null
   /** Literal `true`, not a boolean: the badge cannot be forgotten. */
   demo: true
 }

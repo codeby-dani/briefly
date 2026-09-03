@@ -7,7 +7,10 @@
  * that has never shipped, and a half-migrated store is worse than a fresh one.
  */
 
-export const SCHEMA_VERSION = 1
+// 2 — Phase 2 added `Trend.cached`. There are no migrations by design, so a
+// bump is how a warm localStorage from an earlier build gets the new field
+// instead of quietly serving trends that have no fallback summary.
+export const SCHEMA_VERSION = 2
 
 export const KEYS = {
   version: 'td:version',

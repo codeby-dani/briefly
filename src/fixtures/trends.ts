@@ -12,7 +12,7 @@
  * and the only reliable way to guarantee that is to ship trends in that state.
  */
 
-import type { Category, Platform, Sample, Trend } from '../types'
+import type { CachedAnalysis, Category, Platform, Sample, Trend } from '../types'
 
 /**
  * 14 daily points, shaped rather than random.
@@ -296,6 +296,250 @@ const SEEDS: TrendSeed[] = [
   },
 ]
 
+
+/**
+ * The committed `cached` analyses, one per clip-backed trend.
+ *
+ * plan/02-data-model.md § Seed Data asks for these, and they are what
+ * `analyze_trend` serves when `/api/analyze` answers 503 because no key is
+ * configured. They are grounded in the clip transcripts in `clips.ts` and
+ * nowhere else — that is the difference between a fallback and filler.
+ *
+ * They were not written by Gemini. The live path's key was not available when
+ * this fixture was built, and stamping a Gemini model id on text Gemini never
+ * produced is exactly the dishonesty the `cached` label exists to prevent. The
+ * `model` field below names what actually wrote them, and the drawer renders
+ * that string verbatim next to the summary.
+ *
+ * The 12 trends with no clips have no entry here and no fallback. That is
+ * deliberate: with nothing to reason over, `analyze_trend` reports the failure
+ * rather than serving an invented paragraph.
+ */
+const CACHED_MODEL = 'claude-opus-5'
+const CACHED_AT = '2026-09-03'
+
+const CACHED: Record<string, CachedAnalysis> = {
+  tr_001: {
+    summary:
+      "The clip on this trend is a dermatologist telling people to stop using retinol " +
+      "nightly, and the reframe is what is spreading: flaking, stinging and sudden reactions " +
+      "to long-used products are named as damage, not purging. That renames a symptom the " +
+      "audience was told to endure, so the video lands as permission rather than advice. The " +
+      "prescription is unusually concrete for the format — twice a week, buffer with " +
+      "moisturiser first, two months to build up — and it promises the same result with none " +
+      "of the misery, which is a trade an over-exfoliated viewer is already looking for. The " +
+      "related keywords are the search terms of people who already suspect this.",
+    suggestedAngles: [
+      "Purging or damage: the three signs the clip names, one card each",
+      "The two-month retinol ramp, drawn as a calendar",
+      "Buffer-first application, filmed in real time — the step everyone skips",
+      "What a repaired barrier feels like at week two, four and eight",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_002: {
+    summary:
+      "The clip is not really about slugging, it is about schedules: the creator works nights " +
+      "and does the routine at 3am because that is their actual bedtime. “Everyone says night " +
+      "routine like everyone sleeps at ten” is the line doing the work — it turns a product " +
+      "step into a permission slip for shift workers, an audience beauty content usually " +
+      "writes around. The method is three moves, serum, ninety seconds, thick cream to seal, " +
+      "short enough to repeat from memory. Occlusive and petrolatum sit in the related " +
+      "keywords, so the arriving audience is looking for the sealing step rather than the " +
+      "serum.",
+    suggestedAngles: [
+      "Routine follows sleep, not the clock — the same three steps at 10pm, 3am and 6am",
+      "The ninety-second wait, timed on camera",
+      "What “seal it” means: occlusive against plain moisturiser, side by side",
+      "Night-shift skincare: a week filmed at the creator's real bedtime",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_003: {
+    summary:
+      "The clip opens on an accusation — you are burning through your window right now — and " +
+      "then concedes the objection out loud: sunscreen indoors feels ridiculous. Naming the " +
+      "viewer's own resistance before arguing with it is why this travels. The mechanism is " +
+      "one fact, glass blocks the burning rays and passes the ageing ones, and the proof is " +
+      "an image the audience has already seen, the truck driver's face after thirty years. " +
+      "The ask is deliberately tiny: one pump, eight seconds. The related keywords are " +
+      "mechanism terms, not product terms, so the demand arriving here is for the " +
+      "explanation.",
+    suggestedAngles: [
+      "Glass blocks UVB, not UVA — one diagram, no product in frame",
+      "The eight-second ask: one pump, filmed unedited",
+      "Desk-side reapplication for people who never leave the building",
+      "Answering “this feels ridiculous” before the viewer says it",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_004: {
+    summary:
+      "The credibility here comes from a confession rather than a claim: four years and about " +
+      "two thousand dollars spent building a twelve-step routine that made everything worse. " +
+      "The advice — cleanser, one active, moisturiser, held for a month before adding " +
+      "anything — only persuades because the cost of the wrong version is stated first. The " +
+      "creator also flags their own delivery as boring, which reads as an anti-sales signal " +
+      "in a category built on novelty. This is the slow, steady end of the beauty set: the " +
+      "audience is people simplifying, not people discovering.",
+    suggestedAngles: [
+      "The two-thousand-dollar twelve-step routine, itemised, then cut to three",
+      "One month, no additions: a hold-the-line challenge",
+      "Which one active, for four different skin complaints",
+      "Boring on purpose — why the routine that works is unpostable",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_006: {
+    summary:
+      "The hook is a number the viewer can check against their own spending — about four " +
+      "hundred dollars saved since September — and the recipe underneath is short enough to " +
+      "remember without saving the video: one part coffee to eight parts water, coarse, " +
+      "sixteen hours in the fridge, strain. The persuading line is “people think it needs " +
+      "equipment; it needs a jar”, which removes the last excuse instead of adding a benefit. " +
+      "The close is a dare with a deadline on it, one batch this weekend, which is why a clip " +
+      "like this fills with results rather than questions.",
+    suggestedAngles: [
+      "1:8, coarse, sixteen hours — the whole recipe on one card",
+      "The jar test: cold brew with nothing but kitchen equipment",
+      "Four hundred dollars a year, worked out at your local café's price",
+      "One batch this weekend — a results thread built from the comments",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_007: {
+    summary:
+      "The clip diagnoses instead of recommending: the coffee is bitter because the grind is " +
+      "too fine and over-extracting, and the reason nobody checks is psychological — " +
+      "everybody blames the beans first, because the beans are the thing you paid for. That " +
+      "sentence is the shareable unit. The fix is a closed loop the viewer can run alone: two " +
+      "clicks coarser, taste, and if it goes sour come back one. Thirty seconds of work and " +
+      "nothing to buy. The related keywords are all diagnostic, so the audience arriving is " +
+      "troubleshooting a specific cup rather than shopping.",
+    suggestedAngles: [
+      "Bitter or sour: the two-click correction, tasted on camera",
+      "Why you blame the beans — the sunk cost of the bag",
+      "Same beans, three grind sizes, three cups",
+      "Thirty seconds, no new equipment: the cheapest fix in coffee",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_008: {
+    summary:
+      "A blind test with the numbers in the hook — a six-dollar bag against a " +
+      "twenty-four-dollar one, eleven people, seven picked the cheap one — which then refuses " +
+      "the obvious conclusion. “The lesson is not that price is fake, it is that your palate " +
+      "is trained” turns a gotcha into a piece of self-knowledge, and that is the part that " +
+      "gets quoted. The darker-roast explanation gives the result a mechanism rather than " +
+      "leaving it as a stunt, and the close points somewhere specific: start with a medium " +
+      "roast. The trend is mid-volume and still climbing.",
+    suggestedAngles: [
+      "Eleven blind tasters, two bags — the full result breakdown",
+      "Roast level, not price: what you are actually tasting",
+      "Retraining a dark-roast palate over four weeks",
+      "Run the test yourself: a two-bag protocol for a kitchen table",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_010: {
+    summary:
+      "The clip relocates the problem: the neck hurts by three in the afternoon, but the " +
+      "mid-back gave up around lunchtime, so stretching the sore spot buys four minutes and " +
+      "the pain comes straight back. “You are treating the symptom” is the line, and it " +
+      "explains every failed attempt the viewer has already made — a stronger opening than a " +
+      "new exercise would be. The prescription is small and bounded: two sets of wall slides, " +
+      "twice a day, and ten days before judging it. Naming the trial length is what stops the " +
+      "audience quitting on day three.",
+    suggestedAngles: [
+      "It is not your neck — the mid-back handoff, shown on a spine",
+      "Wall slides, two sets, filmed from the side so the form is checkable",
+      "Ten days before you decide: a day-by-day check-in series",
+      "Why stretching the sore spot fails, in four minutes of real time",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_011: {
+    summary:
+      "The argument is a measurement error rather than a diet: a chicken breast is a hundred " +
+      "and sixty-five grams on the label and about ninety on the plate, so the viewer is " +
+      "eating roughly half the protein they think they are. The creator makes it a confession " +
+      "— forty grams short every day, tracked honestly for a week — which lets the audience " +
+      "be wrong without being scolded. The ask is unusually well bounded: weigh your food for " +
+      "three days, not forever, because three days is enough to recalibrate your eyes " +
+      "permanently. A finite task with a stated end is why this one converts.",
+    suggestedAngles: [
+      "165g on the label, 90g on the plate — the same meal, weighed",
+      "Three days of weighing, then never again: the recalibration challenge",
+      "Where the forty grams goes missing, meal by meal",
+      "Eyeballing portions before and after, tested on camera",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_012: {
+    summary:
+      "The hook is a contradiction held open on purpose — ten-minute workouts do not work, " +
+      "unless you actually do them, in which case they are the only thing that ever has — and " +
+      "the creator immediately blocks the cute reading of it. The reframe underneath is the " +
+      "whole trend: the failure is never the ten minutes, it is the eleven days you skipped. " +
+      "“Pick a time, not a plan” converts the category from programming into scheduling, " +
+      "which is a far smaller thing to ask of someone. At the top of the growth column, and " +
+      "the argument is about consistency rather than intensity.",
+    suggestedAngles: [
+      "Pick a time, not a plan — the scheduling version of a workout plan",
+      "The eleven skipped days, counted out on a calendar",
+      "Same ten minutes, same hour, thirty days — a consistency log",
+      "What the short-session research actually says, in plain words",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_014: {
+    summary:
+      "The clip opens on recognition rather than advice — everybody has this drawer — and " +
+      "puts a number on it: eleven cables, four of them for devices you no longer own. The " +
+      "insight is about why people keep them, which is that binning a cable feels like it " +
+      "will cost money later, and the counter is a swap rather than a rebuttal: it will not " +
+      "cost money, it costs you the drawer. The action is small and dated — label the three " +
+      "you use with masking tape, bin the rest today. Masking tape is the only material " +
+      "named, which keeps it a zero-purchase video in a category built on purchases.",
+    suggestedAngles: [
+      "Eleven cables, four orphans — the drawer audit, on camera",
+      "It costs you the drawer: the real price of keeping a cable",
+      "Three labels and a roll of masking tape",
+      "Bin it today — a before and after with the drawer open",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+  tr_015: {
+    summary:
+      "A nine-product, six-week test whose finding is that eight of the nine are the same " +
+      "stand with a different logo — a claim that reframes the category as a rebadging " +
+      "exercise. The one that mattered was the only one putting the screen at actual eye " +
+      "height instead of raising it four inches and calling it ergonomic, so the takeaway is " +
+      "a measurement rather than a product: measure from your desk to your eyes before buying " +
+      "anything. The clip closes on who the category fails, anyone over five foot eight, " +
+      "which hands a large slice of the audience a reason to send it to someone.",
+    suggestedAngles: [
+      "Eight of nine are the same stand — the rebadging teardown",
+      "Measure desk to eyes first: a thirty-second fit check",
+      "What “ergonomic” means when it means four inches",
+      "Stands that actually clear eye height for taller viewers",
+    ],
+    model: CACHED_MODEL,
+    generatedAt: CACHED_AT,
+  },
+}
+
 export const TRENDS: Trend[] = SEEDS.map((seed, index) => ({
   id: seed.id,
   keyword: seed.keyword,
@@ -319,5 +563,6 @@ export const TRENDS: Trend[] = SEEDS.map((seed, index) => ({
   aiSummary: null,
   aiSummarySource: null,
   suggestedAngles: [],
+  cached: CACHED[seed.id] ?? null,
   demo: true,
 }))
