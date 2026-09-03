@@ -173,7 +173,7 @@ export function searchBriefsTool(): ToolSpec {
       },
       additionalProperties: false,
     },
-    annotations: { readOnlyHint: true },
+    annotations: { readOnlyHint: true, untrustedContentHint: true },
     execute: (input: Record<string, unknown>) => {
       const f = {
         query: str(input.query),

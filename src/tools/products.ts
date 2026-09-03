@@ -79,7 +79,8 @@ export function listProductsTool(): ToolSpec {
   return traced({
     name: 'list_products',
     description:
-      'Use on the Product Knowledge route to see which product records are available before choosing one for a brief.',
+      'Use on the Product Knowledge route before choosing a product for a brief or opening one to edit. ' +
+      'Returns each available product id, name, and one-line positioning without changing the current selection.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     execute: (input: unknown) => {
@@ -103,7 +104,8 @@ export function getProductTool(): ToolSpec {
   return traced({
     name: 'get_product',
     description:
-      'Use on the Product Knowledge route after listing products, when the full brand context and do-and-do-not lists are needed.',
+      'Use after list_products when you need the complete brand context for one product before writing a brief or proposing edits. ' +
+      'Returns its full record, including the allowed and forbidden claims, without changing it.',
     inputSchema: {
       type: 'object',
       properties: { productId: { type: 'string', description: 'Exact product id from list_products.' } },
@@ -127,7 +129,8 @@ export function createProductTool(): ToolSpec {
   return traced({
     name: 'create_product',
     description:
-      'Use on the Product Knowledge route when the human wants a new reusable product record added to the shared workspace.',
+      'Use on the Product Knowledge route when the human wants a new reusable product record in the shared workspace. ' +
+      'Creates the record, returns its new id for later use, and does not register any additional tools.',
     inputSchema: {
       type: 'object',
       properties: productProperties,
@@ -147,7 +150,8 @@ export function updateProductTool(openProductId: string): ToolSpec {
   return traced({
     name: 'update_product',
     description:
-      'Use while a product is open to change only the named fields; omitted fields are left exactly as they are.',
+      'Use while the product the human wants to revise is open. This idempotently changes only the named fields, ' +
+      'leaves omitted fields untouched, and returns the fields updated.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -191,7 +195,8 @@ export function deleteProductTool(openProductId: string): ToolSpec {
   return traced({
     name: 'delete_product',
     description:
-      'Use only while the product the human intends to remove is open; products not currently open cannot be deleted.',
+      'Use only after the human confirms removal of the currently open product. It accepts no other product id and ' +
+      'permanently deletes that record, so the action is irreversible.',
     inputSchema: {
       type: 'object',
       properties: {

@@ -2,8 +2,7 @@
 
 **This is the session entry point. Read this before anything else.**
 
-Last updated: 2026-09-03 23:05 WITA · by: cross-branch reconciliation — four phases
-were built in parallel and merged badly; this entry is the audit and the repair
+Last updated: 2026-09-03 23:51 WITA · by: Phase 6 local polish and review follow-up
 
 ---
 
@@ -11,18 +10,18 @@ were built in parallel and merged badly; this entry is the audit and the repair
 
 | | |
 |---|---|
-| **Current phase** | Phases 1–4 are code-complete **on one tree for the first time**. Nothing new is deployed |
+| **Current phase** | Phase 6 is locally polished; manual browser E2E and deployment remain open |
 | **Sprint start (T+0)** | 2026-09-03 17:51 WITA |
 | **Hard deadline** | 2026-09-04 04:00 WITA (13:00 PDT, 2026-09-03) |
-| **Time remaining at last update** | 4h 55m |
+| **Time remaining at last update** | 4h 9m |
 | **Deployed URL** | https://trend-lake.vercel.app — **serves a stale bundle**: Phases 0, 1 and 4 only |
 | **Tools registered** | 21 of 21 written and locally verified on one build. **6 of 21 are on the deployed origin** |
 
 ## Next Task
 
-**Commit the merge repair, push, and re-verify on the deployed origin.** The
-repair is three edits and is already in the working tree, unstaged; `main` did
-not compile before them.
+**Commit the Phase 6 polish, push `phase6`, then open and merge the PR to
+`main`.** That push is the Vercel deployment; re-drive the surface counts and
+the two required browser checks on the resulting public origin.
 
 The live origin is running a bundle from before Phase 2. Measured on it this
 session: `td:version` is `1`, trends carry no `cached` field, and `/trends`,
@@ -47,7 +46,7 @@ checks (ChatGPT in-app browser, flagged Chrome). `/api/analyze` still needs B6.
 | B8 | Vercel not confirmed on the hackathon's approved-hosting list | you | 0 | **closed** 2026-09-03 22:08 — official rules explicitly list Vercel |
 | B7 | Clip corpus not yet copied from ClipBrief into `public/media/` | — | 0 | **closed** 2026-09-03 21:10 |
 | B9 | No committed `cached` summaries for clip-backed trends | — | 2 | **closed** 2026-09-03 22:35 — `CachedAnalysis` + `Trend.cached`, twelve summaries |
-| B10 | Parallel phases merged without reconciling — `main` did not compile | — | 2/3/4 | **repair written, uncommitted** — see the audit entry in the log |
+| B10 | Parallel phases merged without reconciling — `main` did not compile | — | 2/3/4 | **closed locally** — reconciled tree builds; deployment verification remains B11 |
 | B11 | Deployed origin is older than `main`: Phases 2 and 3 are not on it | you | 0 | **open** — clears on the next successful deploy |
 
 B6 is no longer believed to be a key or provider problem. Both `GET` and `POST`
@@ -87,7 +86,7 @@ moved 1 → 2 so a warm `localStorage` reseeds instead of serving trends with no
 | 3 | Product Knowledge | T+4:15 → T+5:15 | `[ ]` | 5 / 5 locally · **0 deployed** — not on the live bundle |
 | 4 | Brief generator | T+5:15 → T+6:45 | `[ ]` | 6 / 7 locally · 6 / 7 **deployed and re-verified on the live origin** · criterion 2 needs a live agent |
 | 5 | Calendar and Performance | T+6:45 → T+7:45 | `[ ]` | 0 / 4 · **cuttable** |
-| 6 | Polish and manual E2E | T+7:45 → T+8:30 | `[ ]` | 0 / 6 |
+| 6 | Polish and manual E2E | T+7:45 → T+8:30 | `[ ]` | 1 / 6 locally (description pass); no current local preview, agent E2E and deployment remain |
 | 7 | Demo and submission | T+8:30 → T+10:00 | `[ ]` | 0 / 6 |
 
 Phase 4 is the only phase with any criterion met on a public origin, and that is
@@ -113,14 +112,14 @@ The judged surface. 21 tools planned; see `01-architecture.md` for contracts.
 | 10 | `write_trend_summary` | trend open | 2 | `[ ]` locally verified — **absent from the deployed bundle** |
 | 11 | `play_clip` | trend open | 2 | `[ ]` locally verified at `seekS` 2 — **absent from the deployed bundle** |
 | 12 | `analyze_trend` | trend open | 2 | `[ ]` `cached` path re-verified locally (`claude-opus-5`); `model` path still never observed — see B6 |
-| 13 | `list_products` | products | 3 | `[ ]` locally verified, 4 seeded — **absent from the deployed bundle** |
-| 14 | `get_product` | products | 3 | `[ ]` locally verified — **absent from the deployed bundle** |
-| 15 | `create_product` | products | 3 | `[ ]` locally verified; rejects unknown fields by name — **absent from the deployed bundle** |
-| 16 | `update_product` | product open | 3 | `[ ]` locally verified — **absent from the deployed bundle** |
-| 17 | `delete_product` | product open | 3 | `[ ]` locally verified, round-trip 4 → 5 → 4 — **absent from the deployed bundle** |
+| 13 | `list_products` | products | 3 | `[ ]` locally verified, 4 seeded; agent description polished — **absent from the deployed bundle** |
+| 14 | `get_product` | products | 3 | `[ ]` locally verified; agent description polished — **absent from the deployed bundle** |
+| 15 | `create_product` | products | 3 | `[ ]` locally verified; returns new id and rejects unknown fields by name; agent description polished — **absent from the deployed bundle** |
+| 16 | `update_product` | product open | 3 | `[ ]` locally verified; idempotent partial update description polished — **absent from the deployed bundle** |
+| 17 | `delete_product` | product open | 3 | `[ ]` locally verified, round-trip 4 → 5 → 4; irreversible open-id guard description polished — **absent from the deployed bundle** |
 | 18 | `get_brief_context` | brief composer | 4 | `[ ]` **verified on the deployed origin** — full trend, product USP, 3-item do-not list |
 | 19 | `save_brief` | brief composer | 4 | `[ ]` locally re-verified: injected `status:'published'` still lands `draft` |
-| 20 | `search_briefs` | briefs | 4 | `[ ]` **registered on the deployed origin**; filters verified locally |
+| 20 | `search_briefs` | briefs | 4 | `[ ]` locally annotated `readOnly` + `untrustedContent`; filters verified locally, deployed bundle still needs this update |
 | 21 | `update_brief_status` | brief open | 4 | `[ ]` locally re-verified: forward-only, refusals carry `currentStatus` |
 | 22 | `schedule_brief` | calendar | 5 | `[ ]` cuttable |
 | 23 | `list_schedule` | calendar | 5 | `[ ]` cuttable |
@@ -643,3 +642,57 @@ runs the app on merge. The same three files will collide again the moment Phase
 5 lands, and the next person will likely also see a clean merge. Before
 believing any future merge, run `npm run build` and count the surface on all six
 routes — the counts above are the reference.
+
+### 2026-09-03 23:35 WITA — Phase 6 local polish and contract audit
+
+**Reskin reversed deliberately, dark → light.** The checked-in Stitch reference
+set `FE-design-stitch-reference/stitch_mcp_content_dashboard_ui/` is a complete
+seven-screen light Material-style system, while the older dark choice came from
+one earlier dashboard reference. The complete system wins: `src/index.css`,
+`src/App.css` and `src/App.tsx` now use its transcribed light tokens, fixed
+sidebar and sticky top bar. Cards use elevation rather than borders. The fake
+quota, notification, avatar and date controls from that reference were not
+copied: they would have put invented, unbadged numbers on screen.
+
+**Typography reversed deliberately too.** `index.html` now loads the reference
+faces, Plus Jakarta Sans and Inter, through Google Fonts with `display=swap`.
+The earlier decision not to fetch fonts protected the old dark implementation;
+the light reference explicitly depends on a display face, and the Vercel config
+does not block the request. Navigation uses inline SVG rather than the
+reference's Material Symbols font, whose failure mode displays ligature names
+as text.
+
+**A merge regression was repaired while reskinning.** The Phase 2/3/4 merge had
+dropped the Trends route's 33 selector families from `src/App.css`; they were
+recovered from `b75787b:src/App.css` and re-toned for the light system. Static
+inspection confirms 36 matching selector declarations, including the controls,
+trend grid, drawer, samples, summary, angles and source badges. The 900px
+sidebar strip, 720px two-line trend rows, focus-visible outlines, sticky product
+editor, guardrail legends and distinct human/agent brief chips are present in
+the current stylesheet. Status-chip contrast is 5.80:1 for both measured green
+and demo-data amber pairs.
+
+**Observability and contracts.** `ToolSurfacePanel` now ships Surface and Event
+log tabs backed by the existing `td:events` ring buffer through one
+`useSyncExternalStore`; no duplicate store was introduced. The product tool
+descriptions now state both when to use them and their effects, including the
+new id from `create_product`, idempotent partial updates, and irreversible
+open-id deletion. With approval, `search_briefs` now carries
+`untrustedContentHint`; its `01-architecture.md` and `02-data-model.md`
+contracts were updated together. The stale `(+1 when a brief is open)` clause
+was removed from the briefs surface state machine: code and the architecture
+table both expose exactly two route tools, with no brief-open tool.
+
+**Local limits, recorded rather than hidden.** The previous Browser-pane
+preview is no longer running and no app-provided preview launcher was available
+in this session, so the remaining visual screenshots, manual no-agent loop,
+console sweep and responsive interaction checks were not rerun. They remain
+open; nothing in Phase 6 is marked deployed. `npx oxlint`, the deterministic
+Phase 3 verifier and `npm run build` all pass on this tree.
+
+**Review follow-up.** A focused review found that `readEvents()` allocated a
+fresh array for every `useSyncExternalStore` snapshot. It now caches the parsed
+array by raw localStorage value; `scripts/verify-trace.mjs` proves snapshots
+stay referentially stable until storage changes. The observability test-id table
+now matches the shipped `event-{traceId}` locator, and the stale deadline
+remaining value above was corrected.

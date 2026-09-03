@@ -1,26 +1,40 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import { ROUTES } from './types'
 import type { Route } from './types'
+import { NavIcon } from './components/NavIcon'
 import { globalTools } from './tools/global'
 import { composerTools } from './tools/briefs'
 import { bindHashListener, navigate, useAppState } from './store/router'
+import { setQuery, useTrendView } from './store/trendView'
 import { Dashboard } from './routes/Dashboard'
 import { PendingRoute } from './routes/Pending'
 import { Trends } from './routes/Trends'
 import { Products } from './routes/Products'
 import { Briefs } from './routes/Briefs'
-import { ToolSurfacePanel, UnsupportedBrowserNotice, installBridge, useTools } from './webmcp'
+import {
+  ToolSurfacePanel,
+  UnsupportedBrowserNotice,
+  installBridge,
+  useSurfaceSource,
+  useToolSurface,
+  useTools,
+} from './webmcp'
 
 /**
- * The app root, and nothing more than a root: the hash listener, the two global
- * tools, and the route switch.
+ * The app root: the hash listener, the two global tools, the shell chrome and
+ * the route switch.
  *
  * The two tools are registered here unconditionally, which is what makes Phase
  * 1 exit criterion 6 checkable — the surface count is exactly two on every
- * route, and any third tool appearing means a guard somewhere else has leaked.
- * Route-scoped tools land with their routes in Phases 2 to 5 and are registered
- * inside those routes, never here.
+ * route with nothing selected, and any third tool appearing means a guard
+ * somewhere else has leaked. Route-scoped tools are registered inside their
+ * routes, never here.
+ *
+ * Shell layout follows the Stitch reference screens: a fixed 256px sidebar, a
+ * fixed 64px top bar, and the route in the remaining space. Phase 6 replaced
+ * the earlier stacked header, which put the nav in a horizontal strip and left
+ * no room for the inspector.
  */
 export default function App() {
   const { route, selectedTrendId, selectedProductId } = useAppState()
@@ -40,21 +54,54 @@ export default function App() {
 
   return (
     <>
-      <UnsupportedBrowserNotice />
+      <Sidebar route={route} />
 
-      <header className="app-header">
-        <div className="brand">
+      <div className="shell">
+        <TopBar />
+        <UnsupportedBrowserNotice />
+        <main className="app-main" data-testid={`route-${route}`}>
+          <RouteView route={route} />
+        </main>
+      </div>
+
+      <ToolSurfacePanel />
+    </>
+  )
+}
+
+/** Human-facing labels. The route ids stay the agent-facing vocabulary. */
+const NAV_LABEL: Record<Route, string> = {
+  dashboard: 'Dashboard',
+  trends: 'Trends Discovery',
+  products: 'Product Knowledge',
+  briefs: 'Content Briefs',
+  calendar: 'Content Calendar',
+  performance: 'Performance',
+}
+
+function Sidebar({ route }: { route: Route }) {
+  const tools = useToolSurface()
+  const source = useSurfaceSource()
+
+  return (
+    <aside className="sidebar" aria-label="Sections">
+      <div className="sidebar-top">
+        <div className="sidebar-brand">
           <img className="brand-mark" src="/brand/anglebook-mark.svg" alt="" aria-hidden="true" />
-          <div>
-            <h1>Anglebook</h1>
-            <p className="tagline">
-              Trend research, product knowledge and briefs — one shared workspace for people
-              and agents.
-            </p>
-          </div>
+          <span className="brand-name">Anglebook</span>
         </div>
 
-        <nav className="app-nav" aria-label="Sections">
+        <div className="workspace">
+          <span className="workspace-avatar" aria-hidden="true">
+            AB
+          </span>
+          <span className="workspace-text">
+            <strong>Anglebook Studio</strong>
+            <span>Shared human + agent workspace</span>
+          </span>
+        </div>
+
+        <nav className="sidebar-nav">
           {ROUTES.map((name) => (
             <a
               key={name}
@@ -69,26 +116,91 @@ export default function App() {
                 navigate(name)
               }}
             >
-              {name}
+              <NavIcon name={name} />
+              <span>{NAV_LABEL[name]}</span>
             </a>
           ))}
         </nav>
-      </header>
+      </div>
 
-      <main className="app-main" data-testid={`route-${route}`}>
-        <RouteView route={route} />
-      </main>
+      {/* The reference puts a plan-usage card here. There is no plan and no
+          quota, and inventing one would be a number on screen that nobody
+          observed. This is the same slot carrying something true: how many
+          tools the connected agent can see right now, and by which route. */}
+      <div className="sidebar-foot" data-testid="sidebar-surface">
+        <div className="foot-row">
+          <span className="foot-label">Agent surface</span>
+          <span className="foot-count">{tools.length}</span>
+        </div>
+        <p className="foot-note">
+          {source === 'webmcp'
+            ? 'Native WebMCP surface. Tools follow what you have open.'
+            : 'Served through the page bridge at window.__td. Tools follow what you have open.'}
+        </p>
+      </div>
+    </aside>
+  )
+}
 
-      <ToolSurfacePanel />
-    </>
+function TopBar() {
+  const { route } = useAppState()
+  const view = useTrendView()
+  const source = useSurfaceSource()
+
+  // The header search is the same control `search_trends` drives. Typing here
+  // and calling the tool land in one store, so the human and the agent cannot
+  // be looking at two different result sets.
+  const [draft, setDraft] = useState('')
+  const value = route === 'trends' ? view.query : draft
+
+  return (
+    <header className="topbar">
+      <form
+        className="topbar-search"
+        role="search"
+        onSubmit={(event) => {
+          event.preventDefault()
+          setQuery(value)
+          if (route !== 'trends') navigate('trends')
+        }}
+      >
+        <NavIcon name="search" size={18} />
+        <input
+          type="search"
+          value={value}
+          placeholder="Search trends by keyword or category…"
+          aria-label="Search trends"
+          data-testid="global-search"
+          onChange={(event) => {
+            const next = event.target.value
+            if (route === 'trends') setQuery(next)
+            else setDraft(next)
+          }}
+        />
+      </form>
+
+      <div className="topbar-right">
+        <span
+          className={`sync-pill${source === 'webmcp' ? ' is-live' : ''}`}
+          data-testid="surface-source"
+        >
+          <span className="sync-dot" aria-hidden="true" />
+          {source === 'webmcp' ? 'WebMCP connected' : 'Bridge: window.__td'}
+        </span>
+        <button
+          type="button"
+          className="button button-primary"
+          data-testid="topbar-new-brief"
+          onClick={() => navigate('briefs')}
+        >
+          New brief
+        </button>
+      </div>
+    </header>
   )
 }
 
 function RouteView({ route }: { route: Route }) {
-  // Phase 0's clip-check panel used to hang under the dashboard here. Phase 2
-  // removed it, as its phase file instructs: the deployed-media exit criterion
-  // is now checked by opening any clip-backed trend, which is a real surface
-  // rather than a scaffold a judge has to be told to ignore.
   if (route === 'dashboard') return <Dashboard />
   if (route === 'trends') return <Trends />
   if (route === 'products') return <Products />

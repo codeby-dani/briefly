@@ -51,6 +51,9 @@ function truncate(value: unknown): unknown {
 
 type Listener = () => void
 const listeners = new Set<Listener>()
+const EMPTY_EVENTS: ToolEvent[] = []
+let cachedRaw: string | null | undefined
+let cachedEvents: ToolEvent[] = EMPTY_EVENTS
 
 export function subscribeToEvents(fn: Listener): () => void {
   listeners.add(fn)
@@ -62,11 +65,13 @@ export function subscribeToEvents(fn: Listener): () => void {
 export function readEvents(): ToolEvent[] {
   try {
     const raw = localStorage.getItem(EVENTS_KEY)
-    if (!raw) return []
+    if (raw === cachedRaw) return cachedEvents
+    cachedRaw = raw
+    if (!raw) return (cachedEvents = EMPTY_EVENTS)
     const parsed: unknown = JSON.parse(raw)
-    return Array.isArray(parsed) ? (parsed as ToolEvent[]) : []
+    return (cachedEvents = Array.isArray(parsed) ? (parsed as ToolEvent[]) : EMPTY_EVENTS)
   } catch {
-    return []
+    return EMPTY_EVENTS
   }
 }
 

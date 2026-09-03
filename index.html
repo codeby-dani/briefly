@@ -5,11 +5,20 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- The two faces the Stitch reference set specifies. `display=swap` and a
+         full platform fallback stack in src/index.css mean a slow or blocked
+         font never delays first paint. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap"
+    />
     <meta
       name="description"
       content="Anglebook turns trend research and product knowledge into content briefs in one shared workspace for people and AI agents."
     />
-    <meta name="theme-color" content="#aa3bff" />
+    <meta name="theme-color" content="#f8f9ff" />
     <title>Anglebook — trends into briefs</title>
   </head>
   <body>
