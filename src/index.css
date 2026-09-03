@@ -39,60 +39,60 @@
   /* Surfaces, from the page ground up to the brightest tile. In this system a
      card is *brighter* than the page, and the elevation comes from shadow
      rather than from a border — the reference calls it zero-border. */
-  --bg: #f8f9ff; /* surface / background */
-  --surface: #ffffff; /* surface-container-lowest — cards */
-  --surface-high: #eff4ff; /* surface-container-low — inner tiles, inputs */
-  --surface-bright: #e5eeff; /* surface-container — chips, icon wells */
-  --surface-highest: #d3e4fe; /* surface-container-highest — tracks */
+  --bg: #e6eed6; /* beige / background */
+  --surface: #f8faef; /* lifted card */
+  --surface-high: #dde2c6; /* beige / inner tiles, inputs */
+  --surface-bright: #d2dac0; /* softened ash / chips, icon wells */
+  --surface-highest: #bbc5aa; /* ash grey / tracks */
 
   /* Lines. Kept, but quiet: this system separates with shadow and spacing, and
      a hairline is only for a list divider inside a card. */
-  --border: #e5eeff;
-  --border-strong: #c3c6d7; /* outline-variant */
-  --outline: #737686; /* outline — placeholder text, icon strokes */
+  --border: #cbd4b9;
+  --border-strong: #aab59a;
+  --outline: #687060;
 
   /* Text. */
-  --text: #434655; /* on-surface-variant */
-  --text-h: #0b1c30; /* on-surface */
+  --text: #3f4638;
+  --text-h: #090c02; /* pitch black */
 
   /* Accent, and its tints. `--accent-hi` is the hover/active blue the
      reference uses on primary buttons and the current nav pill. */
-  --accent: #004ac6; /* primary */
-  --accent-hi: #2563eb; /* primary-container */
+  --accent: #a72608; /* oxidized iron */
+  --accent-hi: #c33c19;
   --accent-on: #ffffff; /* on-primary */
-  --accent-bg: #dbe1ff; /* primary-fixed */
-  --accent-border: #b4c5ff; /* primary-fixed-dim */
+  --accent-bg: #f1d8cf;
+  --accent-border: #d99a88;
 
   /* Semantic. `--ok` doubles as the `measured` green; `--warn` as `demo data`. */
-  --ok: #006c49; /* secondary */
-  --ok-bg: #d5fbe9;
-  --ok-border: #4edea3;
-  --ok-deep: #005236; /* on-secondary-fixed-variant — text on --ok-bg */
+  --ok: #315b3a;
+  --ok-bg: #dce8d1;
+  --ok-border: #8eaf8b;
+  --ok-deep: #24462b;
 
   /* Phase 5's Performance platform-mix ramp, retuned to this light system. */
-  --ramp-1: #dbe1ff;
-  --ramp-2: #b4c5ff;
-  --ramp-3: #2563eb;
-  --ramp-4: #004ac6;
+  --ramp-1: #e6eed6;
+  --ramp-2: #bbc5aa;
+  --ramp-3: #c33c19;
+  --ramp-4: #a72608;
 
-  --warn: #8a4b00;
-  --warn-bg: #ffeacc;
-  --warn-border: #edbd7a;
+  --warn: #704b08;
+  --warn-bg: #f0e0bd;
+  --warn-border: #caa568;
 
-  --danger: #ba1a1a; /* error */
-  --danger-bg: #ffdad6;
-  --danger-deep: #93000a;
+  --danger: #a72608;
+  --danger-bg: #f1d8cf;
+  --danger-deep: #741c08;
 
-  --indigo: #3e3fcc; /* tertiary — the second series on a two-series chart */
-  --indigo-bg: #e1e0ff;
+  --indigo: #59664a; /* chart comparison / tertiary */
+  --indigo-bg: #d8dfc8;
 
-  --code-bg: #eff4ff;
-  --social-bg: #e5eeff;
+  --code-bg: #dde2c6;
+  --social-bg: #d8dfc8;
 
   /* Elevation. Three steps, matching the reference's shadow-sm / shadow / md. */
-  --shadow-sm: 0 1px 3px rgba(11, 28, 48, 0.04);
-  --shadow: 0 1px 8px rgba(11, 28, 48, 0.06), 0 1px 2px rgba(11, 28, 48, 0.04);
-  --shadow-md: 0 6px 20px -6px rgba(11, 28, 48, 0.14), 0 2px 6px rgba(11, 28, 48, 0.05);
+  --shadow-sm: 0 1px 3px rgba(9, 12, 2, 0.06);
+  --shadow: 0 1px 8px rgba(9, 12, 2, 0.08), 0 1px 2px rgba(9, 12, 2, 0.05);
+  --shadow-md: 0 10px 26px -10px rgba(9, 12, 2, 0.2), 0 3px 8px rgba(9, 12, 2, 0.07);
 
   /* Radii, from the reference's borderRadius scale. */
   --r-sm: 8px;
@@ -103,14 +103,14 @@
      inspector picks up this palette without that file inventing colours. It is
      the one component a judge is guaranteed to look at; it should not read as
      bolted on. */
-  --panel-bg: #ffffff;
-  --panel-fg: #0b1c30;
-  --panel-line: #d3e4fe;
-  --panel-accent: #006c49;
-  --panel-warn: #8a4b00;
-  --panel-danger: #ba1a1a;
-  --panel-flash: #d5fbe9;
-  --panel-well: #f8f9ff;
+  --panel-bg: #f8faef;
+  --panel-fg: #090c02;
+  --panel-line: #bbc5aa;
+  --panel-accent: #315b3a;
+  --panel-warn: #704b08;
+  --panel-danger: #a72608;
+  --panel-flash: #dce8d1;
+  --panel-well: #e6eed6;
 
   --sans: Inter, system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Plus Jakarta Sans', Inter, system-ui, 'Segoe UI', Roboto, sans-serif;

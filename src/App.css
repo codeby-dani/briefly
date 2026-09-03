@@ -582,27 +582,121 @@
 
 .line-chart {
   width: 100%;
-  height: 140px;
+  height: 210px;
   overflow: visible;
+}
+
+.line-chart-grid line {
+  stroke: var(--border);
+  stroke-dasharray: 3 5;
+  stroke-width: 1;
+}
+
+.line-chart-grid text {
+  fill: var(--outline);
+  font-family: var(--mono);
+  font-size: 9px;
 }
 
 .line-chart-line {
   fill: none;
-  stroke: var(--accent-hi);
-  stroke-width: 2.5;
+  stroke: var(--accent);
+  stroke-width: 2.8;
   stroke-linejoin: round;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
 }
 
-.line-chart-area {
-  fill: var(--accent-bg);
-  stroke: none;
-  opacity: 0.7;
+.line-chart-baseline {
+  fill: none;
+  stroke: var(--indigo);
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0.82;
+  vector-effect: non-scaling-stroke;
 }
 
-.line-chart-dot {
-  fill: var(--accent-hi);
+.line-chart-area {
+  stroke: none;
+}
+
+.line-chart-crosshair {
+  stroke: var(--accent-border);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.85;
+}
+
+.line-chart-active-dot {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 2.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.line-chart-hit {
+  fill: transparent;
+  cursor: crosshair;
+
+  &:focus {
+    outline: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+  }
+}
+
+.line-chart-tooltip rect {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  filter: drop-shadow(0 4px 7px rgba(9, 12, 2, 0.12));
+}
+
+.line-chart-tooltip text {
+  fill: var(--text);
+  font-family: var(--sans);
+  font-size: 9px;
+}
+
+.line-chart-tooltip .line-chart-tooltip-title {
+  fill: var(--text-h);
+  font-family: var(--heading);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 11px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  small {
+    color: var(--outline);
+    font-size: 10px;
+  }
+}
+
+.chart-key {
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.chart-key-baseline {
+  background: repeating-linear-gradient(90deg, var(--indigo) 0 5px, transparent 5px 8px);
 }
 
 .chart-foot {

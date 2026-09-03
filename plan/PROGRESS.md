@@ -879,3 +879,17 @@ metadata, favicon and bridge app identity all use Briefly; product-level
 “brand” vocabulary remains deliberately unchanged. `npm run verify:brand`
 checks the public identity and asset path, while the in-app dashboard preview
 was refreshed with no console errors.
+
+### 2026-09-04 01:24 WITA — Briefly chart and palette pass
+
+The global token system now follows the Briefly palette supplied for this pass:
+beige `#E6EED6`, ash `#DDE2C6`/`#BBC5AA`, oxidized iron `#A72608`, and pitch
+black `#090C02`. Semantic colours remain separate enough to preserve the
+meaning of success, demo and destructive states.
+
+`LineChart` remains dependency-free but now has a smooth primary line, derived
+demo baseline, gradient area, labelled grid, keyboard/pointer chart points and
+an active tooltip. A manual 30d → 7d interaction exposed a stale active-point
+index; `safeChartIndex()` and its regression check guard against the changed
+series length. Both windows now render their correct point counts in the
+in-app preview, which has been left on the default 30-day view.
