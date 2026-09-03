@@ -69,14 +69,41 @@
   border: 0;
 }
 
+.workspace-switcher {
+  position: relative;
+  z-index: 2;
+  margin: 0 16px 12px;
+}
+
 .workspace {
   display: flex;
   align-items: center;
   gap: 9px;
-  margin: 0 16px 12px;
   padding: 8px;
   border-radius: var(--r);
   background: var(--surface-high);
+}
+
+.workspace-button {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+
+  .nav-icon {
+    margin-left: auto;
+  }
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background: var(--surface-bright);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 }
 
 .workspace-avatar {
@@ -110,6 +137,45 @@
     font-size: 11px;
     line-height: 15px;
     color: var(--text);
+  }
+}
+
+.workspace-menu {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  display: grid;
+  gap: 3px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.workspace-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+
+  &:hover,
+  &.is-active {
+    background: var(--surface-high);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
   }
 }
 

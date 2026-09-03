@@ -79,7 +79,17 @@ const NAV_LABEL: Record<Route, string> = {
   performance: 'Performance',
 }
 
+const WORKSPACES = [
+  { id: 'briefly', initials: 'BR', name: 'Briefly Studio', description: 'Shared human + agent workspace' },
+  { id: 'growth', initials: 'GT', name: 'Growth Team', description: 'Campaign and audience signals' },
+  { id: 'content', initials: 'CL', name: 'Content Lab', description: 'Brief experiments and publishing' },
+]
+
 function Sidebar({ route }: { route: Route }) {
+  const [workspaceOpen, setWorkspaceOpen] = useState(false)
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState(WORKSPACES[0].id)
+  const activeWorkspace = WORKSPACES.find((workspace) => workspace.id === activeWorkspaceId) ?? WORKSPACES[0]
+
   return (
     <aside className="sidebar" aria-label="Sections">
       <div className="sidebar-top">
@@ -88,14 +98,44 @@ function Sidebar({ route }: { route: Route }) {
           <span className="brand-sr-only">Briefly</span>
         </div>
 
-        <div className="workspace">
-          <span className="workspace-avatar" aria-hidden="true">
-            BR
-          </span>
-          <span className="workspace-text">
-            <strong>Briefly Studio</strong>
-            <span>Shared human + agent workspace</span>
-          </span>
+        <div className="workspace-switcher">
+          <button
+            type="button"
+            className="workspace workspace-button"
+            aria-label="Switch workspace"
+            aria-expanded={workspaceOpen}
+            aria-haspopup="listbox"
+            data-testid="workspace-switcher"
+            onClick={() => setWorkspaceOpen((open) => !open)}
+          >
+            <span className="workspace-avatar" aria-hidden="true">{activeWorkspace.initials}</span>
+            <span className="workspace-text">
+              <strong>{activeWorkspace.name}</strong>
+              <span>{activeWorkspace.description}</span>
+            </span>
+            <NavIcon name="chevron" size={16} />
+          </button>
+          {workspaceOpen && (
+            <div className="workspace-menu" role="listbox" aria-label="Available workspaces">
+              {WORKSPACES.map((workspace) => (
+                <button
+                  key={workspace.id}
+                  type="button"
+                  className={`workspace-option${workspace.id === activeWorkspaceId ? ' is-active' : ''}`}
+                  role="option"
+                  aria-selected={workspace.id === activeWorkspaceId}
+                  data-testid={`workspace-option-${workspace.id}`}
+                  onClick={() => {
+                    setActiveWorkspaceId(workspace.id)
+                    setWorkspaceOpen(false)
+                  }}
+                >
+                  <span className="workspace-avatar" aria-hidden="true">{workspace.initials}</span>
+                  <span className="workspace-text"><strong>{workspace.name}</strong><span>{workspace.description}</span></span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <nav className="sidebar-nav">

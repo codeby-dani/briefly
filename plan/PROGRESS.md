@@ -927,3 +927,12 @@ The top-bar profile control had inherited the Business Profile page’s generic
 the header out of its layout. The top-bar component now uses its own scoped
 avatar and copy classes, while a compact breakpoint hides secondary header
 detail before the controls can overflow on narrow windows.
+
+### 2026-09-04 02:18 WITA — workspace switcher
+
+The sidebar’s fixed workspace card is now an accessible workspace switcher.
+It reveals Briefly Studio, Growth Team, and Content Lab; choosing an option
+updates only the active sidebar label and closes the menu, deliberately leaving
+the dashboard route and its data untouched. The browser interaction check
+confirmed the menu opened, Growth Team became active, and the route remained
+`dashboard`.
