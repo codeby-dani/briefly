@@ -1,6 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { readEvents, subscribeToEvents } from '../tools/trace'
 import type { ToolEvent } from '../tools/trace'
+import { liveValue, prerequisite, subscribeToLiveArgs } from '../tools/liveArgs'
 import { bridgeTools, subscribeToBridge } from './bridge'
 import type { BridgeToolInfo } from './bridge'
 import { parseSchema } from './types'
@@ -280,26 +281,54 @@ function SurfaceTab({
  *
  * The example is built from the schema's *required* fields only, so the line
  * stays short and every argument in it is one the tool will not refuse for
- * being absent. Values come from the schema where the schema knows them —
- * `const` (the pinned open-product id), then `enum`, then `minimum` — and fall
- * back to an empty literal of the right type where it does not. Those blanks
- * are the parts a human fills in.
+ * being absent. The values are real: ids come from the live stores, so the
+ * line pastes and runs. It used to emit `briefId: ''`, which asked the reader
+ * to work out that ids are not guessable, that `search_briefs` returns them,
+ * and that `search_briefs` might be on a route they are not on — three
+ * inferences standing between the copy button and anything happening.
+ *
+ * When the record a command needs does not exist yet — scheduling with an
+ * empty library — no id would make it succeed, so the panel shows the calls
+ * that create it first instead. See `prerequisite()` in tools/liveArgs.ts.
  */
 function ConsoleCommand({ name, schema }: { name: string; schema: JSONSchema }) {
-  const command = formatCall(name, exampleInput(schema))
+  // Re-read on every store change, so an id in a command is an id that exists.
+  useSyncExternalStore(subscribeToLiveArgs, liveArgsVersion, liveArgsVersion)
+
+  const required = requiredFields(schema)
+  const blocked = prerequisite(name, required)
+  const command = formatCall(name, exampleInput(name, schema))
+  const text = blocked ? blocked.snippet : command
+
   return (
     <>
+      {blocked && <p style={S.commandBlocked}>{blocked.reason}</p>}
       <div style={S.commandRow}>
-        <pre style={S.command}>{command}</pre>
-        <CopyButton text={command} label={`Copy the console command for ${name}`} />
+        <pre style={S.command}>{text}</pre>
+        <CopyButton text={text} label={`Copy the console command for ${name}`} />
       </div>
       <p style={S.commandNote}>
-        Paste in the DevTools console. Quoted blanks are placeholders — fill them in.
+        {blocked
+          ? 'Paste the whole block in the DevTools console. It runs top to bottom.'
+          : 'Paste in the DevTools console. The ids are live — this runs as written.'}
       </p>
       <pre style={S.schema}>{JSON.stringify(schema, null, 2)}</pre>
     </>
   )
 }
+
+/**
+ * A version counter for `useSyncExternalStore`.
+ *
+ * The commands are derived from four stores and there is no single value to
+ * snapshot, so the panel watches a counter that moves whenever any of them
+ * does. Returning a fresh object here instead would re-render forever.
+ */
+let liveArgsTick = 0
+subscribeToLiveArgs(() => {
+  liveArgsTick += 1
+})
+const liveArgsVersion = () => liveArgsTick
 
 /**
  * Copy to clipboard, with the outcome said out loud.
@@ -340,13 +369,20 @@ function formatCall(name: string, input: Record<string, unknown>): string {
  * Optional properties are left out on purpose: including them would document
  * the schema a second time in a form that has to be edited before it is useful.
  */
-function exampleInput(schema: JSONSchema): Record<string, unknown> {
+function requiredFields(schema: JSONSchema): string[] {
+  return (Array.isArray(schema.required) ? schema.required : []).filter(
+    (key): key is string => typeof key === 'string',
+  )
+}
+
+function exampleInput(name: string, schema: JSONSchema): Record<string, unknown> {
   const properties = isRecord(schema.properties) ? schema.properties : {}
-  const required = Array.isArray(schema.required) ? schema.required : []
   const out: Record<string, unknown> = {}
-  for (const key of required) {
-    if (typeof key !== 'string') continue
-    out[key] = exampleValue(properties[key])
+  for (const key of requiredFields(schema)) {
+    // The live store wins over the schema: a real id beats a well-typed blank,
+    // and the schema's own `const`/`enum` still wins over both where it exists.
+    const live = liveValue(name, key)
+    out[key] = live !== undefined ? live : exampleValue(properties[key])
   }
   return out
 }
@@ -732,6 +768,14 @@ const S = {
     cursor: 'pointer',
   },
   commandNote: { margin: '5px 0 0', fontSize: 10, lineHeight: 1.45, opacity: 0.55 },
+  commandBlocked: {
+    margin: '6px 0 0',
+    fontSize: 10.5,
+    lineHeight: 1.5,
+    opacity: 0.85,
+    borderLeft: '2px solid var(--panel-accent, #6f8cff)',
+    paddingLeft: 8,
+  },
   schemaToggle: {
     display: 'flex',
     alignItems: 'center',

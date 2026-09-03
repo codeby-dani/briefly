@@ -87,10 +87,6 @@ const WORKSPACES = [
 
 function Sidebar({ route }: { route: Route }) {
   const primaryRoutes = ROUTES.filter((name) => name !== 'products')
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState(WORKSPACES[0].id)
-  const [workspaceOpen, setWorkspaceOpen] = useState(false)
-  const activeWorkspace = WORKSPACES.find((workspace) => workspace.id === activeWorkspaceId) ?? WORKSPACES[0]
-
   // The switcher is presentational for now: there is one real workspace and
   // the other two are labels. It still needs real state, because a menu that
   // cannot be dismissed except by picking something is a trap — Escape and a
