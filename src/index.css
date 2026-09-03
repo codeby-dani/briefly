@@ -81,6 +81,7 @@
 
   --danger: #ba1a1a; /* error */
   --danger-bg: #ffdad6;
+  --danger-border: #f3b0aa;
   --danger-deep: #93000a;
 
   --indigo: #3e3fcc; /* tertiary — the second series on a two-series chart */

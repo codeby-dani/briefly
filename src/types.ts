@@ -15,6 +15,14 @@ export const PLATFORMS = ['tiktok', 'instagram', 'youtube', 'x'] as const
 
 export type Platform = (typeof PLATFORMS)[number]
 
+/** The display spelling. `tiktok` in a schema, "TikTok" on screen. */
+export const PLATFORM_LABEL: Record<Platform, string> = {
+  tiktok: 'TikTok',
+  instagram: 'Instagram',
+  youtube: 'YouTube',
+  x: 'X',
+}
+
 export function isPlatform(value: unknown): value is Platform {
   return typeof value === 'string' && (PLATFORMS as readonly string[]).includes(value)
 }
