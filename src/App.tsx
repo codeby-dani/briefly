@@ -204,8 +204,8 @@ function TopBar() {
             data-testid="topbar-profile"
             onClick={() => setProfileOpen((open) => !open)}
           >
-            <span className="profile-avatar" aria-hidden>AR</span>
-            <span className="profile-copy"><strong>Aarief</strong><small>Workspace owner</small></span>
+            <span className="topbar-profile-avatar" aria-hidden>AR</span>
+            <span className="topbar-profile-copy"><strong>Aarief</strong><small>Workspace owner</small></span>
             <NavIcon name="chevron" size={16} />
           </button>
           {profileOpen && <div className="topbar-popover profile-popover"><strong>Aarief</strong><span>Briefly workspace</span></div>}

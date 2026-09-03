@@ -919,3 +919,11 @@ The horizontal Briefly wordmark was causing the browser tab favicon to appear
 compressed. A dedicated square `briefly-mark.png` was cropped from the supplied
 logo’s B monogram and now powers the favicon and Apple touch icon; the full
 wordmark remains unchanged inside the application shell.
+
+### 2026-09-04 02:08 WITA — compact top-bar profile
+
+The top-bar profile control had inherited the Business Profile page’s generic
+`.profile-avatar` rules, expanding it to 48px with a bottom margin and pushing
+the header out of its layout. The top-bar component now uses its own scoped
+avatar and copy classes, while a compact breakpoint hides secondary header
+detail before the controls can overflow on narrow windows.

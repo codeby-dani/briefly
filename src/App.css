@@ -288,7 +288,7 @@
   border-radius: 999px;
 }
 
-.profile-avatar {
+.topbar-profile-avatar {
   display: grid;
   place-items: center;
   width: 26px;
@@ -300,7 +300,7 @@
   font-weight: 700;
 }
 
-.profile-copy {
+.topbar-profile-copy {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -2200,6 +2200,31 @@
 
   .topbar {
     padding: 0 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .topbar {
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .topbar-search {
+    min-width: 0;
+    padding-inline: 9px;
+  }
+
+  .sync-pill,
+  .topbar-profile-copy {
+    display: none;
+  }
+
+  .topbar-right {
+    gap: 6px;
+  }
+
+  .profile-button {
+    padding: 4px;
   }
 }
 
