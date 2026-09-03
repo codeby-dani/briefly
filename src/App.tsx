@@ -120,12 +120,16 @@ function Sidebar({ route }: { route: Route }) {
         </nav>
       </div>
 
-      {/* The reference puts a plan-usage card in the slot below the nav. It held
-          the agent surface count and its route, which the floating status pill
-          now reports from the corner on every viewport — two live counts of the
-          same thing, and a reader had to notice they always agreed. There is no
-          plan and no quota to put here instead, and inventing one would be a
-          number on screen that nobody observed, so the slot stays empty. */}
+      <div className="sidebar-utility" aria-label="Workspace support">
+        <button type="button" className="nav-item" data-testid="sidebar-settings" title="Workspace settings">
+          <NavIcon name="settings" />
+          <span>Settings</span>
+        </button>
+        <button type="button" className="nav-item" data-testid="sidebar-help" title="Help &amp; Support">
+          <NavIcon name="help" />
+          <span>Help &amp; Support</span>
+        </button>
+      </div>
     </aside>
   )
 }
@@ -139,6 +143,8 @@ function TopBar() {
   // and calling the tool land in one store, so the human and the agent cannot
   // be looking at two different result sets.
   const [draft, setDraft] = useState('')
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
   const value = route === 'trends' ? view.query : draft
 
   return (
@@ -175,6 +181,35 @@ function TopBar() {
           <span className="sync-dot" aria-hidden="true" />
           {source === 'webmcp' ? 'WebMCP connected' : 'Bridge: window.__td'}
         </span>
+        <div className="topbar-menu-wrap">
+          <button
+            type="button"
+            className="topbar-icon-button"
+            aria-label="Notifications"
+            aria-expanded={notificationsOpen}
+            data-testid="topbar-notifications"
+            onClick={() => setNotificationsOpen((open) => !open)}
+          >
+            <NavIcon name="bell" size={19} />
+            <span className="notification-dot" aria-hidden />
+          </button>
+          {notificationsOpen && <div className="topbar-popover notification-popover" role="status">You’re all caught up.</div>}
+        </div>
+        <div className="topbar-menu-wrap">
+          <button
+            type="button"
+            className="profile-button"
+            aria-label="Open profile menu"
+            aria-expanded={profileOpen}
+            data-testid="topbar-profile"
+            onClick={() => setProfileOpen((open) => !open)}
+          >
+            <span className="profile-avatar" aria-hidden>AR</span>
+            <span className="profile-copy"><strong>Aarief</strong><small>Workspace owner</small></span>
+            <NavIcon name="chevron" size={16} />
+          </button>
+          {profileOpen && <div className="topbar-popover profile-popover"><strong>Aarief</strong><span>Briefly workspace</span></div>}
+        </div>
         <button
           type="button"
           className="button button-primary"

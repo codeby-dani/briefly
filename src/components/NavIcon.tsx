@@ -14,7 +14,7 @@
 
 import type { Route } from '../types'
 
-export type IconName = Route | 'search' | 'sync' | 'settings' | 'help'
+export type IconName = Route | 'search' | 'sync' | 'settings' | 'help' | 'bell' | 'chevron'
 
 const PATHS: Record<IconName, string> = {
   // home
@@ -34,6 +34,8 @@ const PATHS: Record<IconName, string> = {
   settings:
     'M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4zM19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.4-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.1a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4 1.7 1.7 0 0 0-1.6 0z',
   help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zm-2.1-11.4a2.1 2.1 0 1 1 3.1 2.2c-.6.4-1 .9-1 1.7M12 17.2h.01',
+  bell: 'M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4',
+  chevron: 'm7 10 5 5 5-5',
 }
 
 export function NavIcon({ name, size = 20 }: { name: IconName; size?: number }) {

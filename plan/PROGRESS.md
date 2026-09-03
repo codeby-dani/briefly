@@ -900,3 +900,15 @@ The surface hierarchy was adjusted after visual review: the page remains
 `#E6EED6`, cards now use the more dominant beige `#EDF1DC`, and inner wells
 stay ash `#DDE2C6`. Oxidized iron remains limited to actions and data emphasis.
 The browser check recorded these computed values directly from the live preview.
+
+### 2026-09-04 01:48 WITA — workspace controls and KPI micro-trends
+
+The Briefly shell now includes a notification control and profile menu in the
+top bar, plus Settings and Help & Support anchored at the bottom of the
+sidebar. The dashboard’s four audience-pulse cards now carry compact,
+consistent trend sparklines, explicitly labelled as illustrative demo direction
+to match the demo-data context without asserting unavailable measurements.
+
+The browser interaction check confirmed both menus open, and dashboard checks,
+brand checks, production build, lint, and whitespace validation passed. Lint
+retains only five pre-existing warnings in the WebMCP integration files.

@@ -120,6 +120,15 @@
   padding: 0 16px;
 }
 
+.sidebar-utility {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: auto 16px 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
 /* label-lg on a pill. The current item takes the reference's filled treatment
    rather than a tint, because at a glance a tinted pill and a hovered pill are
    the same thing and "which section am I in" should never need a second look. */
@@ -235,6 +244,96 @@
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+}
+
+.topbar-menu-wrap {
+  position: relative;
+}
+
+.topbar-icon-button,
+.profile-button {
+  border: 0;
+  color: var(--text-h);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.topbar-icon-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.profile-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 4px 8px 4px 5px;
+  border-radius: 999px;
+}
+
+.profile-avatar {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-on);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.profile-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 13px;
+  text-align: left;
+
+  strong { font-size: 11px; }
+  small { color: var(--outline); font-size: 9px; }
+}
+
+.topbar-popover {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 154px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  color: var(--text);
+  font-size: 11px;
+}
+
+.profile-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong { color: var(--text-h); font-size: 12px; }
+  span { color: var(--outline); }
 }
 
 .sync-pill {
@@ -548,8 +647,13 @@
 }
 
 .kpi .sparkline {
-  width: 54px;
-  height: 18px;
+  width: 64px;
+  height: 22px;
+
+  path {
+    stroke: var(--accent);
+    stroke-width: 2.2;
+  }
 }
 
 .toggle {

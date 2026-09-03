@@ -42,6 +42,12 @@ export function Dashboard() {
 
   const series = analytics.followerGrowth.slice(-chartDays)
   const followersGained = analytics.followerGrowth.reduce((sum, n) => sum + n, 0)
+  const kpiSparks = {
+    reach: [42, 48, 45, 57, 54, 63, 67],
+    impressions: [33, 38, 35, 43, 40, 51, 56],
+    engagement: [28, 32, 29, 38, 35, 46, 49],
+    followers: analytics.followerGrowth.slice(-7),
+  }
 
   const top5 = [...trends].sort((a, b) => b.growthPct - a.growthPct).slice(0, 5)
   const recent = [...briefs].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 5)
@@ -83,10 +89,10 @@ export function Dashboard() {
           <DemoBadge what="Every figure in this card" />
         </div>
         <div className="kpis">
-          <Kpi label="Reach" value={compact(analytics.reach)} rawValue={analytics.reach} formatter={compact} note="Audience signals" icon="reach" />
-          <Kpi label="Impressions" value={compact(analytics.impressions)} rawValue={analytics.impressions} formatter={compact} note="Content discovery" icon="impressions" />
-          <Kpi label="Engagement rate" value={`${analytics.engagementRate}%`} rawValue={analytics.engagementRate} formatter={(v) => `${v.toFixed(1)}%`} note="Quality signal" icon="engagement" />
-          <Kpi label="Followers gained" value={compact(followersGained)} rawValue={followersGained} formatter={compact} note="30-day movement" icon="followers" spark={analytics.followerGrowth.slice(-7)} />
+          <Kpi label="Reach" value={compact(analytics.reach)} rawValue={analytics.reach} formatter={compact} note="Audience signals" icon="reach" spark={kpiSparks.reach} />
+          <Kpi label="Impressions" value={compact(analytics.impressions)} rawValue={analytics.impressions} formatter={compact} note="Content discovery" icon="impressions" spark={kpiSparks.impressions} />
+          <Kpi label="Engagement rate" value={`${analytics.engagementRate}%`} rawValue={analytics.engagementRate} formatter={(v) => `${v.toFixed(1)}%`} note="Quality signal" icon="engagement" spark={kpiSparks.engagement} />
+          <Kpi label="Followers gained" value={compact(followersGained)} rawValue={followersGained} formatter={compact} note="30-day movement" icon="followers" spark={kpiSparks.followers} />
         </div>
       </section>
 
@@ -212,7 +218,7 @@ function Kpi({
       </span>
       <div className="kpi-foot">
         <span>{note}</span>
-        {spark && <Sparkline points={spark} label={`${label}, seven-day direction`} />}
+        {spark && <Sparkline points={spark} label={`${label}, illustrative demo direction`} testId={`kpi-spark-${label.toLowerCase().replace(/\s+/g, '-')}`} />}
       </div>
     </div>
   )
