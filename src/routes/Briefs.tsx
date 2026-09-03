@@ -107,159 +107,176 @@ export function Briefs() {
 
   return (
     <>
-      <section className="card" data-testid="brief-composer">
+      <section className="card composer-card" data-testid="brief-composer">
         <div className="card-head">
           <h2>Compose a brief</h2>
-          <span className="badge badge-pending">Phase 4</span>
         </div>
 
-        <div className="composer-picks">
-          <label className="field">
-            <span className="field-label">Trend</span>
-            <select
-              data-testid="composer-trend"
-              value={app.selectedTrendId ?? ''}
-              onChange={(e) => dispatch({ type: 'selectTrend', trendId: e.target.value || null })}
-            >
-              <option value="">Select a trend…</option>
-              {trends.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.keyword} · {t.platform} · {t.category}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="composer-body">
+          <div className="composer-picks">
+            <label className="field">
+              <span className="field-label">Trend</span>
+              <select
+                data-testid="composer-trend"
+                value={app.selectedTrendId ?? ''}
+                onChange={(e) => dispatch({ type: 'selectTrend', trendId: e.target.value || null })}
+              >
+                <option value="">Select a trend…</option>
+                {trends.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.keyword} · {t.platform} · {t.category}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-          <label className="field">
-            <span className="field-label">Offering</span>
-            <select
-              data-testid="composer-offering"
-              value={app.selectedOfferingId ?? ''}
-              onChange={(e) => dispatch({ type: 'selectOffering', offeringId: e.target.value || null })}
-            >
-              <option value="">Select an offering…</option>
-              {offerings.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+            <label className="field">
+              <span className="field-label">Product</span>
+              <select
+                data-testid="composer-product"
+                value={app.selectedProductId ?? ''}
+                onChange={(e) =>
+                  dispatch({ type: 'selectProduct', productId: e.target.value || null })
+                }
+              >
+                <option value="">Select a product…</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
 
-        {!bothSelected ? (
-          <p className="muted" data-testid="composer-empty">
-            Pick a trend and an offering. The moment both are selected, two tools —{' '}
-            <code>get_brief_context</code> and <code>save_brief</code> — appear on the surface for
-            a connected agent, and you can watch them register in the inspector on the right. No
-            agent connected? Every field below is yours to fill and save by hand; the brief lands in
-            the library the same way.
-          </p>
-        ) : (
-          <>
-            <p className="muted small" data-testid="composer-armed">
-              <code>get_brief_context</code> and <code>save_brief</code> are on the surface now.
-              Ask a connected agent to write the brief, or fill it in yourself — both land a draft.
+          {!bothSelected ? (
+            <p className="muted small" data-testid="composer-empty">
+              Pick a trend and a product to open the form. It puts{' '}
+              <code>get_brief_context</code> and <code>save_brief</code> on the agent surface — fill
+              it in yourself either way.
             </p>
+          ) : (
+            <>
+              <p className="muted small" data-testid="composer-armed">
+                <code>get_brief_context</code> and <code>save_brief</code> are on the surface. Ask
+                an agent, or fill it in yourself — both land a draft.
+              </p>
 
-            <div className="brief-form" data-testid="brief-form">
-              <Field id="title" label="Title">
-                <input
-                  data-testid="field-title"
-                  value={form.title}
-                  placeholder={`${trend!.keyword} × ${offering!.name}`}
-                  onChange={(e) => set({ title: e.target.value })}
-                />
-              </Field>
+              <div className="brief-form" data-testid="brief-form">
+                <div className="brief-fields">
+                <div className="field-row field-row-wide">
+                  <Field id="title" label="Title">
+                    <input
+                      data-testid="field-title"
+                      value={form.title}
+                      placeholder={`${trend!.keyword} × ${product!.name}`}
+                      onChange={(e) => set({ title: e.target.value })}
+                    />
+                  </Field>
+                  <Field id="platform" label="Platform">
+                    <select
+                      data-testid="field-platform"
+                      value={form.platform || trend!.platform}
+                      onChange={(e) => set({ platform: e.target.value as Platform })}
+                    >
+                      {PLATFORMS.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
 
-              <Field id="hook" label="Hook">
-                <input
-                  data-testid="field-hook"
-                  value={form.hook}
-                  placeholder="The first line that stops the scroll"
-                  onChange={(e) => set({ hook: e.target.value })}
-                />
-              </Field>
-
-              <Field id="outline" label="Outline — one beat per line">
-                <textarea
-                  data-testid="field-outline"
-                  rows={4}
-                  value={form.outline}
-                  placeholder={'Open on the problem\nShow the offering in use\nClose on the CTA'}
-                  onChange={(e) => set({ outline: e.target.value })}
-                />
-              </Field>
-
-              <div className="field-row">
-                <Field id="tone" label="Tone">
+                <Field id="hook" label="Hook">
                   <input
-                    data-testid="field-tone"
-                    value={form.tone}
-                    placeholder="Warm, direct"
-                    onChange={(e) => set({ tone: e.target.value })}
+                    data-testid="field-hook"
+                    value={form.hook}
+                    placeholder="The first line that stops the scroll"
+                    onChange={(e) => set({ hook: e.target.value })}
                   />
                 </Field>
-                <Field id="platform" label="Platform">
-                  <select
-                    data-testid="field-platform"
-                    value={form.platform || trend!.platform}
-                    onChange={(e) => set({ platform: e.target.value as Platform })}
-                  >
-                    {PLATFORMS.map((p) => (
-                      <option key={p} value={p}>
-                        {p}
-                      </option>
-                    ))}
-                  </select>
+
+                <div className="field-row">
+                  <Field id="tone" label="Tone">
+                    <input
+                      data-testid="field-tone"
+                      value={form.tone}
+                      placeholder="Warm, direct"
+                      onChange={(e) => set({ tone: e.target.value })}
+                    />
+                  </Field>
+                  <Field id="cta" label="Call to action">
+                    <input
+                      data-testid="field-cta"
+                      value={form.cta}
+                      placeholder="Link in bio"
+                      onChange={(e) => set({ cta: e.target.value })}
+                    />
+                  </Field>
+                </div>
+
+                <div className="field-row">
+                  <Field id="hashtags" label="Hashtags — space or comma separated">
+                    <input
+                      data-testid="field-hashtags"
+                      value={form.hashtags}
+                      placeholder="#glowup #skincare"
+                      onChange={(e) => set({ hashtags: e.target.value })}
+                    />
+                  </Field>
+                  <Field id="audience" label="Audience">
+                    <input
+                      data-testid="field-audience"
+                      value={form.audience}
+                      placeholder="Who this is for"
+                      onChange={(e) => set({ audience: e.target.value })}
+                    />
+                  </Field>
+                </div>
+                </div>
+
+                {/* The outline is the only field with more than one line in it,
+                    so it takes the second column and every short field stacks in
+                    the first. Stacked full-width, it was a lone tall box with
+                    six one-line inputs above it. */}
+                <Field id="outline" label="Outline — one beat per line">
+                  <textarea
+                    data-testid="field-outline"
+                    value={form.outline}
+                    placeholder={'Open on the problem\nShow the product in use\nClose on the CTA'}
+                    onChange={(e) => set({ outline: e.target.value })}
+                  />
                 </Field>
               </div>
+            </>
+          )}
+        </div>
 
-              <Field id="cta" label="Call to action">
-                <input
-                  data-testid="field-cta"
-                  value={form.cta}
-                  placeholder="Link in bio"
-                  onChange={(e) => set({ cta: e.target.value })}
-                />
-              </Field>
-
-              <Field id="hashtags" label="Hashtags — space or comma separated">
-                <input
-                  data-testid="field-hashtags"
-                  value={form.hashtags}
-                  placeholder="#glowup #skincare"
-                  onChange={(e) => set({ hashtags: e.target.value })}
-                />
-              </Field>
-
-              <Field id="audience" label="Audience">
-                <input
-                  data-testid="field-audience"
-                  value={form.audience}
-                  placeholder="Who this is for"
-                  onChange={(e) => set({ audience: e.target.value })}
-                />
-              </Field>
-
-              <div className="form-actions">
-                <button type="button" className="btn-primary" data-testid="save-brief" onClick={handleSave}>
-                  Save as draft
-                </button>
-                <span className="muted small">
-                  Saves as a <strong>draft</strong> — approving and publishing are the human
-                  decisions in the library below.
-                </span>
-              </div>
-            </div>
-          </>
+        {bothSelected && (
+          <div className="form-actions">
+            <button
+              type="button"
+              className="btn-primary"
+              data-testid="save-brief"
+              onClick={handleSave}
+            >
+              Save as draft
+            </button>
+            <span className="muted small">
+              Saves as a <strong>draft</strong> — approving and publishing are the human decisions
+              in the library.
+            </span>
+          </div>
         )}
       </section>
 
-      <section className="card" data-testid="brief-library">
+      <section className="card library-card" data-testid="brief-library">
         <div className="card-head">
           <h2>Library</h2>
-          <span className="muted small">{briefs.length} brief{briefs.length === 1 ? '' : 's'}</span>
+          <span className="muted small">
+            {briefs.length} brief{briefs.length === 1 ? '' : 's'}
+          </span>
         </div>
         <Library briefs={briefs} highlightId={savedId} />
       </section>
@@ -372,10 +389,50 @@ function BriefCard({
   highlight: boolean
 }) {
   return (
-    <li className={`row brief-row${highlight ? ' is-new' : ''}`} data-testid={`brief-card-${brief.id}`}>
-      <div className="row-main">
+    <li className={`brief-row${highlight ? ' is-new' : ''}`} data-testid={`brief-card-${brief.id}`}>
+      {/* What the brief *is* on the first line — title, status, author, and the
+          control that moves it on — and what it is *about* on the second. The
+          pills used to lead the second line, where they sat in front of a run of
+          muted text and read as part of it. */}
+      <div className="brief-row-head">
         <span className="row-title">{brief.title}</span>
-        <span className="muted small">
+
+        <span className="brief-row-tags">
+          <span
+            className={`status status-${brief.status}`}
+            data-testid={`brief-status-${brief.id}`}
+          >
+            {brief.status}
+          </span>
+          <span
+            className={`authored authored-${brief.authoredBy}`}
+            data-testid={`brief-author-${brief.id}`}
+          >
+            {brief.authoredBy}
+          </span>
+        </span>
+
+        <div className="status-actions">
+          {NEXT[brief.status].length === 0 ? (
+            <span className="muted small">final</span>
+          ) : (
+            NEXT[brief.status].map(({ to, label }) => (
+              <button
+                key={to}
+                type="button"
+                className="chip"
+                data-testid={`brief-action-${brief.id}-${to}`}
+                onClick={() => setStatus(brief.id, to)}
+              >
+                {label}
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="brief-row-meta">
+        <span className="brief-row-facts">
           <button
             type="button"
             className="link"
@@ -400,34 +457,8 @@ function BriefCard({
             {productName}
           </button>
           {' · '}
-          {brief.platform} · updated {brief.updatedAt.slice(0, 10)}
+          {brief.platform} · {brief.updatedAt.slice(0, 10)}
         </span>
-      </div>
-
-      <span className={`authored authored-${brief.authoredBy}`} data-testid={`brief-author-${brief.id}`}>
-        {brief.authoredBy}
-      </span>
-
-      <span className={`status status-${brief.status}`} data-testid={`brief-status-${brief.id}`}>
-        {brief.status}
-      </span>
-
-      <div className="status-actions">
-        {NEXT[brief.status].length === 0 ? (
-          <span className="muted small">final</span>
-        ) : (
-          NEXT[brief.status].map(({ to, label }) => (
-            <button
-              key={to}
-              type="button"
-              className="chip"
-              data-testid={`brief-action-${brief.id}-${to}`}
-              onClick={() => setStatus(brief.id, to)}
-            >
-              {label}
-            </button>
-          ))
-        )}
       </div>
     </li>
   )

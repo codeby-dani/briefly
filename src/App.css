@@ -1410,52 +1410,217 @@
  * Briefs — composer and library.
  * ---------------------------------------------------------------------- */
 
+/* The composer runs the full width of the route with the library under it, so
+   the form gets two columns instead of one long stack of one-line inputs. It
+   splits on the card's own width, not the window's — the sidebar rail is
+   already out of the measurement here. */
+.composer-card {
+  container-type: inline-size;
+  container-name: composer;
+}
+
+.composer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* The two picks are the brief's context, not two more of its fields, so they sit
+   in their own tile above the form rather than reading as its first row. */
 .composer-picks {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  padding: 13px 14px;
+  border-radius: var(--r);
+  background: var(--bg);
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }
 }
 
+/* Bottom-aligned: a label that wraps to two lines ("Hashtags — space or comma
+   separated") would otherwise push its own input a line lower than the one
+   beside it. */
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  align-items: end;
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }
 }
 
+/* Title is a sentence, platform is a short enum — an even split wastes the half
+   the enum sits in. */
+.field-row-wide {
+  grid-template-columns: minmax(0, 2fr) minmax(120px, 1fr);
+}
+
 .brief-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.brief-fields {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  min-width: 0;
 }
 
+.brief-form textarea {
+  min-height: 148px;
+}
+
+@container composer (min-width: 720px) {
+  .brief-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* The outline takes the height of the column of short fields beside it, so
+     the form reads as two columns rather than one column with a box parked
+     next to it. */
+  .brief-form > [data-field='outline'] {
+    align-self: stretch;
+  }
+
+  .brief-form > [data-field='outline'] textarea {
+    height: 100%;
+  }
+}
+
+/* Pinned under the scrolling body as the card's footer, so Save sits in the
+   same place whether the form is empty or full. */
 .form-actions {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  flex-shrink: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+/* The library now sits in a column whose width depends on the layout it is in,
+   so its controls and rows measure themselves against the card, not the page. */
+.library-card {
+  container-type: inline-size;
+  container-name: library;
 }
 
 .library-controls {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
+  margin-bottom: 2px;
+}
 
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
+@container library (min-width: 380px) {
+  .library-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .library-controls .search {
+    grid-column: 1 / -1;
   }
 }
 
+@container library (min-width: 620px) {
+  .library-controls {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .library-controls .search {
+    grid-column: auto;
+  }
+}
+
+/* Two fixed lines: what the brief is on the first — title, status, author and
+   the control that moves it on — and what it is about on the second. The old
+   row put the title, both pills and the button in one wrapping flex line, so
+   the button landed somewhere different on every card depending on the length
+   of the title. */
 .brief-row {
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 12px;
+  margin-inline: -12px;
+  border-radius: var(--r);
+  transition: background 120ms ease;
+
+  &:hover {
+    background: var(--bg);
+  }
+}
+
+/* The divider is drawn on the row above rather than as a border, so it stays
+   put while the hover fill runs the full width of the padded row. */
+.brief-row + .brief-row {
+  box-shadow: 0 -1px 0 var(--border);
+}
+
+.brief-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
   flex-wrap: wrap;
+}
+
+.brief-row-head .row-title {
+  flex: 1 1 240px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.brief-row-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Quieter than the same pills elsewhere: here they annotate a title rather than
+   head a card, and at full size they read louder than the title itself. */
+.brief-row-tags .status,
+.brief-row-tags .authored {
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+}
+
+.brief-row-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+}
+
+.brief-row-facts {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text);
+  min-width: 0;
+}
+
+/* Underlined in the text's own colour, not accent blue: two links inside a run
+   of muted meta text turned the line into three competing colours, and the
+   heavy hairline underneath them read as an input's baseline. */
+.brief-row-facts .link {
+  color: var(--text);
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 2px;
+}
+
+.brief-row-facts .link:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
 }
 
 .brief-row.is-new {
@@ -1499,6 +1664,12 @@
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.brief-row-head .chip {
+  font-size: 11.5px;
+  padding: 4px 12px;
 }
 
 /* ---------------------------------------------------------------------- *
