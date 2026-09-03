@@ -1,8 +1,7 @@
 /**
- * The publishing schedule. Seeded from `fixtures/schedule` alongside the briefs
- * those rows point at — the two seeds are one fixture for exactly that reason,
- * since an entry whose `briefId` resolves to nothing renders a raw id on the
- * calendar instead of a title.
+ * The publishing schedule. Seeded empty, for the same reason briefs are: a
+ * schedule entry points at a brief, and nothing is seeded into the brief store,
+ * so a seeded entry would have to point at a brief that does not exist.
  *
  * The write helpers live here rather than in the tool file so the human path
  * (clicking a day in the calendar) and the agent path (`schedule_brief`) share
@@ -13,13 +12,12 @@
  */
 
 import type { Platform, ScheduleEntry, ScheduleStatus } from '../types'
-import { SEED_SCHEDULE } from '../fixtures/schedule'
 import { createStore } from './createStore'
 import { ensureSchemaVersion, KEYS } from './persist'
 
 ensureSchemaVersion()
 
-export const scheduleStore = createStore<ScheduleEntry[]>(KEYS.schedule, () => SEED_SCHEDULE)
+export const scheduleStore = createStore<ScheduleEntry[]>(KEYS.schedule, () => [])
 
 export function readSchedule(): ScheduleEntry[] {
   return scheduleStore.read()

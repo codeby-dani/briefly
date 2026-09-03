@@ -7,8 +7,8 @@
  * that has never shipped, and a half-migrated store is worse than a fresh one.
  */
 
-// 4 — briefs and the schedule ship with demo rows, so old empty stores reseed.
-export const SCHEMA_VERSION = 4
+// 6 — the seeded briefs and schedule rows are gone; stores holding them reseed.
+export const SCHEMA_VERSION = 6
 
 export const KEYS = {
   version: 'td:version',

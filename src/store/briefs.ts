@@ -1,9 +1,7 @@
 /**
- * Briefs. Seeded with the six demo briefs the calendar rows point at — a
- * schedule entry with no brief behind it shows a raw id in its chip, so the two
- * seeds live in one fixture. They are marked `brf_seed_*` and authored by a mix
- * of human and agent, so a brief written during a demo is still obvious next to
- * them.
+ * Briefs. Seeded empty on purpose: a brief is the thing the human and the agent
+ * make together, and shipping pre-written ones would hide the only moment in
+ * the app that matters. The empty state on the dashboard says so.
  *
  * The write helpers and the status machine live here rather than in the tool
  * file so the human path (the composer's Save button, the library's status
@@ -14,13 +12,12 @@
  */
 
 import type { Brief, BriefStatus, Platform } from '../types'
-import { SEED_BRIEFS } from '../fixtures/schedule'
 import { createStore } from './createStore'
 import { ensureSchemaVersion, KEYS } from './persist'
 
 ensureSchemaVersion()
 
-export const briefStore = createStore<Brief[]>(KEYS.briefs, () => SEED_BRIEFS)
+export const briefStore = createStore<Brief[]>(KEYS.briefs, () => [])
 
 export function readBriefs(): Brief[] {
   return briefStore.read()
