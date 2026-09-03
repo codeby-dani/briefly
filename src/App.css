@@ -1507,14 +1507,11 @@
  * Narrow viewports.
  * ---------------------------------------------------------------------- */
 
-/* The inspector panel is `position: fixed` against the right edge. Below
- * 1680px it would sit on top of the content, so the main column reserves the
- * gutter the reference's design brief asked for. */
-@media (min-width: 901px) and (max-width: 1680px) {
-  .app-main {
-    padding-right: 328px;
-  }
-}
+/* No gutter is reserved for the inspector panel. It used to take 328px out of
+ * the main column between 901px and 1680px so that it never overlapped a card —
+ * which cost every window in that range a dead band as wide as the panel, empty
+ * whenever the panel was shut. The panel is a floating overlay now: it closes to
+ * a corner pill, and the route runs full-bleed underneath it either way. */
 
 /* The sidebar is the first thing to go: at tablet width a 256px rail costs
  * more than it earns, so it becomes a horizontal strip above the content. */
