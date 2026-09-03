@@ -37,7 +37,7 @@ import {
  * no room for the inspector.
  */
 export default function App() {
-  const { route, selectedTrendId, selectedProductId } = useAppState()
+  const { route, selectedTrendId, selectedOfferingId } = useAppState()
 
   useEffect(() => {
     installBridge()
@@ -50,7 +50,7 @@ export default function App() {
   // here at the root — where it survives the human navigating between Trends,
   // Products and Briefs mid-composition — rather than inside the Briefs route,
   // which unmounts on navigation. See plan/02-data-model.md § Tool surface.
-  useTools(composerTools(Boolean(selectedTrendId && selectedProductId)))
+  useTools(composerTools(Boolean(selectedTrendId && selectedOfferingId)))
 
   return (
     <>
@@ -73,7 +73,7 @@ export default function App() {
 const NAV_LABEL: Record<Route, string> = {
   dashboard: 'Dashboard',
   trends: 'Trends Discovery',
-  products: 'Product Knowledge',
+  products: 'Profile',
   briefs: 'Content Briefs',
   calendar: 'Content Calendar',
   performance: 'Performance',

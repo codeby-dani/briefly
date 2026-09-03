@@ -1,293 +1,41 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import type { Product } from '../types'
-import { DemoBadge } from '../components/Badge'
-import { PRODUCTS } from '../fixtures/products'
-import {
-  createProduct,
-  deleteProduct,
-  productStore,
-  updateProduct,
-} from '../store/products'
-import type { ProductDraft } from '../store/products'
+import type { BusinessOffering, BusinessProfile } from '../types'
+import { addBusinessOffering, businessProfileStore, removeBusinessOffering, updateBusinessOffering, updateBusinessProfile } from '../store/businessProfile'
 import { dispatch, useAppState } from '../store/router'
-import { openProductTools, productRouteTools } from '../tools/products'
+import { profileRouteTools } from '../tools/businessProfile'
 import { useTools } from '../webmcp'
 
-const IDR = new Intl.NumberFormat('id-ID', {
-  style: 'currency',
-  currency: 'IDR',
-  maximumFractionDigits: 0,
-})
-
-const SEEDED_UPDATED_AT = new Map(PRODUCTS.map((product) => [product.id, product.updatedAt]))
-
-const EMPTY_DRAFT: ProductDraft = {
-  name: '',
-  description: '',
-  usp: [''],
-  priceIdr: 0,
-  dos: [''],
-  donts: [''],
-}
-
-function asDraft(product: Product | null): ProductDraft {
-  if (!product) return { ...EMPTY_DRAFT, usp: [''], dos: [''], donts: [''] }
-  return {
-    name: product.name,
-    description: product.description,
-    usp: [...product.usp],
-    priceIdr: product.priceIdr,
-    dos: [...product.dos],
-    donts: [...product.donts],
-  }
-}
-
-function positioning(description: string): string {
-  const line = description.split(/\r?\n/, 1)[0].trim()
-  return line.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() || line
-}
+const IDR = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })
+const chips = (items: string[]) => <div className="profile-chips">{items.map((item) => <span key={item}>{item}</span>)}</div>
+function Group({ label, items }: { label: string; items: string[] }) { return <div className="profile-group"><h3>{label}</h3>{chips(items)}</div> }
 
 export function Products() {
-  const products = productStore.use()
-  const { selectedProductId } = useAppState()
-  const [creating, setCreating] = useState(false)
-  const openProduct = products.find((product) => product.id === selectedProductId) ?? null
-
-  useTools([...productRouteTools(), ...openProductTools(openProduct?.id ?? null)])
-
-  const open = (productId: string) => {
-    setCreating(false)
-    dispatch({ type: 'selectProduct', productId })
-  }
-
-  const close = () => {
-    setCreating(false)
-    dispatch({ type: 'selectProduct', productId: null })
-  }
-
-  return (
-    <section className="products-workspace" aria-labelledby="products-title">
-      <div className="workspace-head">
-        <div>
-          <p className="eyebrow">Brand context</p>
-          <h2 id="products-title">Product Knowledge</h2>
-          <p className="muted">
-            Keep claims, positioning, and hard boundaries together before a brief is written.
-          </p>
-        </div>
-        <button
-          type="button"
-          className="button button-primary"
-          data-testid="create-product"
-          onClick={() => {
-            dispatch({ type: 'selectProduct', productId: null })
-            setCreating(true)
-          }}
-        >
-          New product
-        </button>
-      </div>
-
-      <div className={`products-layout${creating || openProduct ? ' has-editor' : ''}`}>
-        <div className="product-list" data-testid="product-list">
-          {products.length === 0 ? (
-            <div className="empty-state" data-testid="products-empty">
-              <h3>No products yet</h3>
-              <p>Add brand context by hand, or ask an agent to create a product record.</p>
-            </div>
-          ) : (
-            products.map((product) => (
-              <button
-                type="button"
-                className={`product-card${product.id === openProduct?.id ? ' is-open' : ''}`}
-                key={product.id}
-                data-testid={`product-card-${product.id}`}
-                aria-pressed={product.id === openProduct?.id}
-                onClick={() => open(product.id)}
-              >
-                <span className="product-card-topline">
-                  <strong>{product.name}</strong>
-                  <span className="product-price-group">
-                    {SEEDED_UPDATED_AT.get(product.id) === product.updatedAt && (
-                      <DemoBadge what="This seeded product price" />
-                    )}
-                    <span className="product-price">{IDR.format(product.priceIdr)}</span>
-                  </span>
-                </span>
-                <span className="product-positioning">{positioning(product.description)}</span>
-                <span className="product-meta">
-                  {product.usp.length} {product.usp.length === 1 ? 'USP' : 'USPs'}
-                </span>
-              </button>
-            ))
-          )}
-        </div>
-
-        {(creating || openProduct) && (
-          <ProductEditor
-            key={creating ? 'create' : openProduct?.id}
-            mode={creating ? 'create' : 'edit'}
-            product={creating ? null : openProduct}
-            onClose={close}
-            onCreated={(productId) => {
-              setCreating(false)
-              dispatch({ type: 'selectProduct', productId })
-            }}
-          />
-        )}
-      </div>
-    </section>
-  )
+  const profile = businessProfileStore.use()
+  const { isBusinessProfileEditing } = useAppState()
+  useTools(profileRouteTools(isBusinessProfileEditing))
+  const score = Math.min(100, Math.round((8 + profile.offerings.length) / 10 * 100))
+  return <section className="profile-workspace" aria-labelledby="profile-title">
+    <aside className="profile-sidebar"><div className="profile-identity card"><div className="profile-avatar">{profile.name.slice(0, 1)}</div><p className="eyebrow">Business profile</p><h2>{profile.name}</h2><p>{profile.industry}</p><div className="profile-completeness"><strong>{score}% complete</strong><span><i style={{ width: `${score}%` }} /></span><small>Shared context for every agent brief.</small></div></div><div className="context-quality card"><p className="eyebrow">Context quality</p><h3>Ready for agent work</h3><p>Narrative, audience, voice, goals, guardrails, and {profile.offerings.length} structured offerings are available.</p></div></aside>
+    <div className="profile-main"><header className="workspace-head"><div><p className="eyebrow">Profile</p><h1 id="profile-title">About {profile.name}</h1><p className="muted">The source of truth agents use before turning a trend into a brief.</p></div><button className="button button-primary" type="button" data-testid="edit-business-profile" onClick={() => dispatch({ type: 'setBusinessProfileEditing', editing: true })}>Edit business profile</button></header>
+      <section className="card profile-about"><div className="profile-facts"><div><small>Industry</small><strong>{profile.industry}</strong></div><div><small>Offerings</small><strong>{profile.offerings.length}</strong></div><div><small>Last updated</small><strong>{new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(profile.updatedAt))}</strong></div></div><p>{profile.description}</p><Group label="Target audience" items={profile.targetAudiences}/><Group label="Brand voice" items={profile.brandVoices}/><Group label="Content goals" items={profile.contentGoals}/></section>
+      <section><div className="section-heading"><div><p className="eyebrow">Sellable context</p><h2>Offerings</h2></div></div><div className="offering-grid">{profile.offerings.map((offering) => <OfferingCard offering={offering} key={offering.id}/>)}</div></section>
+      <section className="claim-guardrails card"><div><p className="eyebrow">Shared claim guardrails</p><h2>Keep every brief on-brand</h2></div><Group label="Approved" items={profile.approvedClaims}/><div className="prohibited"><Group label="Prohibited" items={profile.prohibitedClaims}/></div></section>
+      {isBusinessProfileEditing && <ProfileEditor profile={profile} onClose={() => dispatch({ type: 'setBusinessProfileEditing', editing: false })}/>}</div>
+  </section>
 }
+function OfferingCard({ offering }: { offering: BusinessOffering }) { return <article className="offering-card card"><div><h3>{offering.name}</h3><strong>{IDR.format(offering.priceIdr)}</strong></div><p>{offering.positioning}</p><Group label="Unique selling points" items={offering.usp}/><div className="offering-claims"><Group label="Approved claims" items={offering.approvedClaims}/><Group label="Avoid" items={offering.prohibitedClaims}/></div></article> }
 
-interface ProductEditorProps {
-  mode: 'create' | 'edit'
-  product: Product | null
-  onClose: () => void
-  onCreated: (productId: string) => void
+function ProfileEditor({ profile, onClose }: { profile: BusinessProfile; onClose: () => void }) {
+  const [draft, setDraft] = useState(() => ({ ...profile, targetAudiences: profile.targetAudiences.join('\n'), brandVoices: profile.brandVoices.join('\n'), contentGoals: profile.contentGoals.join('\n'), approvedClaims: profile.approvedClaims.join('\n'), prohibitedClaims: profile.prohibitedClaims.join('\n') }))
+  const lines = (value: string) => value.split('\n').map((item) => item.trim()).filter(Boolean)
+  const save = (event: FormEvent) => { event.preventDefault(); updateBusinessProfile({ name: draft.name.trim(), description: draft.description.trim(), industry: draft.industry.trim(), targetAudiences: lines(draft.targetAudiences), brandVoices: lines(draft.brandVoices), contentGoals: lines(draft.contentGoals), approvedClaims: lines(draft.approvedClaims), prohibitedClaims: lines(draft.prohibitedClaims) }); onClose() }
+  return <aside className="profile-editor card" data-testid="business-profile-editor" aria-label="Edit business profile"><div className="editor-head"><div><p className="eyebrow">Editing profile</p><h2>Business context</h2></div><button className="icon-button" type="button" onClick={onClose} aria-label="Close profile editor">×</button></div><form className="product-form" onSubmit={save}><label><span>Business name</span><input required value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })}/></label><label><span>Industry</span><input required value={draft.industry} onChange={(e) => setDraft({ ...draft, industry: e.target.value })}/></label><label><span>About the business</span><textarea required rows={4} value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })}/></label><div className="editor-lists">{[['targetAudiences', 'Target audience'], ['brandVoices', 'Brand voice'], ['contentGoals', 'Content goals'], ['approvedClaims', 'Approved claims'], ['prohibitedClaims', 'Prohibited claims']].map(([field, label]) => <label key={field}><span>{label} <small>(one per line)</small></span><textarea rows={3} value={draft[field as keyof typeof draft] as string} onChange={(e) => setDraft({ ...draft, [field]: e.target.value })}/></label>)}</div><OfferingManager offerings={profile.offerings}/><div className="editor-actions"><button className="button button-primary" data-testid="save-business-profile">Save profile</button></div></form></aside>
 }
-
-function ProductEditor({ mode, product, onClose, onCreated }: ProductEditorProps) {
-  const [draft, setDraft] = useState<ProductDraft>(() => asDraft(product))
-
-  const setList = (field: 'usp' | 'dos' | 'donts', value: string[]) => {
-    setDraft((current) => ({ ...current, [field]: value }))
-  }
-
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const clean: ProductDraft = {
-      ...draft,
-      name: draft.name.trim(),
-      description: draft.description,
-      usp: draft.usp.map((item) => item.trim()).filter(Boolean),
-      dos: draft.dos.map((item) => item.trim()).filter(Boolean),
-      donts: draft.donts.map((item) => item.trim()).filter(Boolean),
-    }
-
-    if (mode === 'create') {
-      const created = createProduct(clean)
-      onCreated(created.id)
-      return
-    }
-    if (product) updateProduct(product.id, clean)
-  }
-
-  const remove = () => {
-    if (!product) return
-    if (!window.confirm(`Delete “${product.name}”? This cannot be undone.`)) return
-    deleteProduct(product.id)
-    onClose()
-  }
-
-  return (
-    <aside className="product-editor card" data-testid="product-editor" aria-label={mode === 'create' ? 'Create product' : `Edit ${product?.name}`}>
-      <div className="editor-head">
-        <div>
-          <p className="eyebrow">{mode === 'create' ? 'New record' : 'Open product'}</p>
-          <h3>{mode === 'create' ? 'Add product knowledge' : product?.name}</h3>
-        </div>
-        <button type="button" className="icon-button" aria-label="Close product" data-testid="close-product" onClick={onClose}>
-          ×
-        </button>
-      </div>
-
-      <form className="product-form" data-testid={`product-form-${mode}`} onSubmit={submit}>
-        <label>
-          <span>Name</span>
-          <input
-            required
-            value={draft.name}
-            data-testid="product-name"
-            onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
-          />
-        </label>
-
-        <label>
-          <span>Description and positioning</span>
-          <textarea
-            required
-            rows={5}
-            value={draft.description}
-            data-testid="product-description"
-            onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
-          />
-        </label>
-
-        <label>
-          <span>Price (IDR)</span>
-          <input
-            required
-            type="number"
-            min="0"
-            step="1000"
-            value={draft.priceIdr}
-            data-testid="product-price"
-            onChange={(event) => setDraft((current) => ({ ...current, priceIdr: Number(event.target.value) }))}
-          />
-        </label>
-
-        <ArrayField label="Unique selling points" field="usp" values={draft.usp} onChange={(value) => setList('usp', value)} />
-
-        <div className="guardrails-grid">
-          <ArrayField label="Do say" field="dos" values={draft.dos} onChange={(value) => setList('dos', value)} />
-          <ArrayField label="Do not say" field="donts" values={draft.donts} onChange={(value) => setList('donts', value)} />
-        </div>
-
-        <div className="editor-actions">
-          {mode === 'edit' && (
-            <button type="button" className="button button-danger" data-testid="delete-product" onClick={remove}>
-              Delete product
-            </button>
-          )}
-          <button type="submit" className="button button-primary" data-testid="save-product">
-            {mode === 'create' ? 'Create product' : 'Save changes'}
-          </button>
-        </div>
-      </form>
-    </aside>
-  )
-}
-
-interface ArrayFieldProps {
-  label: string
-  field: 'usp' | 'dos' | 'donts'
-  values: string[]
-  onChange: (values: string[]) => void
-}
-
-function ArrayField({ label, field, values, onChange }: ArrayFieldProps) {
-  return (
-    <fieldset className={`array-field array-${field}`} data-testid={`product-${field}`}>
-      <legend>{label}</legend>
-      {values.map((value, index) => (
-        <div className="array-row" key={`${field}-${index}`}>
-          <input
-            value={value}
-            aria-label={`${label} ${index + 1}`}
-            data-testid={`product-${field}-${index}`}
-            onChange={(event) => onChange(values.map((item, itemIndex) => itemIndex === index ? event.target.value : item))}
-          />
-          <button
-            type="button"
-            className="icon-button"
-            aria-label={`Remove ${label.toLowerCase()} ${index + 1}`}
-            data-testid={`remove-${field}-${index}`}
-            onClick={() => onChange(values.filter((_, itemIndex) => itemIndex !== index))}
-          >
-            −
-          </button>
-        </div>
-      ))}
-      <button
-        type="button"
-        className="text-button"
-        data-testid={`add-${field}`}
-        onClick={() => onChange([...values, ''])}
-      >
-        + Add row
-      </button>
-    </fieldset>
-  )
+function OfferingManager({ offerings }: { offerings: BusinessOffering[] }) { const [adding, setAdding] = useState(false); return <fieldset className="offering-manager"><legend>Offerings</legend>{offerings.map((offering) => <OfferingEdit key={offering.id} offering={offering}/>)}{adding ? <OfferingEdit onDone={() => setAdding(false)}/> : <button type="button" className="text-button" onClick={() => setAdding(true)}>+ Add offering</button>}</fieldset> }
+function OfferingEdit({ offering, onDone }: { offering?: BusinessOffering; onDone?: () => void }) {
+  const [draft, setDraft] = useState(() => ({ name: offering?.name ?? '', positioning: offering?.positioning ?? '', priceIdr: offering?.priceIdr ?? 0, usp: offering?.usp.join('\n') ?? '', approvedClaims: offering?.approvedClaims.join('\n') ?? '', prohibitedClaims: offering?.prohibitedClaims.join('\n') ?? '' }))
+  const lines = (value: string) => value.split('\n').map((item) => item.trim()).filter(Boolean)
+  const save = () => { if (!draft.name.trim()) return; const value = { name: draft.name.trim(), positioning: draft.positioning.trim(), priceIdr: Number(draft.priceIdr), usp: lines(draft.usp), approvedClaims: lines(draft.approvedClaims), prohibitedClaims: lines(draft.prohibitedClaims) }; if (offering) updateBusinessOffering(offering.id, value); else { addBusinessOffering(value); onDone?.() } }
+  return <div className="offering-edit"><label>Name<input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })}/></label><label>Positioning<textarea rows={2} value={draft.positioning} onChange={(e) => setDraft({ ...draft, positioning: e.target.value })}/></label><label>Price (IDR)<input type="number" min="0" value={draft.priceIdr} onChange={(e) => setDraft({ ...draft, priceIdr: Number(e.target.value) })}/></label><label>USPs <small>(one per line)</small><textarea rows={2} value={draft.usp} onChange={(e) => setDraft({ ...draft, usp: e.target.value })}/></label><label>Approved claims <small>(one per line)</small><textarea rows={2} value={draft.approvedClaims} onChange={(e) => setDraft({ ...draft, approvedClaims: e.target.value })}/></label><label>Prohibited claims <small>(one per line)</small><textarea rows={2} value={draft.prohibitedClaims} onChange={(e) => setDraft({ ...draft, prohibitedClaims: e.target.value })}/></label><div><button type="button" className="text-button" onClick={save}>{offering ? 'Save offering' : 'Add offering'}</button>{offering && <button type="button" className="text-button remove-offering" onClick={() => { if (window.confirm(`Remove “${offering.name}”?`)) removeBusinessOffering(offering.id) }}>Remove</button>}</div></div>
 }

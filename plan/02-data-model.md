@@ -95,14 +95,26 @@ interface Clip {
   signals: ClipSignals
 }
 
-interface Product {
+interface BusinessOffering {
   id: string
   name: string
-  description: string
+  positioning: string
   usp: string[]
   priceIdr: number
-  dos: string[]             // things the brand will say
-  donts: string[]           // things the brand will not say
+  approvedClaims: string[]
+  prohibitedClaims: string[]
+}
+
+interface BusinessProfile {
+  name: string
+  description: string
+  industry: string
+  targetAudiences: string[]
+  brandVoices: string[]
+  contentGoals: string[]
+  approvedClaims: string[]
+  prohibitedClaims: string[]
+  offerings: BusinessOffering[]
   updatedAt: string
 }
 
@@ -112,7 +124,7 @@ interface Brief {
   id: string
   title: string
   trendId: string
-  productId: string
+  offeringId: string
   platform: Platform
   status: BriefStatus
   hook: string
@@ -211,14 +223,14 @@ Not stored, but it is a state machine and the whole product depends on it:
 ```
 route=trends                 ─► 6 tools + 2 global
 route=trends & trendOpen     ─► 10 tools + 2 global
-route=products               ─► 3 tools + 2 global
-route=products & productOpen ─► 5 tools + 2 global
-trendSelected & productSelected ─► + get_brief_context, save_brief
+route=products               ─► 1 tool + 2 global
+route=products & profileEdit ─► 5 tools + 2 global
+trendSelected & offeringSelected ─► + get_brief_context, save_brief
 route=briefs                 ─► 2 tools + 2 global
 ```
 
 `get_brief_context` and `save_brief` are conditioned on *selection*, not route,
-so they survive navigating between Trends and Products while composing.
+so they survive navigating between Trends and Profile while composing.
 
 ## Tool Contracts
 
@@ -228,8 +240,8 @@ Input schemas abbreviated; the full JSON Schema lives beside each tool.
 
 ```
 in:  {}
-out: { route, selectedTrendId, selectedProductId, openBriefId,
-       counts: { trends, products, briefs, watchlist },
+out: { route, selectedTrendId, selectedOfferingId, openBriefId,
+       counts: { trends, offerings, briefs, watchlist },
        visibleTrendCount, activeFilters }
 ```
 
@@ -367,45 +379,49 @@ judge with no agent connected still sees the analysis happen; this tool exists
 because an agent that is already connected should not be asked to wait on a
 second model round-trip through a serverless function it does not need.
 
-### `list_products` / `get_product` → readOnly
+### `get_business_profile` → readOnly, untrustedContent
 
 ```
-list: {} → { count, products: [{ id, name, positioning }] }
-get:  { productId } → { ...Product }   // untrustedContent
+in:  {}
+out: { ...BusinessProfile } // including structured offerings
 ```
 
-### `create_product`
+### `update_business_profile`
 
 ```
-in:  { name, description, usp[], priceIdr, dos[], donts[] }
-out: { ok: true, productId }
-```
-
-### `update_product` → destructive, idempotent
-
-```
-in:  { productId, ...partial fields }
+in:  { ...partial shared profile fields }
 out: { ok: true, updated: [field names] }
 ```
 
-Named fields only. An omitted field is left alone — the opposite of
-`filter_trends`, and both descriptions must say which they are.
-
-### `delete_product` → destructive
+### `add_business_offering`
 
 ```
-in:  { productId }   // must equal the currently open product
-out: { ok: true } | { ok: false, reason: 'product is not open' }
+in:  { name, positioning, priceIdr, usp[], approvedClaims[], prohibitedClaims[] }
+out: { ok: true, offeringId }
+```
+
+### `update_business_offering`
+
+```
+in:  { offeringId, ...partial offering fields }
+out: { ok: true, updated: [field names] }
+```
+
+### `remove_business_offering`
+
+```
+in:  { offeringId }
+out: { ok: true } | { ok: false, reason: 'offering not found' }
 ```
 
 ### `get_brief_context` → readOnly, untrustedContent
 
 ```
 in:  {}
-out: { trend: {...}, product: {...}, platform, existingBriefs: [{id,title,hook}] }
+out: { trend: {...}, businessProfile: {...}, offering: {...}, platform, existingBriefs: [{id,title,hook}] }
 ```
 
-`existingBriefs` for the same trend+product pair is included so the agent can
+`existingBriefs` for the same trend+offering pair is included so the agent can
 avoid repeating an angle already in the library.
 
 ### `save_brief`

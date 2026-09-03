@@ -16,7 +16,7 @@ import { ROUTES, isRoute } from '../types'
 import type { Route } from '../types'
 import { navigate, readAppState } from '../store/router'
 import { readBriefs } from '../store/briefs'
-import { readProducts } from '../store/products'
+import { readBusinessProfile } from '../store/businessProfile'
 import { readTrends } from '../store/trends'
 import { activeFilters, visibleTrends } from '../store/trendView'
 import { readWatchlist } from '../store/watchlist'
@@ -25,9 +25,9 @@ import { traced } from './trace'
 export interface AppStateSnapshot {
   route: Route
   selectedTrendId: string | null
-  selectedProductId: string | null
+  selectedOfferingId: string | null
   openBriefId: string | null
-  counts: { trends: number; products: number; briefs: number; watchlist: number }
+  counts: { trends: number; offerings: number; briefs: number; watchlist: number }
   visibleTrendCount: number
   activeFilters: Record<string, unknown>
 }
@@ -46,11 +46,11 @@ export function readAppSnapshot(): AppStateSnapshot {
   return {
     route: app.route,
     selectedTrendId: app.selectedTrendId,
-    selectedProductId: app.selectedProductId,
+    selectedOfferingId: app.selectedOfferingId,
     openBriefId: app.openBriefId,
     counts: {
       trends: trends.length,
-      products: readProducts().length,
+      offerings: readBusinessProfile().offerings.length,
       briefs: readBriefs().length,
       watchlist: readWatchlist().length,
     },
@@ -64,7 +64,7 @@ export function getAppStateTool(): ToolSpec {
     name: 'get_app_state',
     description:
       'Call this first, before anything else, to learn what the human is currently ' +
-      'looking at: which route is open, which trend and product are selected, and how ' +
+      'looking at: which route is open, which trend and offering are selected, and how ' +
       'many records exist. Every other tool on this page is scoped to that state.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
