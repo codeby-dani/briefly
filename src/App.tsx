@@ -6,9 +6,10 @@ import { globalTools } from './tools/global'
 import { composerTools } from './tools/briefs'
 import { bindHashListener, navigate, useAppState } from './store/router'
 import { Dashboard } from './routes/Dashboard'
-import { CorpusCheck } from './routes/CorpusCheck'
 import { PendingRoute } from './routes/Pending'
+import { Trends } from './routes/Trends'
 import { Products } from './routes/Products'
+import { Briefs } from './routes/Briefs'
 import { ToolSurfacePanel, UnsupportedBrowserNotice, installBridge, useTools } from './webmcp'
 
 /**
@@ -84,14 +85,13 @@ export default function App() {
 }
 
 function RouteView({ route }: { route: Route }) {
-  if (route === 'dashboard') {
-    return (
-      <>
-        <Dashboard />
-        <CorpusCheck />
-      </>
-    )
-  }
+  // Phase 0's clip-check panel used to hang under the dashboard here. Phase 2
+  // removed it, as its phase file instructs: the deployed-media exit criterion
+  // is now checked by opening any clip-backed trend, which is a real surface
+  // rather than a scaffold a judge has to be told to ignore.
+  if (route === 'dashboard') return <Dashboard />
+  if (route === 'trends') return <Trends />
   if (route === 'products') return <Products />
+  if (route === 'briefs') return <Briefs />
   return <PendingRoute route={route} />
 }

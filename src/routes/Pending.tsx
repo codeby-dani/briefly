@@ -1,5 +1,5 @@
 /**
- * The five routes whose contents arrive in Phases 2 to 5.
+ * The routes whose contents arrive in Phase 5.
  *
  * They are reachable now, by hash and by `navigate_to`, because Phase 1 exit
  * criterion 1 requires it and because an agent that navigates somewhere should
@@ -10,8 +10,12 @@
 
 import type { Route } from '../types'
 
-/** Every route that has not been built yet. Trends left this set in Phase 2. */
-export type PendingRouteName = Exclude<Route, 'dashboard' | 'trends'>
+/**
+ * Every route that has not been built yet. Trends left this set in Phase 2,
+ * Products in Phase 3 and Briefs in Phase 4; only the cuttable Phase 5 pair
+ * remains.
+ */
+export type PendingRouteName = Exclude<Route, 'dashboard' | 'trends' | 'products' | 'briefs'>
 
 interface PendingSection {
   title: string
@@ -21,24 +25,6 @@ interface PendingSection {
 }
 
 const PENDING: Record<PendingRouteName, PendingSection> = {
-  products: {
-    title: 'Product Knowledge',
-    phase: 'Phase 3',
-    blurb:
-      'Four seeded products with a do-and-do-not list each, and full CRUD. This is the ' +
-      'brand context an agent reads before it writes anything — as data, never as ' +
-      'instructions to itself.',
-    tools: ['list_products', 'get_product', 'create_product', 'update_product', 'delete_product'],
-  },
-  briefs: {
-    title: 'Briefs',
-    phase: 'Phase 4',
-    blurb:
-      'The composer and the library. The page hands over the trend and the product; the ' +
-      'connected agent writes the brief and posts it back. Nothing here calls a model ' +
-      'server-side, deliberately.',
-    tools: ['get_brief_context', 'save_brief', 'search_briefs', 'update_brief_status'],
-  },
   calendar: {
     title: 'Calendar',
     phase: 'Phase 5 — first to be cut if the schedule slips',

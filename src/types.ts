@@ -15,6 +15,10 @@ export const PLATFORMS = ['tiktok', 'instagram', 'youtube', 'x'] as const
 
 export type Platform = (typeof PLATFORMS)[number]
 
+export function isPlatform(value: unknown): value is Platform {
+  return typeof value === 'string' && (PLATFORMS as readonly string[]).includes(value)
+}
+
 export const CATEGORIES = [
   'beauty',
   'food',
