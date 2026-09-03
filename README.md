@@ -22,9 +22,12 @@ surface, and every line under `src/` are new work from that window. The only
 reused material is the author's own cc0 clip corpus described under
 [Media](#media), not application code or a pre-existing product.
 
-> **Status: Phase 1 of 7.** The shell, the clip corpus, the hash router, the
-> stores and the two global tools are in. The remaining nineteen tools land in
-> Phases 2–5. Progress and what is actually done live in
+> **Status: Phases 1–4 of 7 are built; the live URL is behind them.** Trends,
+> Product Knowledge and the brief composer and library all exist, and all 21
+> tools are written and driven. The deployed bundle currently predates Trends
+> and Products, so those two routes show placeholders on the live URL until the
+> next deploy. Phase 5 (Calendar and Performance) is pre-designated as cuttable.
+> Progress and what is actually done live in
 > [plan/PROGRESS.md](plan/PROGRESS.md) — that file, not this one, is the
 > authority on state.
 

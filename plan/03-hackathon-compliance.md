@@ -25,15 +25,25 @@ rejected uploads at the wire before, and there is no appeal.
 
 | # | Requirement | Satisfied by | State |
 |---|-------------|--------------|-------|
-| 1 | Working live URL, reachable in ChatGPT's in-app browser | `https://trend-lake.vercel.app`; origin returns 200, required browser check still pending | `[ ]` |
-| 2 | Same URL working in Chrome 149+ with `#enable-webmcp-testing` | Same deploy; required browser check still pending | `[ ]` |
-| 2b | *Not required by the rules:* same tools reachable by Claude and any other JS-capable agent | `window.__td` bridge, `src/webmcp/bridge.ts`; live bundle contains both Phase 1 tools, runtime check still pending | `[ ]` |
+| 1 | Working live URL, reachable in ChatGPT's in-app browser | `https://trend-lake.vercel.app`; origin returns 200, required browser check still pending. **The live bundle is stale** — see the note below | `[ ]` |
+| 2 | Same URL working in Chrome 149+ with `#enable-webmcp-testing` | Same deploy; required browser check still pending. `document.modelContext` was absent in every browser available so far | `[ ]` |
+| 2b | *Not required by the rules:* same tools reachable by Claude and any other JS-capable agent | `window.__td` bridge, `src/webmcp/bridge.ts`. **Exercised end to end on the live origin 2026-09-03 22:55**: `listTools()` answered, `navigate_to` drove all six routes, and `get_brief_context` returned a product USP with its three do-nots | `[x]` |
 | 3 | Public repo on GitHub/GitLab/Bitbucket | `https://github.com/codeby-dani/TrendDashboard`, GitHub API reports `visibility: public` | `[x]` |
 | 4 | Open-source licence, visible | `LICENSE` at repo root | `[x]` |
 | 5 | Demo video under 3:00, **with audio**, public on YouTube | `99-demo-script.md` | `[ ]` |
 | 6 | Text description: WebMCP fit, UX gain, collaboration | Draft below | `[ ]` |
 
 Audio is required by the rules. Captions alone do not satisfy requirement 5.
+
+**The live URL currently under-sells the entry, and that is a submission risk,
+not just a deploy chore.** Measured on the public origin 2026-09-03 23:00, the
+deployed bundle predates Phase 2: `/trends` and `/products` render "coming in
+Phase 2 / Phase 3" placeholders and the tool surface stays at 2 there. A judge
+following requirement 1 or 2 today would find 6 of the 21 tools and two of the
+five real features. Phases 2 and 3 exist and are verified locally; they are
+simply not on the origin, because the merged `main` could not compile until the
+repair recorded in `PROGRESS.md`. Deploy before doing either browser check —
+performing them against this bundle would burn the checks on the wrong build.
 
 ## Eligibility
 
@@ -146,8 +156,8 @@ present itself.
 | WebMCP disabled if `document.domain` is set | `[x]` never set |
 | Origin isolation required | `[x]` single origin, static deploy |
 | Gated by the `tools` Permissions Policy, default `self` | `[x]` deployed response does not override the default; `vercel.json` also sets `tools=(self)` explicitly for the next deploy |
-| Function and page share one origin — no CORS, no cross-origin fetch from a tool | `[ ]` route is same-origin, but the deployed POST timed out on 2026-09-03; the branch replaces the retired Gemini 2.0 default and adds a provider timeout, then needs deploy verification |
-| No secret reachable from the client bundle | `[x]` no key-shaped secrets in the repo; `GEMINI_API_KEY`, `AIza`, and `apiKey` are absent from the 2026-09-03 production bundle |
+| Function and page share one origin — no CORS, no cross-origin fetch from a tool | `[ ]` route is same-origin, but the function never answers. Re-measured 23:00: `GET` and `POST` both abort at 12s with no response, and `GET` should be an immediate `405`. Diagnosed in B6 as a Vercel runtime mismatch — a web-standard `Request`/`Response` default export with no `runtime: 'edge'` declaration — not a provider timeout and not a missing key |
+| No secret reachable from the client bundle | `[x]` re-scanned 23:00: `GEMINI_API_KEY`, `AIza` and `apiKey` are all absent from the live production bundle. The name `GEMINI_API_KEY` appears only in `.env.example` and in `api/analyze.ts`, which is server-side; no key value is anywhere in the repo |
 | Chrome needs 149+ and the testing flag | `[x]` `UnsupportedBrowserNotice` explains all three paths |
 | WebMCP reaches only ChatGPT's browser and flagged Chrome | `[x]` `window.__td` bridge carries the same tools to Claude and any other JS-capable agent — additive, never a substitute for requirements 1 and 2 |
 | `getTools()` returns `inputSchema` as a JSON string | `[x]` `parseSchema()` |

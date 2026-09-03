@@ -13,12 +13,20 @@ Taken out of Phase 6's polish budget, not out of Phases 2–4.
 - [x] Deployed to Vercel, live URL recorded in `PROGRESS.md` — `https://trend-lake.vercel.app`
 - [ ] Tool surface confirmed on the **deployed origin** in both environments — ChatGPT and flagged Chrome checks pending
 - [x] 12 clips copied into `public/media/`, `src/fixtures/clips.ts` generated — poster and MP4 return their real media content types from the deployed origin
-- [ ] `/api/analyze` returns structured JSON — deployed POST timed out on 2026-09-03; ten-second upstream timeout is ready on `feat/hackathon-compliance`
-- [ ] `GEMINI_API_KEY` set in Vercel project env; `/api/analyze` returns 200 — inspect the environment and retest after deploying the timeout fix
+- [ ] `/api/analyze` returns structured JSON — **still no response at all.** Re-measured 2026-09-03 23:00: `GET` and `POST` both abort at 12s from the live origin. `GET` should be an immediate `405`, so this is not a provider timeout; see B6 for the runtime-mismatch diagnosis
+- [ ] `GEMINI_API_KEY` set in Vercel project env; `/api/analyze` returns 200 — blocked behind the above; setting a key cannot help a handler that never runs
+- [x] `npm run build` exits 0 — **regressed and repaired.** The parallel-phase merges left `main` with five TypeScript errors; the repair is in the working tree, unstaged. Re-check this box on every merge, not once
 
 The static application and corpus are deployed. The phase remains open because
 the required browser checks have not been performed and the live function does
 not yet return a response.
+
+**The deployed bundle is now older than `main`.** It predates Phase 2, so the
+sixth criterion below — a poster and an mp4 loading from the deployed origin —
+is currently checkable only through the Phase 0 corpus panel that is still on
+the live bundle, not through the trend drawer that replaced it. Both media types
+do return `200` and `206` from the live origin, so the criterion holds either
+way; it is the route around it that is stale.
 
 **Added beyond the original scope, at your request:** every tool is also served
 at `window.__td` so Claude — and any other agent that can run JavaScript on the

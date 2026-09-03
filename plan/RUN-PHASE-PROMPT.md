@@ -28,7 +28,29 @@ Rules for this run:
   build, traceId on every tool call, badges on invented vs derived numbers.
 - Every tool registration must match its contract in 01-architecture.md /
   02-data-model.md exactly. If the contract is ambiguous, ask before coding.
+- Any new UI starts from the Stitch MCP design system. Project
+  15263749367928268748, design system assets/8039779349710605252
+  ("TrendDashboard Dark"). Read it with list_design_systems, and generate a
+  reference screen for the route with generate_screen_from_text passing that
+  designSystem id. Then hand-build the layout against it, styling through the
+  custom properties already in src/index.css. Never paste generated markup —
+  Stitch emits Tailwind and this repo takes no new runtime dependencies — and
+  do not introduce a raw hex. If Stitch times out, say so and proceed on the
+  existing tokens; do not invent colours to fill the gap.
+
+  The Stitch screen is a reference, not a spec. Changing the layout, the
+  structure or a style once it is in the app is fine and expected — the design
+  system exists to keep the palette, the type and the two badges consistent, not
+  to freeze the arrangement. Only two things are non-negotiable: colours come
+  from the tokens, and a deliberate departure gets one line in the PROGRESS.md
+  session log saying what changed and why. There are already two on record —
+  dark-only with no light fork, and Inter requested but never fetched.
 - Run `npm run build` before declaring done. It must exit 0.
+- If your branch merges anything, re-run `npm run build` *after* the merge and
+  count the tool surface on all six routes. The reference counts are
+  2 / 8 / 5 / 4 / 2 / 2 (dashboard / trends / products / briefs / calendar /
+  performance), 12 with a trend open. Four phases merged cleanly once and left
+  a tree that did not compile with two routes silently unreachable.
 
 Finish by:
 1. Walking the phase file's Exit Criteria one by one and stating met / not met

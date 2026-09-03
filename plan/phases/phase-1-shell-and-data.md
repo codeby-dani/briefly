@@ -4,17 +4,23 @@
 
 ## Status
 
-- [ ] Hash router with six routes — deployed bundle contains the router; deployed browser E2E pending
-- [ ] Stores implemented with `localStorage` persistence — deployed; cold-browser persistence check pending
-- [ ] Fixtures seeded on first run — deployed; cold-browser seed check pending
-- [ ] Dashboard route renders KPI cards and recent briefs — deployed; browser visual check pending
-- [ ] `get_app_state` and `navigate_to` registered globally — both are in the deployed bundle; WebMCP browser check pending
-- [ ] `demo data` badge component, used on every invented value — deployed; visual audit pending
-- [ ] `measured` badge component, used on every clip signal — deployed; visual audit pending
-- [ ] `clips.ts` wired: every trend's `clipIds` resolve to a real clip — deployed media verified; browser playback check pending
+- [x] Hash router with six routes — **driven on the deployed origin** 2026-09-03 22:50: all six reached by `navigate_to`, each agreeing with its on-screen `route-*` testid
+- [x] Stores implemented with `localStorage` persistence — **verified on the deployed origin**: `td:trends`, `td:products`, `td:briefs`, `td:watchlist`, `td:analytics`, `td:version`, `td:events` all present
+- [x] Fixtures seeded on first run — **verified on the deployed origin**: 24 trends and 4 products from a cold seed
+- [x] Dashboard route renders KPI cards and recent briefs — **verified on the deployed origin**
+- [x] `get_app_state` and `navigate_to` registered globally — **verified on the deployed origin**: surface is exactly 2 on every route that has no route tools, and `get_app_state().route` tracks the hash
+- [x] `demo data` badge component, used on every invented value — **verified on the deployed origin**, four instances on the dashboard
+- [x] `measured` badge component, used on every clip signal — **verified on the deployed origin**, three instances
+- [ ] `clips.ts` wired: every trend's `clipIds` resolve to a real clip — media returns `200` / `206` from the deployed origin and playback runs locally, but the drawer that plays it is not on the deployed bundle yet
 
-The code is deployed, but these boxes remain open until the browser-level exit
-criteria are repeated against the public origin.
+Seven of eight are now closed against the public origin — this is the first
+phase to have any. The eighth waits on the same deploy everything else does.
+
+**Note on exit criterion 6**, "tool surface count is exactly 2 on every route":
+that was written when Phase 1 was the whole app, and Phases 2–4 have since
+deliberately added route-scoped tools. Read it as *2 on every route with no
+route-scoped tools of its own* — dashboard, calendar and performance. The
+current reference counts are 2 / 8 / 5 / 4 / 2 / 2 across the six routes.
 
 **Deferred out of this phase, on purpose:** `plan/02-data-model.md` § Seed Data
 asks for "one committed summary per clip-backed trend", used as the `cached`

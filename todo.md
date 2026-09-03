@@ -26,10 +26,17 @@ At the time this file was written there were **10 hours 05 minutes** remaining.
 Every scope decision below is downstream of that number. This is not a
 13-day plan compressed; it is a 10-hour plan with a roadmap attached.
 
-Last swept **2026-09-03 22:40 WITA**, after the Phase 2 build — **5h 20m left**.
-This file holds *decisions*; `plan/PROGRESS.md` holds *state* and is the
-authority on where the build actually is. Where the two could disagree, believe
-PROGRESS.
+Last swept **2026-09-03 23:05 WITA**, after the cross-branch reconciliation
+audit — **4h 55m left**. This file holds *decisions*; `plan/PROGRESS.md` holds
+*state* and is the authority on where the build actually is. Where the two could
+disagree, believe PROGRESS.
+
+**Nothing in the decisions below changed in that audit.** What changed is which
+of them are true on a public origin: Phases 1–4 are code-complete on one tree
+for the first time, but the deployed bundle predates Phase 2, so Trends and
+Products are placeholders for anyone who opens the live URL right now. The
+parallel merges had also left `main` unable to compile; that is repaired in the
+working tree and not yet committed.
 
 | Area | State |
 |------|-------|
@@ -108,14 +115,17 @@ These are `[x]` as *scope decisions* — the question this file asks is "is this
 or out", and all five are in. Build state is `plan/PROGRESS.md`'s job, and the
 note beside each is a convenience, not a second source of truth.
 
-- [x] Product Knowledge base — full CRUD, persisted · *Phase 3, not started*
-- [x] Search, filter, sort across trends and briefs · *trends done in Phase 2;
-      briefs in Phase 4*
+- [x] Product Knowledge base — full CRUD, persisted · *Phase 3 built; create →
+      update → delete driven locally, 4 → 5 → 4. Not on the deployed bundle*
+- [x] Search, filter, sort across trends and briefs · *both built. Trends not on
+      the deployed bundle; briefs are*
 - [x] Brief generation — hook, outline, tone, CTA, hashtags, target audience ·
-      *Phase 4, not started*
+      *Phase 4 built and deployed; `save_brief` forces `draft`*
 - [x] Trend "why is this rising" summary · *built in Phase 2 — four sources,
-      `agent` / `model` / `cached` / `human`, each labelled on screen*
-- [x] Brief library with status transitions · *Phase 4, not started*
+      `agent` / `model` / `cached` / `human`, each labelled on screen. The
+      `model` source has still never been observed; see B6*
+- [x] Brief library with status transitions · *Phase 4 built and deployed;
+      forward-only machine, refusals carry `currentStatus`*
 
 ### Mocked (seeded fixtures, labelled `demo data` in the UI)
 
@@ -184,8 +194,11 @@ the moment anyone looks closely.
       summary has a *Write it yourself* textarea that saves as `human`, a *Run
       analysis* button that takes the same `runAnalysis()` path `analyze_trend`
       takes, and a *Clear*. The action is hand-driveable, not only the text.
-      Still `[ ]` because nothing is deployed, and because Phases 3–4 add
-      agent-writable fields that do not exist yet — re-check when they land.
+      Phases 3 and 4 have since landed and both hold the line: the product
+      editor is a full hand-editable form with human Save and a guarded delete,
+      and the brief composer's every field can be filled and saved with no agent
+      connected. Still `[ ]` only because the Trends and Products halves of that
+      claim are not on the deployed origin yet.
 
 ## 7. Design and Assets
 
@@ -196,14 +209,40 @@ the moment anyone looks closely.
       Stitch a different way does not close it.
 - [x] **Decide: Stitch-generated screens, or hand-built from the existing CSS?**
       Both, in that order. A Stitch project and design system were created
-      (`TrendDashboard Dark`, dark, Inter, 8px radii, seeded from `#aa3bff`) and
-      a Dashboard screen generated from it. What landed in the repo is the
-      resolved *token set* — the exact hex values the Stitch API returned —
-      transcribed into `src/index.css`, with the layout hand-built against the
-      generated screen. No generated markup was pasted: Stitch emits Tailwind,
-      and `plan/README.md` forbids new runtime dependencies.
+      (`TrendDashboard Dark`, dark, Inter, 8px radii, seeded from `#aa3bff`).
+      What landed in the repo is the resolved *token set* — the exact hex values
+      the Stitch API returned — transcribed into `src/index.css`, with the layout
+      hand-built against it. No generated markup was pasted: Stitch emits
+      Tailwind, and `plan/README.md` forbids new runtime dependencies.
+
+      **Re-verified against Stitch over MCP on 2026-09-03 23:05**, after three
+      more routes had been hand-built in parallel by different sessions. The
+      design system `assets/8039779349710605252` still resolves, and every token
+      in `src/index.css` still matches it exactly — background `#0d0e14`,
+      surfaces `#181921` / `#1d1f29` / `#232530`, text `#a9aab8` over `#e4e4f4`,
+      accent `#c890ff`, `demo data` amber `#f0a227`, `measured` teal `#4fe0cf`.
+      `App.css` holds exactly one raw hex in the file (`#000`, the video
+      letterbox); every other colour reads a custom property, which is why three
+      independently built routes look like one product.
+
+      **One correction:** an earlier sweep recorded a generated Dashboard screen.
+      `list_screens` on that project returns nothing — the project holds the
+      design system and no screens at all. Generating screens for the Trends and
+      Products routes was attempted twice over MCP at 23:05 and both calls timed
+      out with nothing created. This changes no decision and blocks nothing: the
+      decision recorded here is *token set from Stitch, layout hand-built*, and
+      the token set is verified above. Reference screens would have been a
+      convenience, not an input.
 - [x] **Palette and shell** — reuse the dark panel tokens already in
       `src/webmcp/ToolSurfacePanel.tsx` so the inspector does not look bolted on.
+- [x] **Standing rule for whoever runs the next phase: new UI starts from the
+      Stitch design system, over MCP.** Project `15263749367928268748`, design
+      system `assets/8039779349710605252`. Written into `plan/README.md`
+      § Execution Constraints and into the phase-runner template so it is read
+      at the top of every run rather than remembered. The rule binds the tokens,
+      not the layout — restyling or restructuring a screen afterwards is fine,
+      and only a deliberate departure from the design system needs a line in the
+      session log.
 
 ## 8. Demo and Recording
 
@@ -222,12 +261,22 @@ the moment anyone looks closely.
 - [x] README rewritten from the Vite template to the actual project — Phase 0.
       Phase 7 still adds the creation-window provenance paragraph
 - [ ] `data-testid` on every element the demo touches — on for everything built
-      so far (shell, panel rows, badges, and as of Phase 2 the whole Trends
-      surface: `trend-row-{id}`, `trend-detail`, `trend-summary`,
+      so far. Shell, panel rows and badges from Phases 0–1; the Trends surface
+      from Phase 2 (`trend-row-{id}`, `trend-detail`, `trend-summary`,
       `summary-source`, `clip-player`, `clip-signals-{clipId}`, plus the search,
-      filter, sort and watchlist controls). The rest go on as each component is
-      built, never in a later pass
+      filter, sort and watchlist controls); the Products surface from Phase 3
+      (`product-list`, `product-card-{id}`, `product-editor`, `close-product`,
+      `product-form-edit`, `product-usp-{n}`, `product-dos-{n}`,
+      `create-product`); and the Briefs surface from Phase 4 (`composer-trend`,
+      `composer-product`). Only Phase 5's routes are outstanding
+- [x] The merged tree builds and every route is reachable — `npm run build`
+      exits 0 and all six routes render with the surface counts 2 / 8 / 5 / 4 /
+      2 / 2. Added 2026-09-03 23:05: the parallel merges had silently dropped
+      the `trends` and `briefs` route branches and one type guard, and `main`
+      did not compile at all. Re-run both checks after every future merge
 - [ ] Vercel deploy verified from a cold browser, not just localhost —
-      **BLOCKING three phases now.** Phases 0, 1 and 2 are all code-complete and
-      all verified on `localhost:4173`; none can close until this happens
+      **BLOCKING four phases now, and the live URL is actively misleading.** The
+      deployed bundle predates Phase 2: a judge opening it today finds Trends and
+      Products as placeholders. Phases 0–4 are code-complete and verified on
+      `localhost:4173`; none can close until this happens
 - [ ] Submission entered on Devpost **by T-30m**, not at the deadline

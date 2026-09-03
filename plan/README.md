@@ -108,6 +108,25 @@ time than it saves.
 - **Invented and derived numbers are badged differently.** `demo data` on
   anything nobody observed; `measured` on anything a committed script derives
   from a file in the repo. Never both on one value, never neither.
+- **New UI starts from the Stitch design system, over MCP.** Project
+  `15263749367928268748`, design system `assets/8039779349710605252`
+  ("TrendDashboard Dark"). Read it before styling a new route, and generate a
+  reference screen for that route with `generate_screen_from_text` passing the
+  `designSystem` id. Hand-build the layout against it; never paste the generated
+  markup, because Stitch emits Tailwind and this repo takes no new runtime
+  dependencies.
+
+  **The screen is a reference, not a contract.** Rearranging the layout,
+  changing the structure, or adjusting a style afterwards is expected and needs
+  no permission. What the design system is actually protecting is narrower: all
+  colour comes from the custom properties in `src/index.css`, no raw hex enters
+  a component, and the two badges keep their pinned amber and teal. A deliberate
+  departure from the design system gets one line in the PROGRESS.md session log
+  — two are already recorded, and the reasoning in them is why the third will be
+  cheap to judge.
+
+  Three sessions hand-built three routes in parallel against these tokens and
+  the results look like one product. That is the whole return on this rule.
 - **`data-testid` goes on during the initial build**, not in a later pass. The
   later pass will not happen.
 - **Every tool call logs a `traceId`.** See `04-observability.md`.

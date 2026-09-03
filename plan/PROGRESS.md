@@ -539,3 +539,107 @@ only the same four pre-existing warnings in `src/webmcp/useTool.ts`.
 no visual or deployed-origin claim. Phase 3 remains `[ ]`, all five tool rows
 remain `[ ]`, and B10 records the push/merge plus public-origin checks still
 owned by the entrant.
+
+### 2026-09-03 23:05 WITA — cross-branch reconciliation audit
+
+Four phases were built in parallel on four branches and merged into `main`
+without anyone driving the merged tree. The merges were textually clean and
+semantically wrong, and **`main` did not compile**. This entry is the audit and
+the repair. Nothing is committed and nothing is pushed.
+
+**What the merges destroyed.** Each phase edited `src/App.tsx` and `src/types.ts`;
+git took one side per hunk and lost the other three, with no conflict to look at:
+
+- `RouteView` kept only Phase 1's dashboard branch plus Phase 3's `products`.
+  The `trends` and `briefs` branches were dropped, so `Trends.tsx`,
+  `TrendDetail.tsx` and `Briefs.tsx` were on disk, imported by nothing, and
+  **unreachable** — roughly 1,400 lines of the judged surface compiled out of
+  the app.
+- `App.tsx` still imported `./routes/CorpusCheck`, which Phase 2 deleted.
+- `types.ts` kept Phase 2's `CachedAnalysis` and Phase 4's `BRIEF_STATUSES` but
+  lost Phase 4's `isPlatform`, breaking `src/tools/briefs.ts` in three places.
+
+Five TypeScript errors, so `tsc -b` failed, so `npm run build` failed, so **no
+deploy of `main` could ever have succeeded.** That is why the live origin is
+stale rather than merely behind.
+
+**The repair, three edits.** `isPlatform` restored to `types.ts` beside
+`isBriefStatus`; `App.tsx` imports and routes `Trends`, `Products` and `Briefs`,
+and drops `CorpusCheck`; `PendingRouteName` narrowed to the two Phase 5 routes
+that are actually still pending. `npm run build` exits 0. `npx oxlint src api
+scripts` exits 0 with the same four pre-existing `src/webmcp/useTool.ts`
+warnings the phase files say not to touch.
+
+**Verified on `localhost:4173`, production build, cleared `localStorage`,
+through `window.__td` — the first time all four phases have been driven on one
+tree.** Surface counts: dashboard 2, trends 8, products 5, briefs 4, calendar 2,
+performance 2; opening a trend takes it to 12 and adds exactly
+`get_trend_detail`, `write_trend_summary`, `play_clip`, `analyze_trend`; opening
+a product adds `update_product` and `delete_product`; selecting both a trend and
+a product adds `get_brief_context` and `save_brief`. `td:version` is `2` and the
+fixture reseeds. `list_visible_trends` reports 24 of 24. `analyze_trend`
+degrades to `cached` and names `claude-opus-5`, which is correct with no
+function locally. `get_trend_detail` returns clip transcripts; `play_clip`
+accepts `seekS`. Products round-trips create → update → delete, 4 → 5 → 4, and
+rejects unknown fields by name (`unexpected field: price`) rather than silently
+ignoring them. `save_brief` with `status:'published'` injected still lands
+`draft`; the status machine allows draft → approved → published and refuses both
+draft → published and published → draft with `currentStatus` attached. The only
+console error is the local `/api/analyze` 404 that the `cached` fallback exists
+for; media returns 200 and 206.
+
+**Measured on the deployed origin, and this is the finding that matters.**
+`https://trend-lake.vercel.app` serves a bundle from *before* Phase 2:
+`td:version` is `1`, trends carry no `cached` field, the Phase 0 corpus panel is
+still under the dashboard, and `/trends`, `/products`, `/calendar` and
+`/performance` all render the Pending placeholder with the surface at 2. Only
+`/briefs` is real, where the surface goes 4 → 6 on selecting both pickers and
+`get_brief_context` returns the product USP and its three do-nots. So Phase 4 —
+the phase built out of order — is the *only* one with deployed evidence, purely
+because it reached `main` before Phase 2 did.
+
+**B6 re-diagnosed, and it is not the key.** `GET` and `POST` to `/api/analyze`
+were both aborted at twelve seconds from the live origin with no response.
+`GET` should return `405` immediately, doing no upstream work at all, so a
+provider timeout cannot explain it. `api/analyze.ts` default-exports a
+web-standard `(request: Request) => Promise<Response>` and declares no
+`export const config = { runtime: 'edge' }`; Vercel's Node runtime therefore
+calls it as `(req, res)`, discards the returned `Response`, and never ends the
+socket. Strong evidence, still a hypothesis — untested until something deploys.
+
+**Design provenance checked against Stitch, not assumed.** The Stitch project
+still holds the `TrendDashboard Dark` design system
+(`assets/8039779349710605252`), and every value transcribed into
+`src/index.css` still matches it exactly: background `#0d0e14`, surfaces
+`#181921` / `#1d1f29` / `#232530`, text `#a9aab8` over `#e4e4f4`, accent
+`#c890ff`, and the two badge colours the design brief pins — amber `#f0a227`
+for `demo data`, teal `#4fe0cf` for `measured`. `App.css` carries exactly one
+raw hex in the whole file (`#000`, the video letterbox); everything else reads
+a token. The routes three different sessions hand-built in parallel are
+visually consistent because they all went through those custom properties.
+**Correction to the 22:05 entry:** it records a Dashboard screen generated from
+the design system. `list_screens` on that project returns nothing — there are no
+screens, only the design system. Generating screens for the Trends and Products
+routes was attempted twice here and both calls timed out with nothing created,
+so the correction stands rather than being quietly fixed. It costs nothing: the
+recorded decision is *token set from Stitch, layout hand-built by hand*, and the
+token set is what was verified above.
+
+**Two rules written down rather than left as this session's knowledge.**
+`plan/README.md` § Execution Constraints and `plan/RUN-PHASE-PROMPT.md` now both
+carry them, so they are read at the top of every phase run:
+
+1. New UI starts from the Stitch design system over MCP — project
+   `15263749367928268748`, design system `assets/8039779349710605252`. The
+   generated screen is a *reference*, not a contract: rearranging or restyling
+   afterwards is expected. What the rule actually binds is colour — everything
+   through the `src/index.css` custom properties, no raw hex in a component —
+   and a deliberate departure earns one line in this log.
+2. Any branch that merges re-runs `npm run build` and counts the surface on all
+   six routes before claiming anything.
+
+**Prediction to check later.** The merge damage was invisible because nothing
+runs the app on merge. The same three files will collide again the moment Phase
+5 lands, and the next person will likely also see a clean merge. Before
+believing any future merge, run `npm run build` and count the surface on all six
+routes — the counts above are the reference.

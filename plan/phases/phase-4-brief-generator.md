@@ -6,16 +6,23 @@ The product. Everything before this exists to make this phase possible.
 
 ## Status
 
-- [ ] Composer: trend picker + product picker + brief form — done in code, both pickers + every field driven on `localhost:5173`, not deployed
-- [ ] `get_brief_context` and `save_brief` register on selection, not on route — done in code, surface 4→6 on selecting both, stays 6 after navigating to Products, 4 after deselecting either, not deployed
-- [ ] Library: search, filter by status/platform/date, sort — done in code, human controls + `search_briefs` filters verified, sorted newest-first, not deployed
-- [ ] Status machine enforced: `draft → approved → published`, forward only — done in code, all legal moves + `approved→draft` revise pass, `published→draft` rejected with `currentStatus`, not deployed
-- [ ] `save_brief` always lands as `draft` — done in code, injected `status:'published'` ignored, not deployed
-- [ ] Empty state explains the no-agent path and stays hand-editable — done in code, human filled every field and saved a `human`/`draft` brief with no agent, not deployed
+- [ ] Composer: trend picker + product picker + brief form — **live on the deployed origin**, both pickers populated (24 trends, 4 products) and driven there 2026-09-03 22:55
+- [ ] `get_brief_context` and `save_brief` register on selection, not on route — **verified on the deployed origin**: surface 4 → 6 on setting both pickers; `get_brief_context` returned the trend, the product USP and its three do-nots
+- [ ] Library: search, filter by status/platform/date, sort — `search_briefs` registered on the deployed origin; the filter behaviour re-verified locally, sorted newest-first
+- [ ] Status machine enforced: `draft → approved → published`, forward only — re-verified locally 23:05: draft → approved → published all pass; `draft → published` and `published → draft` both refused with `currentStatus` attached
+- [ ] `save_brief` always lands as `draft` — re-verified locally 23:05, injected `status:'published'` still landed `draft`
+- [ ] Empty state explains the no-agent path and stays hand-editable — done in code, human filled every field and saved a `human`/`draft` brief with no agent
 
-Every box stays `[ ]` for the same reason every Phase 0 and 1 box does:
-`plan/README.md` defines `[x]` as *deployed*, and nothing is on a public origin
-yet. The annotations say what was verified and where.
+Every box stays `[ ]` because `plan/README.md` defines `[x]` as *deployed* and
+this phase is only half-deployed: it is on the live bundle, but that bundle
+predates Phases 2 and 3, so the composer's trend cross-links still land on a
+placeholder route. The annotations say what was verified and where.
+
+**Phase 4 is, by accident, the only phase with deployed evidence.** It reached
+`main` before Phase 2 did, so the last build that succeeded contains it and not
+them. That is worth stating plainly rather than reading as a quality signal:
+this phase is not further along than Phase 2, it is just luckier about merge
+order.
 
 **Built out of order, on instruction.** Phase 4 was run on branch `phase4`
 (cut from the `phase 1` commit) before Phases 2 and 3 exist, on the user's call

@@ -6,9 +6,17 @@ The first of the three phases that carry the judged surface.
 
 ## Status
 
-`[x]` means deployed, per `plan/README.md`. Nothing is deployed yet — B2 is
-still open — so every box below is `[ ]` with the true state written beside it.
-All eight are code-complete and verified on `localhost:4173`.
+`[x]` means deployed, per `plan/README.md`. B2 is closed — a live URL exists —
+but **this phase is not on it.** The deployed bundle predates Phase 2: measured
+on the public origin 2026-09-03 23:00, `/trends` renders the Pending placeholder,
+the surface stays at 2, and `td:version` is still `1`. So every box below is
+still `[ ]`, and the reason has changed from "nothing is deployed" to "this is
+the one thing that has not been".
+
+All eight are code-complete and re-verified on `localhost:4173` at 23:05, after
+the cross-branch merge repair. That repair matters here: the merge had dropped
+`App.tsx`'s `trends` branch entirely, so `Trends.tsx` and `TrendDetail.tsx` were
+compiled out of the app and nothing on this list was reachable at all.
 
 - [ ] Trend table: keyword, volume, growth %, platform, category, sparkline —
       *built (`src/routes/Trends.tsx`), not deployed*
@@ -25,8 +33,11 @@ All eight are code-complete and verified on `localhost:4173`.
 - [ ] `play_clip` starts the drawer's player — *verified, including the refusal
       and the seek clamp, not deployed*
 - [ ] `analyze_trend` writes a `model` or `cached` summary, labelled as such —
-      *`cached` verified locally; the `model` path needs the deployed function
-      and `GEMINI_API_KEY` (B6), so it is unverified end to end*
+      *`cached` re-verified locally 23:05, returning `source: 'cached'` and
+      `model: 'claude-opus-5'` on a 404 from the absent local function. The
+      `model` path has still never executed anywhere; B6 now reads as a Vercel
+      runtime mismatch rather than a missing key, so this is unverified end to
+      end and may stay that way*
 
 ## Tasks
 

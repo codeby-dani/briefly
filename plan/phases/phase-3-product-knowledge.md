@@ -6,11 +6,19 @@ The "real" half of the feature split, and the context that makes briefs good.
 
 ## Status
 
-- [ ] Product list and detail — implemented and locally verified; awaiting deployment
-- [ ] Create, update, delete by hand — implemented; deployed browser confirmation pending
-- [ ] `list_products`, `get_product`, `create_product` on the route — contract verified locally; awaiting deployment
-- [ ] `update_product`, `delete_product` when a product is open — 5/7 surface logic verified locally; awaiting deployment
-- [ ] Do-and-do-not lists are first-class, not a notes field — array row controls render locally; awaiting deployment
+- [ ] Product list and detail — implemented; re-verified in a real browser 2026-09-03 23:05, four seeded cards, editor opens on click. Not deployed
+- [ ] Create, update, delete by hand — implemented; the agent-side round trip runs 4 → 5 → 4 in a browser. Not deployed
+- [ ] `list_products`, `get_product`, `create_product` on the route — surface is 5 on Products, verified in a browser. Not deployed
+- [ ] `update_product`, `delete_product` when a product is open — both appear on open and disappear on close, verified in a browser. Not deployed
+- [ ] Do-and-do-not lists are first-class, not a notes field — `product-usp-{n}` / `product-dos-{n}` row controls render, and `get_brief_context` hands the do-not list to the agent as an array. Not deployed
+
+The earlier verification here was `scripts/verify-phase3.mjs`, an isolated Vite
+SSR harness, because no browser was available that session. It has now been
+confirmed the ordinary way, in a browser against the production build, and the
+two agree. One thing the harness could not have caught: the merge that brought
+this phase into `main` also dropped `App.tsx`'s `trends` and `briefs` branches
+and a type guard, leaving the tree unable to compile — the products route was
+correct and the app around it was not.
 
 ## Tasks
 
