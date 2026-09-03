@@ -1,5 +1,9 @@
 # Briefly
 
+<p align="center">
+  <img src="public/brand/briefly-official-logo.png" alt="Briefly" width="420" />
+</p>
+
 ![License](https://img.shields.io/badge/License-MIT-7b2cbf?style=flat-square)
 ![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?style=flat-square&logo=vite&logoColor=white)
@@ -9,7 +13,7 @@
 ![Challenge](https://img.shields.io/badge/Google%20x%20Devpost-WebMCP%20Challenge-0f7490?style=flat-square)
 
 <p align="center">
-  <img src="public/brand/briefly-readme-banner.svg" alt="Briefly — The model perceives. Code decides. You confirm." width="100%" />
+  <img src="public/brand/briefly-readme-banner.svg" alt="Briefly — Trend signals, made actionable." width="100%" />
 </p>
 
 > **briefly** · Turn trend research and business context into grounded content briefs.
