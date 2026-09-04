@@ -274,6 +274,32 @@ data ships in the repo, so every screen is populated on first load.
 
 ## Using it with an agent
 
+### Where the tools are reachable today
+
+`document.modelContext` is a Chrome 149+ feature and ships enabled in exactly
+one place today, so the tools are reachable three ways rather than one:
+
+| Environment | How | Needs a flag |
+|---|---|---|
+| **ChatGPT desktop app** | Open the URL in its built-in browser and ask what it can do here. | no |
+| **Chrome 149+** | `chrome://flags/#enable-webmcp-testing` → Enabled → restart. | yes |
+| **Claude, or any agent that can run JavaScript on the page** | Use the `window.__td` bridge below. | no |
+
+**Reproduce it in Chrome (native WebMCP).** Install Chrome 149 or newer, visit
+`chrome://flags/#enable-webmcp-testing`, set it to **Enabled** and restart. Open
+<https://briefly-1.vercel.app/>: the "this browser cannot see the native
+surface" notice disappears once `document.modelContext` exists, and the panel
+reports the native surface instead of `BRIDGE ACTIVE`. Ask the agent *"What can
+you do on this page?"* and it should list the tools registered for the current
+route.
+
+**Reproduce it in the ChatGPT desktop app.** Load the same URL in its built-in
+browser — WebMCP is on by default, nothing to configure — then ask *"What tools
+does this page give you?"* and walk it through the workflow above.
+
+**Reproduce it with Claude, or with no agent at all.** Use the bridge below from
+DevTools or from any agent that can run JavaScript on the page.
+
 Agent access depends on what the browser and host expose. Briefly supports two
 paths, both backed by the same tool definitions:
 
@@ -308,6 +334,71 @@ renders whichever surface is live, and every tool row carries a paste-ready
 `callTool` line with a copy button — required arguments filled in from the
 tool's own schema, so driving the app from the DevTools console needs no
 hand-assembly from JSON Schema.
+
+### The same workflow, from the console
+
+The walkthrough above, as a runnable script. Paste it into DevTools on the live
+app; every step is visible on screen as it happens, and the surface counts it
+prints are the ones in the table under [Why WebMCP](#why-webmcp).
+
+```js
+const call = (name, args = {}) => window.__td.callTool(name, args)
+const surface = () => window.__td.listTools().length
+
+// 1. Orient. Always first: it reports route, selection and counts.
+await call('get_app_state')
+await call('get_overview')
+surface()                                             // 5
+
+// 2. Go where the trend tools live. The surface grows from 5 to 14.
+await call('navigate_to', { route: 'trends' })
+await call('search_trends', { query: 'skin barrier repair' })
+const { trends } = await call('list_visible_trends', {})
+
+// 3. Open one trend. Six more tools appear while the detail is open.
+await call('open_trend', { trendId: trends[0].id })
+surface()                                             // 20
+await call('get_trend_detail', {})
+
+// 4. Write your own reasoning back onto the trend the human is looking at.
+await call('write_trend_summary', {
+  summary: 'Short-form routine content is outpacing product-led posts.',
+  suggestedAngles: ['Cost of a 12-step routine', 'Three-step version', 'Before and after'],
+})
+
+// 5. Ground the brief in the business. get_business_profile is registered on
+//    the profile route only, so navigate first — route scoping in practice.
+await call('navigate_to', { route: 'products' })
+const profile = await call('get_business_profile', {})
+await call('select_offering', { offeringId: profile.offerings[0].id })
+
+// 6. With a trend AND an offering selected, the composer tools appear.
+await call('navigate_to', { route: 'briefs' })
+surface()                                             // 9
+const ctx = await call('get_brief_context', {})
+
+// 7. Save. It lands in the library as a draft, not in a chat transcript.
+const saved = await call('save_brief', {
+  title: 'Routine-first skincare angle',
+  hook: 'Nobody needs a twelve-step routine.',
+  outline: ['Open on the cost', 'Show the three-step version', 'Close on results'],
+  tone: 'direct, practical',
+  cta: 'Read the routine guide',
+  hashtags: ['skincare', 'routine'],
+  audience: 'Working adults who want fewer products',
+})
+saved.status                                          // 'draft'
+
+// 8. Put it on the calendar, then read back what the surface recorded.
+await call('navigate_to', { route: 'calendar' })
+await call('schedule_brief', { briefId: saved.briefId, date: '2026-09-20' })
+await call('get_tool_trace', {})
+```
+
+Skip the `navigate_to` in step 5 and the call returns
+`{ ok: false, reason: 'no such tool: get_business_profile', known: [...] }`
+rather than throwing — an unregistered tool is a recoverable answer, not a
+crash, and `known` tells the agent what it *can* call from here.
 
 ## Configuration
 
