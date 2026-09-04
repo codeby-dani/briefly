@@ -1,138 +1,138 @@
-# Devpost Submission — Briefly
+## Inspiration
 
-Paste this into the Devpost form. Fields marked **Fill in** need entrant-only
-evidence and are intentionally blank.
+A trending keyword is easy to find. A useful content brief is harder. You need
+the source material, the right audience, the product you actually want to sell,
+and a clear list of what the business can and cannot claim.
 
-## Project details
+We kept thinking about the annoying part of this workflow: why do we still copy
+a trend from one dashboard, open the product notes somewhere else, explain all
+of it again in a chat, then copy the answer back into a document? Every move
+loses a little context.
 
-| Field | Value |
-|---|---|
-| Project name | Briefly |
-| Tagline | Content research and brief writing, with an AI agent that works the exact surface a human is viewing. |
-| Live app | https://briefly-1.vercel.app |
-| Source code | https://github.com/codeby-dani/briefly |
-| Demo video | **Fill in:**  |
-| Devpost project URL | **Fill in:**  |
+So we built Briefly around one idea. What if the agent works in the same
+workspace as the person, understands what they are looking at right now, and
+writes the result back into the actual workflow?
 
-## Elevator pitch
+## What it does
 
-Briefly lets content teams research trends, bring in business context, and
-co-write briefs with an AI agent that sees and acts on the same app state.
+Briefly puts trend discovery, business context, content briefs, a calendar, and
+performance examples in one browser workspace.
 
-## Description
+The flow is simple. A person opens a trend, reads its source material, and
+chooses a business offering. Once both are selected, the agent can read the
+full context and write a draft into the brief library. The person can inspect
+the draft, create their own version in the composer, change its workflow
+status, or schedule it on the local calendar.
 
-### The problem
+This is where WebMCP matters. Briefly does not give the agent one giant static
+list of tools. Its tool surface changes with the interface. Open a trend and
+the detail tools appear. Open the business-profile editor and the editing tools
+appear. Select both a trend and an offering and `get_brief_context`,
+`generate_brief`, and `save_brief` become available. Remove either selection
+and those tools disappear again.
 
-Content teams lose context when moving between a trend dashboard, product
-notes, an AI chat, and a brief document. A person must repeatedly copy the
-trend, find the relevant product details, restate brand constraints, and paste
-the result back somewhere useful. That is slow, error-prone, and makes human
-review happen after the important context has already been lost.
+There are 37 tool definitions in the app, but they are not exposed all at once.
+The point is not the number. The point is that the right tool appears when the
+person and the agent have enough context to use it.
 
-### The solution
+The current prototype uses seeded trend and performance data. It does not fetch
+live social metrics, prove engagement growth, or publish anything to a social
+platform. A "published" status in Briefly is local planning state, not a real
+network post. Saved briefs can be inspected and moved through the workflow,
+but their content cannot yet be edited in place from the library.
 
-Briefly keeps trend research, a business profile, content briefs, a calendar,
-and performance context in one workspace. A connected agent works alongside
-the person rather than beside the product: it can inspect the selected trend,
-read the brand's offerings and do-not-say guidance, and save a drafted brief
-into the library. The human selects the trend and product, edits the result, and
-controls publishing.
+## How we built it
 
-### Why WebMCP
+The frontend is built with React 19, TypeScript, and Vite. We kept the runtime
+small: React + React DOM are the only runtime packages. Browser-local stores
+hold the briefs, business profile, watchlist, calendar, and tool traces.
 
-The useful context is view state: the trend currently open, the business
-offering currently selected, and the brief's current workflow state. WebMCP
-exposes that state as structured tools instead of requiring the human to
-reconstruct it in a prompt. The tool surface is state-dependent: the dashboard
-has the two global tools; Trends adds its trend tools; opening a trend adds
-detail, playback, and summary tools; and brief-composer tools appear only when
-both a trend and offering are selected. Closing that context removes those
-tools again.
+WebMCP tools register through `document.modelContext.registerTool`. Their
+lifecycle follows the same React route and selection state that controls the
+interface. The human controls and agent tools call the same store functions, so
+when the agent navigates or saves a draft, the person sees it happen on screen.
 
-This makes the collaboration legible. The page provides grounded facts and
-capabilities, the agent supplies reasoning and draft content, and the human
-remains accountable for the final decision. In particular, `save_brief` creates
-a draft and cannot publish it.
+We also built a local console bridge that exposes the same schemas and executor
+functions in browsers without native WebMCP support. It is useful for
+development and inspection, but we do not treat bridge access as proof of a
+native WebMCP flow.
 
-### Honest demo data
+Two optional Vercel endpoints use Gemini for trend analysis and draft
+generation. The core agent flow does not depend on them. A connected agent can
+read the context, write the brief itself, and save the draft through
+`save_brief`.
 
-Briefly separates demonstration data from measured evidence. Trend volumes,
-growth, engagement, and analytics are invented for the demo and carry a `demo
-data` badge. The 12 cc0 clips are self-generated and their duration, word
-count, speaking rate, and hook length are derived from the encoded files by a
-committed script; those values carry a `measured` badge. The app does not present
-invented metrics as observed data.
+The interface uses CSS custom properties with warm off-white surfaces and
+oxidized-iron accents. We added committed checks for tool contracts, surface
+changes, important UI states, and the production build.
 
-## How it was built
+## Challenges we ran into
 
-- React 19 and TypeScript for the single-page application
-- Vite 8 for local development and production builds
-- WebMCP through `document.modelContext`, with `AbortSignal` lifecycles so tools
-  register and disappear with app state
-- A local `window.__td` bridge exposing the same schemas and executors for
-  JavaScript-capable agents without native WebMCP support
-- Local React-compatible stores persisted in browser `localStorage`; no database
-- Vercel hosting with same-origin serverless endpoints `/api/analyze` and `/api/brief`
-- Gemini, called only from the two serverless endpoints (`/api/analyze`,
-  `/api/brief`); both degrade to a structured 503 with no key, and neither can
-  publish — every draft still passes through `save_brief`
-- CSS custom properties transcribed from the Stitch reference set checked into
-  `FE-design-stitch-reference/`;
-  no new runtime UI dependencies
-- A committed clip-measurement script and 12 cc0 clips from the author's
-  ClipBrief corpus
+The hardest part was not registering a tool. It was deciding when that tool
+should exist.
 
-## Key implementation details
+A static catalog looked complete, but in practice it gave the agent actions
+that could not succeed yet. Briefly had to track the route, the open trend, the
+selected offering, and whether an editor was open. That is what made the tool
+surface feel connected to the product instead of attached on top of it.
 
-- Tool calls return structured data, never prose, and each call receives a
-  trace ID recorded in a bounded local event log.
-- User-authored fields are marked as untrusted content for agents.
-- Mutating tools are designed to be idempotent where their semantics permit it.
-- The app works manually without an agent: agent-writable fields are also
-  editable in the UI.
-- The deployment sends `Permissions-Policy: tools=(self)`.
+Host compatibility was another real problem. Some WebMCP hosts support tool
+registration but do not provide the event-listener methods the inspector first
+expected. We changed the inspector so native registration stays intact while
+its discovery view can fall back to the local registry.
 
-## Challenges
+We also had to be strict about what this prototype proves. Seeded metrics are
+not customer results. Local workflow state is not social publishing. The
+optional deployed model endpoints still need repair and a full retest, and
+some captured cover images still need documented permission or replacement.
+Hiding those limitations would make the demo sound stronger, but the product
+less trustworthy.
 
-The main design challenge was avoiding a static, overloaded agent tool list.
-The implementation ties registration to route and selection state so an agent
-is not offered an operation that cannot succeed. A second challenge was being
-honest about a seeded hackathon dataset without making the experience feel like
-a mockup; the separate `demo data` and `measured` badges make the boundary
-visible.
+## Accomplishments that we're proud of
+
+We are proud that the demo is not just a chat response beside a dashboard. The
+agent can navigate the same workspace, read the selected context, and leave a
+real draft inside the library for the person to review.
+
+The app now has 37 state-dependent tool definitions across eight tested surface
+states. It covers discovery, business context, brief creation, scheduling,
+performance, and the trace log. Human controls and agent calls share the same
+stores, so the two paths do not quietly create different versions of the app.
+
+We are also proud of the less visible work. `generate_brief` returns an unsaved
+draft. `save_brief` always creates a draft. Tool calls receive trace IDs, and
+the agent can inspect the same trace log shown to the person. The tool-contract
+suite currently passes 51 checks, including invalid inputs, refusal paths,
+idempotent operations, and recovery actions.
 
 ## What we learned
 
-WebMCP is most useful when it represents what a person is doing now, not when
-it mirrors a generic backend API. State-scoped tools reduce agent ambiguity,
-and writing agent output into the product's existing workflow makes the result
-reviewable and durable.
+More tools do not automatically make a better agent experience. Sometimes the
+best tool is the one that stays hidden until the context is ready.
 
-## What is next
+We learned that human and agent parity also goes both ways. If the person can
+add something to a watchlist, stop a video, correct a calendar entry, or inspect
+a failed action, the agent needs a safe way to do that too. Creation alone is
+not enough. The agent needs to read, undo, and recover.
 
-- Replace seeded trend metrics with a transparent, consented data source.
-- Add account connections and real performance ingestion.
-- Expand collaboration history so teams can review agent actions and human
-  edits together.
-- Validate the WebMCP flow across more native agent browsers as support grows.
+We also learned to separate saving from deciding. `save_brief` creates a draft,
+but another tool can still move its local status forward. That means Briefly is
+not a human-only approval system yet. Being precise about that distinction is
+important, especially in a demo where a local "published" label can easily be
+mistaken for a real post.
 
-## Submission evidence to add manually
+## What's next for Briefly
 
-| Item | Value |
-|---|---|
-| Public YouTube URL | **Fill in:**  |
-| Video duration | **Fill in:**  |
-| Audio playback checked | **Fill in:** yes / no |
-| Signed-out video check | **Fill in:** yes / no |
-| ChatGPT in-app browser check | **Fill in:** date and result |
-| Chrome 149+ testing-flag check | **Fill in:** date and result |
-| Devpost submission confirmation | **Fill in:** URL or confirmation text |
-| Entrant eligibility confirmations | **Fill in:**  |
+First, we want to replace the seeded trend data with a transparent source of
+real data and test whether Briefly actually saves time for content teams.
 
-## Licence and provenance
+Second, we want to add authentication, shared persistence, and proper review
+permissions so a team can see who changed a brief and who approved it.
 
-The application is MIT licensed. The project was created during the WebMCP
-Challenge submission window. The clip corpus is reused media from the author's
-own public ClipBrief repository: each clip is recorded as cc0 and self-generated
-(author-written script, macOS text-to-speech, generated footage). No
-third-party media is used.
+Third, we need to finish the unglamorous but necessary work: repair and retest
+the deployed Gemini endpoints, resolve or replace the cover images with missing
+permissions, and test the full workflow across more native WebMCP hosts.
+
+The bigger goal is still the same. We want the agent to understand the work
+that is already happening on screen, help at the right moment, and leave
+something useful behind when the conversation ends.

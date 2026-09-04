@@ -5,8 +5,8 @@
 <h1 align="center">Briefly</h1>
 
 <p align="center">
-  <strong>Turn trend research and business context into grounded content briefs —
-  with an AI agent working the same screen the human is.</strong>
+  <strong>From rising trends to on-brand content briefs.<br />
+  One shared workspace. 37 context-aware WebMCP tools.</strong>
 </p>
 
 <p align="center">
@@ -14,6 +14,7 @@
   <img alt="React 19" src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=white" />
   <img alt="Vite 8" src="https://img.shields.io/badge/Vite-8-646cff?style=flat-square&logo=vite&logoColor=white" />
   <img alt="AI surface: WebMCP" src="https://img.shields.io/badge/AI%20surface-WebMCP-a855f7?style=flat-square" />
+  <a href="#all-37-webmcp-tools"><img alt="37 context-aware tools" src="https://img.shields.io/badge/WebMCP%20tools-37-AB2B0A?style=flat-square" /></a>
   <img alt="Analysis: Gemini" src="https://img.shields.io/badge/Analysis-Gemini-4285f4?style=flat-square&logo=googlegemini&logoColor=white" />
   <img alt="Deployed on Vercel" src="https://img.shields.io/badge/Deployed-Vercel-111111?style=flat-square&logo=vercel&logoColor=white" />
   <img alt="Google x Devpost WebMCP Challenge" src="https://img.shields.io/badge/Google%20x%20Devpost-WebMCP%20Challenge-0f7490?style=flat-square" />
@@ -21,9 +22,11 @@
 
 <p align="center">
   <a href="https://briefly-1.vercel.app/"><strong>Live app</strong></a> ·
+  <a href="https://youtu.be/fb9YCsPUoVA"><strong>Watch the demo</strong></a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#why-webmcp">Why WebMCP</a> ·
   <a href="#using-it-with-an-agent">Use it with an agent</a> ·
+  <a href="#all-37-webmcp-tools">37-tool reference</a> ·
   <a href="#architecture">Architecture</a>
 </p>
 
@@ -33,8 +36,7 @@
 |---|---|
 | **Live app** | <https://briefly-1.vercel.app/> |
 | **Source** | <https://github.com/codeby-dani/briefly> |
-| **Demo video** | _add the public YouTube link here (under 3 minutes)_ |
-| **Devpost entry** | _add the Devpost project URL here_ |
+| **Demo video** | [Watch Briefly in action on YouTube](https://youtu.be/fb9YCsPUoVA) |
 | **Built for** | [The WebMCP Challenge](https://webmcp.devpost.com) |
 | **Licence** | [MIT](LICENSE) |
 
@@ -42,6 +44,8 @@
 
 - [Overview](#overview)
 - [Why WebMCP](#why-webmcp)
+- [Try the core workflow](#try-the-core-workflow)
+- [All 37 WebMCP tools](#all-37-webmcp-tools)
 - [Screens](#screens)
 - [Quick start](#quick-start)
 - [Using it with an agent](#using-it-with-an-agent)
@@ -51,6 +55,7 @@
 - [Design system](#design-system)
 - [Media and attribution](#media-and-attribution)
 - [Project status](#project-status)
+- [Verification](#verification)
 - [Licence](#licence)
 
 ## Overview
@@ -60,9 +65,15 @@ profile, and brief writing happen in one place — and where a connected AI agen
 works the same surface the human does, over
 [WebMCP](https://github.com/webmachinelearning/webmcp).
 
-The page does not do the reasoning. It exposes what the human is looking at as
-tools; the agent reads that context and writes results back into the app, so the
-brief lands in the library rather than in a chat transcript.
+Briefly gives an agent structured access to the same context and controls a
+person uses. Read the business profile, explore a trend, propose a brief, and
+save the result into the library. The agent can do the reasoning itself; optional
+server-side model calls support analysis and drafting.
+
+**The key idea: the tool surface follows the work.** Open a trend to expose its
+detail tools. Open the profile editor to expose editing tools. Select a trend
+and an offering to expose the three brief-composer tools. Close that context,
+and those tools leave the surface.
 
 **In one workspace**
 
@@ -73,7 +84,7 @@ brief lands in the library rather than in a chat transcript.
 | `#/products` | **Profile** | The business profile — offerings, audience, and do-not-say guidance |
 | `#/briefs` | **Content Briefs** | A composer scoped to a trend + offering, and the brief library |
 | `#/calendar` | **Content Calendar** | Scheduling, status chips, and CSV export |
-| `#/performance` | **Performance** | Analytics context for what already shipped |
+| `#/performance` | **Performance** | Seeded analytics and CSV export for exploring content performance |
 
 Alongside all six, a tool surface panel renders whatever the agent can currently
 call, with a paste-ready `callTool` line per tool.
@@ -87,57 +98,159 @@ do-not-say rules from memory, then pastes the answer back somewhere useful. The
 grounding is retyped every time, and the output lands in a transcript instead of
 in the product.
 
-**Why this is a WebMCP use case and not an API.** The context that matters here
-is *view state*: the trend open right now, the offering just selected, the
-brief's current workflow status. A backend API cannot see any of it. WebMCP can,
-because the page itself publishes the tools — so the agent reads what the human
-is looking at instead of asking them to describe it.
+**Why expose tools from the page?** The useful context is *view state*: the trend
+open right now, the offering just selected, the editor the human opened.
+Briefly registers tools against that state, so the agent can work with structured
+inputs and results instead of reconstructing context from screenshots or asking
+the person to copy it into a prompt.
 
 **What people and agents can now do together.** The agent inspects the open
 trend, reads the business profile and its do-not-say guidance, and writes a
-brief straight into the library, where the human edits and publishes it. The
-person keeps selection and publication: `save_brief` creates a draft and cannot
-publish one. The result is reviewable and durable because it lives in the
-product's own workflow.
+brief into the library for review. `save_brief` always creates a draft. Approval
+and publication status are separate actions; neither saving nor generating a
+brief posts anything to a social platform.
 
 **How the surface is implemented.** Registration is tied to route and selection
 state through `AbortSignal` lifecycles, so the surface is never a flat list of
 everything — it grows and shrinks with the view:
 
-| View | Tools on the surface |
+| View or state | Registered tools, including the 4 global tools |
 |---|---|
 | Dashboard | 5 |
-| Trends Discovery | 14 |
+| Trends Discovery, detail closed | 14 |
+| Trends Discovery, detail open | 20 |
+| Profile, editor closed / open | 5 / 9 |
 | Content Briefs | 6 |
-| **Defined in total** | **37** |
+| Content Calendar | 9 |
+| Performance | 6 |
+| Trend **and** offering selected | Add 3 to any count above |
+| **Unique tool definitions across the application** | **37** |
 
 Brief-composer tools appear only once both a trend and an offering are selected,
 and disappear when that context closes. Tools return structured data rather than
 prose, every call carries a trace ID into a bounded local event log, and
-user-authored fields are marked as untrusted content for agents.
+tools that return user-authored context carry untrusted-content annotations.
+
+## Try the core workflow
+
+1. **Ground the work.** Open **Profile** and review Lumen Skin's audience, voice,
+   offerings, and claim limits. Ask the agent to read `get_business_profile`.
+2. **Choose a signal.** Open **Trends Discovery** and search for `skin barrier
+   repair`. Open the trend to inspect its details and sample clips.
+3. **Connect it to the business.** Select **Barrier Reset Serum**. With both
+   selections present, `get_brief_context`, `generate_brief`, and `save_brief`
+   become available.
+4. **Draft, then review.** Ask for a brief grounded in that context. The agent
+   can propose the fields itself or request the optional model-backed draft.
+   Review the proposal before asking it to save.
+5. **Keep the result.** `save_brief` creates a draft in **Content Briefs**.
+   Review its status separately, then use **Content Calendar** to plan a slot.
+
+Watch the tool panel during these steps: the available tools change with the
+page state. A proposal in chat is not a saved brief; confirm the saved record in
+the library. Local records persist in the same browser's `localStorage`.
+
+## All 37 WebMCP tools
+
+The table lists **unique tool names**, not simultaneous registrations. **Scope**
+means when the app registers the tool. The three selection-scoped tools live at
+the app root and remain available across routes while both selections exist.
+`search_briefs` is shared by two routes but counted once.
+
+| # | Tool | Scope | What it does |
+|---|---|---|---|
+| 1 | `get_app_state` | Global · every route | Reads the current route, selections, record counts, and active trend filters. |
+| 2 | `navigate_to` | Global · every route | Opens one of the six workspace sections. |
+| 3 | `select_offering` | Global · every route | Selects a business offering by ID, or clears the selection with `null`. |
+| 4 | `get_tool_trace` | Global · every route | Reads the bounded local call log; filters by tool, trace ID, or failures. |
+| 5 | `get_overview` | Dashboard | Summarizes rising trends, recent briefs, brief statuses, and upcoming schedule entries. |
+| 6 | `search_trends` | Trends Discovery | Changes the visible trend search query. |
+| 7 | `filter_trends` | Trends Discovery | Filters trends by platform, category, first-seen dates, and minimum growth. |
+| 8 | `sort_trends` | Trends Discovery | Changes the trend list's sort field and direction. |
+| 9 | `list_visible_trends` | Trends Discovery | Reads the trends matching the current search, filters, and sort. |
+| 10 | `open_trend` | Trends Discovery | Selects a trend and opens its detail view. |
+| 11 | `save_to_watchlist` | Trends Discovery | Adds a trend to the watchlist. |
+| 12 | `remove_from_watchlist` | Trends Discovery | Removes a trend from the watchlist without deleting the trend. |
+| 13 | `list_watchlist` | Trends Discovery | Reads saved watchlist trends. |
+| 14 | `set_watchlist_only` | Trends Discovery | Toggles whether the visible list is restricted to saved trends. |
+| 15 | `reset_trend_view` | Trends Discovery | Resets the trend view's search, filters, sort, and watchlist-only setting. |
+| 16 | `get_trend_detail` | Trends Discovery · detail open | Reads the open trend's metrics, clips, summary, and related context. |
+| 17 | `write_trend_summary` | Trends Discovery · detail open | Saves an agent-written explanation and suggested content angles for the open trend. |
+| 18 | `clear_trend_summary` | Trends Discovery · detail open | Clears the open trend's saved analysis. |
+| 19 | `play_clip` | Trends Discovery · detail open | Plays a clip attached to the open trend, optionally seeking to a start time. |
+| 20 | `stop_clip` | Trends Discovery · detail open | Stops and unloads the current clip player. |
+| 21 | `analyze_trend` | Trends Discovery · detail open | Requests server-side trend analysis; can fall back to a labelled cached summary. |
+| 22 | `get_business_profile` | Profile | Reads the business narrative, audience, voice, goals, claim limits, and offerings. |
+| 23 | `update_business_profile` | Profile · editor open | Patches shared business fields; refuses execution when the editor is closed. |
+| 24 | `add_business_offering` | Profile · editor open | Adds a structured offering with positioning, price, selling points, and claim limits. |
+| 25 | `update_business_offering` | Profile · editor open | Patches an existing offering by its exact ID. |
+| 26 | `remove_business_offering` | Profile · editor open | Removes an offering by its exact ID. |
+| 27 | `get_brief_context` | Any route · trend + offering selected | Reads the selected trend, offering, business context, and related briefs for drafting. |
+| 28 | `generate_brief` | Any route · trend + offering selected | Requests a model-backed draft from `/api/brief`; does not save it. |
+| 29 | `save_brief` | Any route · trend + offering selected | Validates brief fields and saves a new draft tied to the current selection. |
+| 30 | `search_briefs` | Content Briefs + Content Calendar | Looks up stored briefs by text, status, platform, and update dates; returns IDs for follow-up actions. |
+| 31 | `update_brief_status` | Content Briefs | Applies allowed local lifecycle transitions: draft → approved → published, or approved → draft. |
+| 32 | `schedule_brief` | Content Calendar | Adds or updates a slot for an existing brief and date, with platform, owner, and status. |
+| 33 | `list_schedule` | Content Calendar | Reads schedule entries with optional date, platform, status, and brief filters. |
+| 34 | `set_schedule_status` | Content Calendar | Changes a calendar entry's status without changing the brief's own status. |
+| 35 | `unschedule_brief` | Content Calendar | Removes a calendar slot while keeping the brief in the library. |
+| 36 | `get_performance` | Performance | Reads seeded performance metrics, content rankings, and posting-hour data. |
+| 37 | `export_performance` | Performance | Returns performance data as CSV, optionally filtered by platform. |
+
+Definitions: [global](src/tools/global.ts), [trends](src/tools/trends.ts),
+[business profile](src/tools/businessProfile.ts), [briefs](src/tools/briefs.ts),
+[schedule](src/tools/schedule.ts), [analytics](src/tools/analytics.ts), and
+[observability](src/tools/observability.ts). Registration is wired in
+[App.tsx](src/App.tsx) and the [route components](src/routes/).
+
+### Workflow boundaries
+
+- **Drafting is not saving.** `generate_brief` returns a proposal;
+  `save_brief` creates a draft record.
+- **Draft-only saving is not a human-only approval gate.** The separate
+  `update_brief_status` tool can change status. Agents should request the user's
+  approval before doing so; the app does not enforce a separate reviewer identity.
+- **Published is a local status.** Brief and schedule status changes do not
+  publish to TikTok, Instagram, YouTube, or X.
+- **Availability is contextual, not authentication.** Route and editor scoping
+  make the tool surface relevant to the current task; they are not an account
+  permission system.
 
 ## Screens
 
-<table>
-  <tr>
-    <td width="50%"><img src="docs/screenshots/dashboard.png" alt="Briefly dashboard with the tool surface panel open" /></td>
-    <td width="50%"><img src="docs/screenshots/trends.png" alt="Trends Discovery with filters and the watchlist" /></td>
-  </tr>
-  <tr>
-    <td><strong>Dashboard</strong> — the workspace overview, with the live tool surface panel on the right. 5 tools.</td>
-    <td><strong>Trends Discovery</strong> — 24 seeded trends, filters, sort and watchlist. 14 tools.</td>
-  </tr>
-  <tr>
-    <td colspan="2"><img src="docs/screenshots/briefs.png" alt="Brief composer and library" /></td>
-  </tr>
-  <tr>
-    <td colspan="2"><strong>Content Briefs</strong> — the composer is scoped to a trend and an offering; the library holds what has been written. 6 tools.</td>
-  </tr>
-</table>
+### Business Context Built In
+
+![Lumen Skin business profile with audience, brand voice, content goals, and offerings](docs/screenshots/business-profile.png)
+
+Give agents the business context behind every brief: audience, brand voice, content goals, and structured offerings.
+
+### Discover What's Rising
+
+![Trends Discovery showing filters and 24 demo trends](docs/screenshots/trends.png)
+
+Explore and filter 24 seeded trends by platform, category, volume, and growth. Trend metrics shown are demo data.
+
+### An Agent That Understands Your Business
+
+![Agent summarizing the Lumen Skin profile alongside the business profile page](docs/screenshots/agent-business-context.jpeg)
+
+The agent summarizes the business audience, offerings, voice, and claim limits before working on a brief.
+
+### From Selected Context to a Brief Proposal
+
+![Agent proposing a TikTok brief beside the composer with a trend and offering selected](docs/screenshots/agent-brief-proposal.jpeg)
+
+With a trend and offering selected, the agent proposes a hook, outline, and call to action for review. This screenshot shows a proposal in chat, not a saved brief.
+
+### Campaigns in One Library
+
+![Demo skincare campaign library with draft, approved, and published status labels](docs/screenshots/campaign-library.jpeg)
+
+Browse seeded campaign examples by audience, platform, offering, and workflow status. These demo labels do not indicate actual social-platform publication.
 
 ## Quick start
 
-Requires Node 20+ and npm.
+Requires Node **20.19+ or 22.12+** (Vite's supported engine ranges) and npm.
 
 ```bash
 git clone https://github.com/codeby-dani/briefly.git
@@ -155,26 +268,28 @@ data ships in the repo, so every screen is populated on first load.
 | `npm run build` | Type-check and production build — must exit 0 |
 | `npm run preview` | Serve the production build locally |
 | `npm run lint` | oxlint |
-| `npm run verify:tools` | Drive every tool's input validation |
+| `npm run verify:tools` | Run tool-validation and workflow regression checks |
 | `npm run verify:dashboard` | Render-level checks on the dashboard |
 | `npm run verify:brand` | Check brand assets resolve |
 
 ## Using it with an agent
 
-`document.modelContext` is a Chrome 149+ feature and ships enabled in exactly
-one place today, so the tools are reachable three ways rather than one:
+Agent access depends on what the browser and host expose. Briefly supports two
+paths, both backed by the same tool definitions:
 
-| Environment | How | Needs a flag |
+| Path | Requirement | How to inspect it |
 |---|---|---|
-| **ChatGPT desktop app** | Open the URL in its built-in browser and ask what it can do here. | no |
-| **Chrome 149+** | `chrome://flags/#enable-webmcp-testing` → Enabled → restart. | yes |
-| **Claude, or any agent that can run JavaScript on the page** | Use the `window.__td` bridge below. | no |
+| **Native WebMCP** | A browser exposing `document.modelContext.registerTool` and a host that makes page tools available to the agent | Inspect the active tool panel and the agent's available tools. |
+| **Local JavaScript bridge** | DevTools, or an agent capable of executing JavaScript in the loaded page | Call `window.__td.listTools()` and `window.__td.callTool(...)`. |
+
+An active badge in the page does not by itself prove that an external agent can
+discover its tools. If the host does not expose them, use the bridge with a
+compatible page-execution environment. The bridge is not a remote MCP server.
 
 ### The bridge
 
-Claude has no WebMCP-native browser today, so every tool registers twice: with
-`document.modelContext` where that exists, and always with a small local
-registry at `window.__td`.
+Every active tool registers with the local registry at `window.__td`, and with
+`document.modelContext` when the native API is available.
 
 ```js
 window.__td.describe()                      // what this surface is
@@ -196,8 +311,10 @@ hand-assembly from JSON Schema.
 
 ## Configuration
 
-Everything runs without configuration. Two serverless endpoints call Gemini's
-free tier and degrade cleanly when no key is present.
+The frontend and agent-authored workflow run without an API key. Two optional
+serverless endpoints use Gemini for model-backed analysis and draft generation.
+Calls require a configured key and are subject to the provider's access and usage
+limits.
 
 ```bash
 cp .env.example .env.local   # then add GEMINI_API_KEY
@@ -210,6 +327,11 @@ cp .env.example .env.local   # then add GEMINI_API_KEY
 
 On Vercel the key belongs in the project's environment variables and **never**
 in a committed file.
+
+`npm run dev` serves the Vite frontend; it does not run the Vercel functions in
+`api/`. Adding a local key alone will not start those endpoints. Use an
+environment that serves the functions for model-backed requests, or have the
+connected agent write summaries and brief fields directly.
 
 | Endpoint | Backs | Behaviour with no key |
 |---|---|---|
@@ -279,25 +401,48 @@ Two deliberate departures from the reference:
 
 ## Media and attribution
 
-The 12 clips in `public/media/` come from
-[ClipBrief](https://github.com/aliefauzan/ClipBrief), a public repo by the same
-author. Every clip is `cc0` and self-generated — script written by the author,
-voiced with macOS text-to-speech, over generated footage. No third-party media
-is used anywhere in this project.
+The [clip fixture metadata](src/fixtures/clips.ts) attributes 12 clips to
+[ClipBrief](https://github.com/aliefauzan/ClipBrief), labels them `cc0`, and
+describes generated footage with macOS text-to-speech. This attribution applies
+to that clip corpus, not automatically to every thumbnail or image in the repo.
+The screenshots above were supplied for the project documentation; third-party
+platform marks and content visible within them retain their respective rights.
 
 ## Project status
 
-Every product feature is built and live. Trends, Product Knowledge, the brief
-composer and library, Calendar and Performance are all on the live URL, and all
-37 tools register against it. The bundle the live origin serves is the bundle
-`npm run build` produces from this commit, so nothing on screen is behind the
-source. The deployment sends `Permissions-Policy: tools=(self)`.
+This repository contains six workspace routes and **37 unique WebMCP tool
+definitions**. The public demo is linked above; a local build or source audit
+does not establish which commit is currently deployed.
 
-Briefly was created during the WebMCP Challenge submission window; its git
-history begins on 2026-09-03 with commit `ebe1b8a`, and every line under `src/`
-is new work from that window. The only reused material is the author's own cc0
-clip corpus described above — not application code, and not a pre-existing
-product.
+Current boundaries:
+
+- Trends, campaign examples, and analytics include seeded demo data—not a live
+  trend ingestion or social analytics service.
+- User records persist locally in the browser. There is no account system,
+  shared database, or cross-device synchronization.
+- Scheduling and publication statuses are local planning features, not social
+  platform integrations.
+- Server-side generation requires a working API deployment and model access.
+
+The Git history starts on September 3, 2026, at `ebe1b8a`. See
+[plan/PROGRESS.md](plan/PROGRESS.md) for the development record; historical
+phase notes are not a substitute for current test or deployment evidence.
+
+## Verification
+
+Run these from the repository root after installing dependencies:
+
+```bash
+npm run lint
+npm run build
+npm run verify:tools
+npm run verify:brand
+```
+
+For a browser-level smoke check, walk through [the core workflow](#try-the-core-workflow):
+confirm that tools appear and disappear with state, save a draft, reload to check
+persistence, and inspect the tool trace. Test native agent discovery separately
+from the JavaScript bridge; success on one path does not verify the other.
 
 ## Licence
 
