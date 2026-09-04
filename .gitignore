@@ -31,3 +31,6 @@ dist-ssr
 
 # Left behind by the Netlify → Vercel move in Phase 0. Local build cache, never committed.
 .netlify/
+
+# Playwright MCP session artifacts (screenshots are committed under docs/, these are not)
+.playwright-mcp/

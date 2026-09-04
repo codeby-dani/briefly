@@ -1,4 +1,4 @@
-# Devpost Submission — Anglebook
+# Devpost Submission — Briefly
 
 Paste this into the Devpost form. Fields marked **Fill in** need entrant-only
 evidence and are intentionally blank.
@@ -7,16 +7,16 @@ evidence and are intentionally blank.
 
 | Field | Value |
 |---|---|
-| Project name | Anglebook |
+| Project name | Briefly |
 | Tagline | Content research and brief writing, with an AI agent that works the exact surface a human is viewing. |
-| Live app | https://trend-lake.vercel.app |
-| Source code | https://github.com/codeby-dani/TrendDashboard |
+| Live app | https://briefly-1.vercel.app |
+| Source code | https://github.com/codeby-dani/briefly |
 | Demo video | **Fill in:**  |
 | Devpost project URL | **Fill in:**  |
 
 ## Elevator pitch
 
-Anglebook lets content teams research trends, bring in business context, and
+Briefly lets content teams research trends, bring in business context, and
 co-write briefs with an AI agent that sees and acts on the same app state.
 
 ## Description
@@ -31,7 +31,7 @@ review happen after the important context has already been lost.
 
 ### The solution
 
-Anglebook keeps trend research, a business profile, content briefs, a calendar,
+Briefly keeps trend research, a business profile, content briefs, a calendar,
 and performance context in one workspace. A connected agent works alongside
 the person rather than beside the product: it can inspect the selected trend,
 read the brand's offerings and do-not-say guidance, and save a drafted brief
@@ -56,7 +56,7 @@ a draft and cannot publish it.
 
 ### Honest demo data
 
-Anglebook separates demonstration data from measured evidence. Trend volumes,
+Briefly separates demonstration data from measured evidence. Trend volumes,
 growth, engagement, and analytics are invented for the demo and carry a `demo
 data` badge. The 12 cc0 clips are self-generated and their duration, word
 count, speaking rate, and hook length are derived from the encoded files by a
@@ -72,10 +72,12 @@ invented metrics as observed data.
 - A local `window.__td` bridge exposing the same schemas and executors for
   JavaScript-capable agents without native WebMCP support
 - Local React-compatible stores persisted in browser `localStorage`; no database
-- Vercel hosting and a same-origin serverless `/api/analyze` endpoint
-- Gemini, called only from that server endpoint for the optional trend-analysis
-  path; brief generation remains agent-authored
-- CSS custom properties based on the TrendDashboard Dark Stitch design system;
+- Vercel hosting with same-origin serverless endpoints `/api/analyze` and `/api/brief`
+- Gemini, called only from the two serverless endpoints (`/api/analyze`,
+  `/api/brief`); both degrade to a structured 503 with no key, and neither can
+  publish — every draft still passes through `save_brief`
+- CSS custom properties transcribed from the Stitch reference set checked into
+  `FE-design-stitch-reference/`;
   no new runtime UI dependencies
 - A committed clip-measurement script and 12 cc0 clips from the author's
   ClipBrief corpus
